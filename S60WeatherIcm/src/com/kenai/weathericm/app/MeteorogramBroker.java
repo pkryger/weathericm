@@ -1,0 +1,347 @@
+/*
+ *  Copyright (C) 2010 Przemek Kryger
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package com.kenai.weathericm.app;
+
+import com.kenai.weathericm.util.StatusListener;
+import com.kenai.weathericm.util.StatusReporter;
+import com.kenai.weathericm.util.Status;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+//#mdebug
+import net.sf.microlog.core.Logger;
+import net.sf.microlog.core.LoggerFactory;
+//#enddebug
+import com.kenai.weathericm.domain.MeteorogramInfo;
+import com.kenai.weathericm.repository.MeteorogramInfoDao;
+
+/**
+ * This is responsible for the conntrolling the application flow for {@link MeteorogramInfo}
+ * persistance, and gathering the meteorogram info data.
+ * @author Przemek Kryger
+ */
+public class MeteorogramBroker implements StatusListener {
+
+//#mdebug
+    /**
+     * The logger for class.
+     */
+    private final static Logger log = LoggerFactory.getLogger(MeteorogramBroker.class);
+//#enddebug
+    /**
+     * The {@link MeteorogramBroker} singleton instance.
+     */
+    private static MeteorogramBroker instance = null;
+    /**
+     * The {@link MeteorogramInfoDao} instance.
+     */
+    private MeteorogramInfoDao dao = null;
+    /**
+     * All the registerd {@link MeteorogramBrokerListener}s instances.
+     */
+    private final Vector listeners = new Vector();
+    /**
+     * The map that contains {@link MeteorogramInfo} to a corresponding
+     * {@link ForecastDownloadCancellableTask}s mapping.
+     */
+    private Hashtable infoToDownloadTask = new Hashtable();
+
+    /**
+     * Private constructor for singleton safety.
+     */
+    private MeteorogramBroker() {
+//#mdebug
+        log.info("Created MeteorogramBroker instance");
+//#enddebug
+    }
+
+    /**
+     * Getter for a singleton instance.
+     * @return the {@link MeteorogramBroker} instance.
+     */
+    public static MeteorogramBroker getInstance() {
+        if (instance == null) {
+            instance = new MeteorogramBroker();
+        }
+        return instance;
+    }
+
+    /**
+     * @return the dao
+     */
+    public MeteorogramInfoDao getDao() {
+        return dao;
+    }
+
+    /**
+     * @param dao the dao to set
+     */
+    public void setDao(MeteorogramInfoDao dao) {
+        this.dao = dao;
+    }
+
+    /**
+     * Gets all the registered {@link MeteorogramBrokerListener}s.
+     * @return the {@link Vector} that contains all registered listeners.
+     */
+    protected Vector getListeners() {
+        Vector retValue = null;
+        synchronized (listeners) {
+            retValue = new Vector(listeners.size());
+            Enumeration listenersEnum = listeners.elements();
+            while (listenersEnum.hasMoreElements()) {
+                Object listener = listenersEnum.nextElement();
+                retValue.addElement(listener);
+            }
+        }
+        return retValue;
+    }
+
+    /**
+     * Registers the new {@code listener}.
+     * @param listener the {@link MeteorogramBrokerListener} to register.
+     */
+    public void addListener(MeteorogramBrokerListener listener) {
+        if (listener == null) {
+            return;
+        }
+        synchronized (listeners) {
+            if (!listeners.contains(listener)) {
+                listeners.addElement(listener);
+            }
+        }
+//#mdebug
+        log.debug("Listener added");
+//#enddebug
+    }
+
+    /**
+     * Removes the {@code listener}.
+     * @param listener the {@link MeteorogramBrokerListener} to remove.
+     */
+    public void removeListener(MeteorogramBrokerListener listener) {
+        if (listener != null) {
+            synchronized (listeners) {
+                if (listeners.contains(listener)) {
+                    listeners.removeElement(listener);
+                }
+            }
+        }
+//#mdebug
+        log.debug("Listener removed");
+//#enddebug
+    }
+
+    /**
+     * Notifies all the {@link MeteorogramBrokerListener}s in {@value #listeners}
+     * that {@code newCachedMeteorogramInfos} has been read from DAO.
+     * @param newCachedMeteorogramInfos the {@link Vector} that contains read 
+     *                                  {@link MeteorogramInfo}s.
+     */
+    protected void fireReadMeteorogramInfo(Vector newCachedMeteorogramInfos) {
+//#mdebug
+        log.info("Notifying: infos have been read from store!");
+//#enddebug
+        synchronized (listeners) {
+            Enumeration e = getListeners().elements();
+            while (e.hasMoreElements()) {
+                MeteorogramBrokerListener listener = (MeteorogramBrokerListener) e.nextElement();
+                listener.readMeteorogramInfo(newCachedMeteorogramInfos);
+            }
+        }
+    }
+
+    /**
+     * Notifies all the {@link MeteorogramBrokerListener}s in {@value #listeners}
+     * that {@code addedMeteorogramInfo} has been added to DAO.
+     * @param addedMeteorogramInfo the {@link MeteorogramInfo} that has been added.
+     */
+    protected void fireAddedMeteorogramInfo(MeteorogramInfo addedMeteorogramInfo) {
+//#mdebug
+        log.info("Notifying: info has been added to store");
+//#enddebug
+        synchronized (listeners) {
+            Enumeration e = getListeners().elements();
+            while (e.hasMoreElements()) {
+                MeteorogramBrokerListener listener = (MeteorogramBrokerListener) e.nextElement();
+                listener.addedMeteorogramInfo(addedMeteorogramInfo);
+            }
+        }
+    }
+
+    /**
+     * Notifies all the {@link MeteorogramBrokerListener}s in {@value #listeners}
+     * that {@code deletedMeteorogramInfo} has been deleted from DAO.
+     * @param deletedMeteorogramInfo the {@link MeteorogramInfo} that has been deleted.
+     */
+    protected void fireDeletedMeteorogramInfo(MeteorogramInfo deletedMeteorogramInfo) {
+//#mdebug
+        log.info("Notifying: info has been deleted from store");
+//#enddebug
+        synchronized (listeners) {
+            Enumeration e = getListeners().elements();
+            while (e.hasMoreElements()) {
+                MeteorogramBrokerListener listener = (MeteorogramBrokerListener) e.nextElement();
+                listener.deletedMeteorogramInfo(deletedMeteorogramInfo);
+            }
+        }
+    }
+
+    /**
+     * Notifies all the {@link MeteorogramBrokerListener}s in {@value #listeners}
+     * that {@code addedMeteorogramInfo} has been updated in DAO.
+     * @param updatedMeteorogramInfo the {@link MeteorogramInfo} that has been updated.
+     */
+    protected void fireUpdatedMeteorogramInfo(MeteorogramInfo updatedMeteorogramInfo) {
+//#mdebug
+        log.info("Notifying: info has been updated in store");
+//#enddebug
+        synchronized (listeners) {
+            Enumeration e = getListeners().elements();
+            while (e.hasMoreElements()) {
+                MeteorogramBrokerListener listener = (MeteorogramBrokerListener) e.nextElement();
+                listener.updatedMeteorogramInfo(updatedMeteorogramInfo);
+            }
+        }
+    }
+
+    /**
+     * Request for this broker to read all {@link MeteorogramInfo}s from DAO.
+     */
+    public void readAllMeteorogramInfos() {
+        Thread reader = new Thread() {
+
+            public void run() {
+//#mdebug
+                log.info("Reading all infos from DAO");
+//#enddebug
+                Vector meteorogramInfos = dao.readAll();
+                fireReadMeteorogramInfo(meteorogramInfos);
+            }
+        };
+        reader.start();
+    }
+
+    /**
+     * Creates the given {@code info} in DAO.
+     * @param info the {@link MeteorogramInfo} to be created.
+     */
+    public void createMeteorogramInfo(final MeteorogramInfo info) {
+        Thread creator = new Thread() {
+
+            public void run() {
+//#mdebug
+                log.info("Creating info in DAO: " + info);
+//#enddebug
+                dao.create(info);
+                fireAddedMeteorogramInfo(info);
+            }
+        };
+        creator.start();
+    }
+
+    /**
+     * Updates the given {@code info} in DAO.
+     * @param info the {@link MeteorogramInfo} to be updated.
+     */
+    public void updateMeteorogramInfo(final MeteorogramInfo info) {
+        Thread updater = new Thread() {
+
+            public void run() {
+//#mdebug
+                log.info("Updating info in DAO: " + info);
+//#enddebug
+                dao.update(info);
+                fireUpdatedMeteorogramInfo(info);
+            }
+        };
+        updater.start();
+    }
+
+    /**
+     * Deletes the given {@code info} from DAO.
+     * @param info the {@link MeteorogramInfo} to be delted.
+     */
+    public void deleteMeteorogramInfo(final MeteorogramInfo info) {
+        Thread deleter = new Thread() {
+
+            public void run() {
+//#mdebug
+                log.info("Deleting info from DAO: " + info);
+//#enddebug
+                dao.delete(info);
+                fireDeletedMeteorogramInfo(info);
+            }
+        };
+        deleter.start();
+    }
+
+    /**
+     * Gets the the task that downloads forecast for a given info. In case there
+     * already is a task that downloads forecast for a given info, it is returned.
+     * Otherwise a new task is created.
+     * @param info the {@link MeteorogramInfo} that needs a task to perform a download.
+     * @return the {@link ForecastDownloadCancellableTask} that performs a download.
+     */
+    public ForecastDownloadCancellableTask getDownloadTask(MeteorogramInfo info) {
+//#mdebug
+        log.info("Getting a downaload task for info: " + info);
+//#enddebug
+        ForecastDownloadCancellableTask task =
+                (ForecastDownloadCancellableTask) infoToDownloadTask.get(info);
+        if (task == null) {
+//#mdebug
+            log.debug("Creating a new download task for info: " + info);
+//#enddebug
+            task = new ForecastDownloadCancellableTask(info);
+            infoToDownloadTask.put(info, task);
+        }
+        task.addListener(this);
+        return task;
+    }
+
+    /**
+     * When one of the {@link ForecastDownloadCancellableTask}s finishes it's downloading
+     * it's removed from mapping. It's done whenever {@code status} is one of:
+     * {@value Status#CANCELLED} or {@value Status#FINISHED}.
+     * @param source the {@link StatusReporter} that triggered the event.
+     * @param status the {@link Status} that describes the status.
+     * @throws NullPointerException when either {@code source} or {@code status} is {@code null}.
+     */
+    public void statusUpdate(StatusReporter source, Status status) {
+        if (status == null || source == null) {
+//#mdebug
+            log.fatal("Status and/or source is null: status = " + status
+                    + ", source = " + source);
+//#enddebug
+            throw new NullPointerException("Cannot update status for task if one of them is null!");
+        } else if (!(source instanceof ForecastDownloadCancellableTask)) {
+//#mdebug
+            log.error("Someone strange reports to broker: " + source);
+//#enddebug
+        } else if (status == Status.CANCELLED
+                || status == Status.FINISHED) {
+            ForecastDownloadCancellableTask task = (ForecastDownloadCancellableTask)source;
+            MeteorogramInfo info = task.getInfo();
+            if (status == Status.FINISHED) {
+                fireUpdatedMeteorogramInfo(info);
+            }
+            infoToDownloadTask.remove(info);
+        }
+    }
+}
