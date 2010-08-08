@@ -80,4 +80,23 @@
             </target>
 
             -->
+    <target name="post-build">
+        <property name="build.message.dir" value="${build.dir}/message"/>
+        <property name="dist.message.jar" value="S60WeatherIcm-${deployment.number}.jar"/>
+        <property name="message.manifest.file" value="${build.dir}/message-${manifest.file}" />
+        <mkdir dir="${build.message.dir}" />
+        <delete file="${message.manifest.file}" failonerror="false" />
+        <nb-output file="${message.manifest.file}" encoding="UTF-8" append="true">Distribution-Package: 1.0
+</nb-output>
+        <nb-output file="${message.manifest.file}" encoding="UTF-8" append="true">Distribution-Descriptor-Filename: ${dist.jad}
+</nb-output>
+        <nb-output file="${message.manifest.file}" encoding="UTF-8" append="true">Distribution-Content-Filename: ${dist.jar}
+</nb-output>
+        <copy file="${dist.dir}/${dist.jad}" todir="${build.message.dir}" overwrite="true" />
+        <copy file="${dist.dir}/${dist.jar}" todir="${build.message.dir}" overwrite="true" />
+        <jar compress="${jar.compress}" jarfile="${dist.dir}/${dist.message.jar}" manifest="${message.manifest.file}" manifestencoding="UTF-8">
+            <fileset dir="${build.message.dir}"/>
+        </jar>
+    </target>
+
 </project>
