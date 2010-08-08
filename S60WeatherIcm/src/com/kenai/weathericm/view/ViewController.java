@@ -43,8 +43,6 @@ import com.kenai.weathericm.view.validation.MeteorogramInfoDataValidator;
 
 /**
  * This is the main view controller for the application.
- * @todo add user friendly location browser/searcher.
- * @todo add GPS Location based location browser.
  * @author Przemek Kryger
  */
 public class ViewController extends MIDlet implements

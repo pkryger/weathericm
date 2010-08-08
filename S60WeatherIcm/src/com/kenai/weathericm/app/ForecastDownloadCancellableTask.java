@@ -185,8 +185,8 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
 //#enddebug
                 progress = 0;
                 myThread = Thread.currentThread();
-                int priority = (Thread.NORM_PRIORITY - 1) > Thread.MIN_PRIORITY ?
-                    Thread.NORM_PRIORITY - 1: Thread.MIN_PRIORITY;
+                int priority = (Thread.NORM_PRIORITY - 1) > Thread.MIN_PRIORITY
+                        ? Thread.NORM_PRIORITY - 1 : Thread.MIN_PRIORITY;
                 try {
                     myThread.setPriority(priority);
                 } catch (SecurityException ex) {
@@ -210,9 +210,7 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             log.info(this + ": Reading start data...");
 //#enddebug
             //@todo the start data downloading and parsing shall be extracted to
-            //      a separate class. Need to design how to pass the progress
-            //      back and forth. Idea: extract ForecastDownload* to upper common
-            //      level (let's make abstract class that notifies listeners about progress)
+            //      a separate class. - start here
             String startUrl = typeProperties.getProperty(START_URL_KEY);
             if (startUrl == null) {
 //#mdebug
@@ -267,9 +265,7 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             setProgress(percent = 9);
             Thread.yield();
             //@todo the image data downloading shall be extracted to
-            //      a separate class. Need to design how to pass the progress
-            //      back and forth. Idea: extract ForecastDownload* to upper common
-            //      level (let's make abstract class that notifies listeners about progress)
+            //      a separate class.
             String imageUrl = createForecastDataUrl(modelStartDate, typeProperties);
             connection = (HttpConnection) Connector.open(imageUrl);
             dis = connection.openDataInputStream();
