@@ -186,7 +186,7 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
                 progress = 0;
                 myThread = Thread.currentThread();
                 int priority = (Thread.NORM_PRIORITY - 1) > Thread.MIN_PRIORITY ?
-                    Thread.NORM_PRIORITY : Thread.MIN_PRIORITY;
+                    Thread.NORM_PRIORITY - 1: Thread.MIN_PRIORITY;
                 try {
                     myThread.setPriority(priority);
                 } catch (SecurityException ex) {
