@@ -26,6 +26,7 @@ import com.kenai.weathericm.view.validation.NewEditMeteorogramInfoFormData;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.microedition.lcdui.ChoiceGroup;
+import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.List;
@@ -70,7 +71,8 @@ import static org.powermock.api.easymock.PowerMock.expectPrivate;
     "javax.microedition.lcdui.Canvas",
     "javax.microedition.lcdui.Font",
     "org.netbeans.microedition.lcdui.AbstractInfoScreen",
-    "org.netbeans.microedition.lcdui.WaitScreen"})
+    "org.netbeans.microedition.lcdui.WaitScreen",
+    "javax.microedition.lcdui.Command"})
 @PrepareForTest(ViewController.class)
 public class ViewControllerTest {
 
@@ -88,6 +90,9 @@ public class ViewControllerTest {
     private WaitScreen waitScreenMock = null;
     private Image avaliableImage = null;
     private Image notAvaliableImage = null;
+    private Command showCommandMock = null;
+    private Command editCommandMock = null;
+    private Command deleteCommandMock = null;
     MeteorogramBroker brokerMock = null;
     MeteorogramInfoDataValidator validatorMock = null;
     private final static String INFO_TO_INDEX_NAME = "infoToMainListIndex";
@@ -105,7 +110,8 @@ public class ViewControllerTest {
                 "getNewEditForm", "getNameTextField",
                 "getXTextField", "getYTextField", "getModelChoiceGroup",
                 "getForecastAvaliableImage", "getForecastNotAvaliableImage",
-                "isDownloadWaitScreenVisible");
+                "isDownloadWaitScreenVisible",
+                "getShowCommand", "getEditCommand", "getDeleteCommand");
         mainListMock = createMock(List.class);
         newEditFormMock = createMock(Form.class);
         nameTextFieldMock = createMock(TextField.class);
@@ -115,6 +121,9 @@ public class ViewControllerTest {
         avaliableImage = createMock(Image.class);
         notAvaliableImage = createMock(Image.class);
         waitScreenMock = createMock(WaitScreen.class);
+        showCommandMock = createMock(Command.class);
+        editCommandMock = createMock(Command.class);
+        deleteCommandMock = createMock(Command.class);
         mockStatic(MeteorogramBroker.class);
         brokerMock = createMock(MeteorogramBroker.class);
         validatorMock = createMock(MeteorogramInfoDataValidator.class);
@@ -131,6 +140,15 @@ public class ViewControllerTest {
         String name0 = "b";
         String name1 = "a";
         mainListMock.deleteAll();
+        expect(fixture.getShowCommand()).andReturn(showCommandMock).times(2);
+        mainListMock.removeCommand(showCommandMock);
+        mainListMock.addCommand(showCommandMock);
+        expect(fixture.getEditCommand()).andReturn(editCommandMock).times(2);
+        mainListMock.removeCommand(editCommandMock);
+        mainListMock.addCommand(editCommandMock);
+        expect(fixture.getDeleteCommand()).andReturn(deleteCommandMock).times(2);
+        mainListMock.removeCommand(deleteCommandMock);
+        mainListMock.addCommand(deleteCommandMock);
         expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage).times(2);
         expect(mainListMock.append(name1, notAvaliableImage)).andReturn(position1);
         expect(mainListMock.append(name0, notAvaliableImage)).andReturn(position0);
@@ -151,6 +169,23 @@ public class ViewControllerTest {
     }
 
     @Test
+    public void readMeteorogramInfoEmptyCollection() {
+        mainListMock.deleteAll();
+        expect(fixture.getShowCommand()).andReturn(showCommandMock);
+        mainListMock.removeCommand(showCommandMock);
+        expect(fixture.getEditCommand()).andReturn(editCommandMock);
+        mainListMock.removeCommand(editCommandMock);
+        expect(fixture.getDeleteCommand()).andReturn(deleteCommandMock);
+        mainListMock.removeCommand(deleteCommandMock);
+        Vector data = new Vector(0);
+        replayAll();
+        fixture.readMeteorogramInfo(data);
+        Hashtable internalInfoToIndexactualInfos = Whitebox.getInternalState(fixture, INFO_TO_INDEX_NAME);
+        assertThat(internalInfoToIndexactualInfos.size(), equalTo(0));
+        verifyAll();
+    }
+
+    @Test
     public void readMeteorogramInfoNull() {
         replayAll();
         fixture.readMeteorogramInfo(null);
@@ -160,11 +195,17 @@ public class ViewControllerTest {
     }
 
     @Test
-    public void addedMeteorogramInfoNotInList() {
+    public void addedMeteorogramInfoNotInListFirst() {
         int position = 7;
         String name = "c";
         expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage);
         expect(mainListMock.append(name, notAvaliableImage)).andReturn(position);
+        expect(fixture.getShowCommand()).andReturn(showCommandMock);
+        mainListMock.addCommand(showCommandMock);
+        expect(fixture.getEditCommand()).andReturn(editCommandMock);
+        mainListMock.addCommand(editCommandMock);
+        expect(fixture.getDeleteCommand()).andReturn(deleteCommandMock);
+        mainListMock.addCommand(deleteCommandMock);
         MeteorogramInfo info = new MeteorogramInfo();
         info.setName(name);
         replayAll();
@@ -175,10 +216,29 @@ public class ViewControllerTest {
     }
 
     @Test
+    public void addedMeteorogramInfoNotInListNotFirst() {
+        int position = 7;
+        String name = "c";
+        expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage);
+        expect(mainListMock.append(name, notAvaliableImage)).andReturn(position);
+        Hashtable internalInfoToIndex = new Hashtable(1);
+        MeteorogramInfo info = new MeteorogramInfo();
+        internalInfoToIndex.put(info, new Integer(3));
+        Whitebox.setInternalState(fixture, INFO_TO_INDEX_NAME, internalInfoToIndex);
+        MeteorogramInfo newInfo = new MeteorogramInfo();
+        newInfo.setName(name);
+        replayAll();
+        fixture.addedMeteorogramInfo(newInfo);
+        internalInfoToIndex = Whitebox.getInternalState(fixture, INFO_TO_INDEX_NAME);
+        assertThat((Integer) internalInfoToIndex.get(newInfo), equalTo(position));
+        verifyAll();
+    }
+
+    @Test
     public void addedMeteorogramInfoInList() {
         Hashtable internalInfoToIndex = new Hashtable(1);
         MeteorogramInfo info = new MeteorogramInfo();
-        int position = 7;
+        int position = 33;
         internalInfoToIndex.put(info, new Integer(position));
         Whitebox.setInternalState(fixture, INFO_TO_INDEX_NAME, internalInfoToIndex);
         replayAll();
@@ -201,6 +261,12 @@ public class ViewControllerTest {
         internalInfoToIndex.put(info, new Integer(position));
         Whitebox.setInternalState(fixture, INFO_TO_INDEX_NAME, internalInfoToIndex);
         mainListMock.delete(position);
+        expect(fixture.getShowCommand()).andReturn(showCommandMock);
+        mainListMock.removeCommand(showCommandMock);
+        expect(fixture.getEditCommand()).andReturn(editCommandMock);
+        mainListMock.removeCommand(editCommandMock);
+        expect(fixture.getDeleteCommand()).andReturn(deleteCommandMock);
+        mainListMock.removeCommand(deleteCommandMock);
         replayAll();
         fixture.deletedMeteorogramInfo(info);
         internalInfoToIndex = Whitebox.getInternalState(fixture, INFO_TO_INDEX_NAME);

@@ -199,16 +199,25 @@ public class ViewController extends MIDlet implements
         mainList.addCommand(getLogCommand());
         mainList.setCommandListener(this);
         mainList.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
-        mainList.setSelectCommand(null);
+        mainList.setSelectCommand(getShowCommand());
         mainList.setSelectedFlags(new boolean[] {  });//GEN-END:|0-initialize|1|0-postInitialize
         // write post-initialize user code here
-        boolean debug = true;
+        // This may looks a little bit odd, but this is a workaround for
+        // NetBeans debug settings vs. sceen handling.
+        boolean hideLog = true;
 //#mdebug
-        debug = false;
+        hideLog = false;
 //#enddebug
-        if (!debug) {
+        if (hideLog) {
             mainList.removeCommand(logCommand);
         }
+        // The show, edit and delete commands (info related) need to be left in
+        // design, so NetBeans knows how to handle them in commandAction, however
+        // they are not needed unless there is some info's read. Let's remove
+        // them for a while.
+        mainList.removeCommand(getShowCommand());
+        mainList.removeCommand(getEditCommand());
+        mainList.removeCommand(getDeleteCommand());
         broker = MeteorogramBroker.getInstance();
         broker.addListener(this);
         broker.readAllMeteorogramInfos();
@@ -1216,6 +1225,10 @@ public class ViewController extends MIDlet implements
             log.info("Populating main list with new meteorogram data");
 //#enddebug
             mainList.deleteAll();
+            // Let's remove info related commands for a while
+            mainList.removeCommand(getShowCommand());
+            mainList.removeCommand(getEditCommand());
+            mainList.removeCommand(getDeleteCommand());
             infoToMainListIndex = new Hashtable(newMeteorogramInfos.size());
             Enumeration infos = newMeteorogramInfos.elements();
             while (infos.hasMoreElements()) {
@@ -1224,6 +1237,12 @@ public class ViewController extends MIDlet implements
                         ? getForecastAvaliableImage() : getForecastNotAvaliableImage();
                 int position = mainList.append(info.getName(), icon);
                 infoToMainListIndex.put(info, new Integer(position));
+            }
+            // Restore info related commands if there was an info added.
+            if (!infoToMainListIndex.isEmpty()) {
+                mainList.addCommand(getShowCommand());
+                mainList.addCommand(getEditCommand());
+                mainList.addCommand(getDeleteCommand());
             }
         } else {
 //#mdebug
@@ -1242,10 +1261,20 @@ public class ViewController extends MIDlet implements
 //#mdebug
             log.info("Adding info to the list: " + addedMeteorogramInfo);
 //#enddebug
+            // If now the list is empty then we'll need to add info related
+            // commands (check before adding, so in case of parallel execution
+            // at least one of threads perfomrms adding).
+            boolean addCommands = infoToMainListIndex.isEmpty();
             Image image = addedMeteorogramInfo.isDataAvaliable()
                     ? getForecastAvaliableImage() : getForecastNotAvaliableImage();
             int position = mainList.append(addedMeteorogramInfo.getName(), image);
             infoToMainListIndex.put(addedMeteorogramInfo, new Integer(position));
+            // If this is the first meteorogram added, let's add info related commands.
+            if (infoToMainListIndex.size() == 1) {
+                mainList.addCommand(getShowCommand());
+                mainList.addCommand(getEditCommand());
+                mainList.addCommand(getDeleteCommand());
+            }
         } else {
 //#mdebug
             log.error("Trying to add a null to the list or info already exists in list! "
@@ -1274,6 +1303,12 @@ public class ViewController extends MIDlet implements
                 if (index > deletedIndex) {
                     infoToMainListIndex.put(info, new Integer(--index));
                 }
+            }
+            // If this was the last element remove info related commands.
+            if (infoToMainListIndex.isEmpty()) {
+                mainList.removeCommand(getShowCommand());
+                mainList.removeCommand(getEditCommand());
+                mainList.removeCommand(getDeleteCommand());
             }
         } else {
 //#mdebug
