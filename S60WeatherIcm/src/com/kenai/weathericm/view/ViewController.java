@@ -306,25 +306,22 @@ public class ViewController extends MIDlet implements
         } else if (displayable == downloadWaitScreen) {
             if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|11|97-preAction
                 // write pre-action user code here
+                unregisterAtDownloadTask(false);
                 isContinueFailure();//GEN-LINE:|7-commandAction|12|97-postAction
                 // write post-action user code here
             } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|13|96-preAction
                 // write pre-action user code here
+                unregisterAtDownloadTask(false);
                 isContinueSuccess();//GEN-LINE:|7-commandAction|14|96-postAction
                 // write post-action user code here
             } else if (command == backgroundCommand) {//GEN-LINE:|7-commandAction|15|173-preAction
                 // write pre-action user code here
-                ForecastDownloadCancellableTask task =
-                        (ForecastDownloadCancellableTask) getDownloadWaitScreen().getTask();
-                task.removeListener(this);
+                unregisterAtDownloadTask(false);
                 switchDisplayable(null, getBackgroundAlert());//GEN-LINE:|7-commandAction|16|173-postAction
                 // write post-action user code here
             } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|17|169-preAction
                 // write pre-action user code here
-                ForecastDownloadCancellableTask task =
-                        (ForecastDownloadCancellableTask) getDownloadWaitScreen().getTask();
-                task.removeListener(this);
-                task.cancel();
+                unregisterAtDownloadTask(true);
                 switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|18|169-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|19|209-preAction
@@ -630,10 +627,11 @@ public class ViewController extends MIDlet implements
             // write post-action user code here
         } else {//GEN-LINE:|100-if|3|102-preAction
             // write pre-action user code here
+            getDownloadWaitScreen().setText("Downloading... (0% done)");
+            ForecastDownloadCancellableTask task = broker.getDownloadTask(processedInfo);
+            getDownloadWaitScreen().setTask(task);
             switchDisplayable(null, getDownloadWaitScreen());//GEN-LINE:|100-if|4|102-postAction
             // write post-action user code here
-            ForecastDownloadCancellableTask task =
-                    (ForecastDownloadCancellableTask) getDownloadWaitScreen().getTask();
             task.addListener(this);
         }//GEN-LINE:|100-if|5|100-postIf
         // enter post-if user code here
@@ -653,8 +651,7 @@ public class ViewController extends MIDlet implements
             downloadWaitScreen.addCommand(getCancelCommand());
             downloadWaitScreen.addCommand(getBackgroundCommand());
             downloadWaitScreen.setCommandListener(this);
-            downloadWaitScreen.setImage(getDownloadImage());
-            downloadWaitScreen.setTask(broker.getDownloadTask(processedInfo));//GEN-END:|93-getter|1|93-postInit
+            downloadWaitScreen.setImage(getDownloadImage());//GEN-END:|93-getter|1|93-postInit
             // write post-init user code here
         }//GEN-BEGIN:|93-getter|2|
         return downloadWaitScreen;
@@ -1352,9 +1349,19 @@ public class ViewController extends MIDlet implements
      * @param status the {@link Status} to generate the text.
      */
     public void statusUpdate(StatusReporter source, Status status) {
+        if (source == null || status == null) {
+//#mdebug
+            log.error("Status or source is null: status = " + status
+                    + "source = " + source);
+//#enddebug
+            throw new NullPointerException("Updating status with nulls");
+        }
+        if (status == Status.FINISHED || status == Status.CANCELLED) {
+            source.removeListener(this);
+        }
         if (isDownloadWaitScreenVisible()) {
 //#mdebug
-            log.info("Setting progress to: " + status.getProgress());
+            log.trace("Setting progress to: " + status.getProgress());
 //#enddebug
             StringBuffer buffer = new StringBuffer("Downloading... ");
             buffer.append("(").append(status.getProgress()).append("% done)");
@@ -1364,6 +1371,24 @@ public class ViewController extends MIDlet implements
             log.warn("The download waiting screen is not visible status update has been "
                     + "recevied from: " + source);
 //#enddebug
+        }
+    }
+
+    /**
+     * Removes this instance from the download task and optionally cancels the task.
+     * @param cancelTask wheather the task shall be canceled.
+     */
+    private void unregisterAtDownloadTask(boolean cancelTask) {
+        ForecastDownloadCancellableTask task =
+                (ForecastDownloadCancellableTask) getDownloadWaitScreen().getTask();
+        if (task != null) {
+            task.removeListener(this);
+            if (cancelTask) {
+//#mdebug
+                log.debug("Cancelling the task");
+//#enddebug
+                task.cancel();
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ import com.kenai.weathericm.app.MeteorogramBroker;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
 import com.kenai.weathericm.util.Status;
+import com.kenai.weathericm.util.StatusReporter;
 import com.kenai.weathericm.view.validation.MeteorogramInfoDataValidator;
 import com.kenai.weathericm.view.validation.NewEditMeteorogramInfoFormData;
 import java.util.Hashtable;
@@ -699,19 +700,38 @@ public class ViewControllerTest {
 
     @Test
     public void statusUpdate() throws Exception {
+        StatusReporter task = new StatusReporter() {};
+        task.addListener(fixture);
         expectPrivate(fixture, "isDownloadWaitScreenVisible").andReturn(true);
         String statusText = "Downloading... (" + Status.FINISHED.getProgress() + "% done)";
         waitScreenMock.setText(statusText);
         replayAll();
-        fixture.statusUpdate(null, Status.FINISHED);
+        fixture.statusUpdate(task, Status.FINISHED);
+        Vector taskListeners = task.getListeners();
+        assertThat(taskListeners.contains(fixture), is(false));
         verifyAll();
     }
 
     @Test
     public void statusUpdateWaitScreenHidden() throws Exception {
+        StatusReporter task = new StatusReporter() {};
+        task.addListener(fixture);
         expectPrivate(fixture, "isDownloadWaitScreenVisible").andReturn(false);
         replayAll();
-        fixture.statusUpdate(null, Status.FINISHED);
+        fixture.statusUpdate(task, Status.CANCELLED);
+        Vector taskListeners = task.getListeners();
+        assertThat(taskListeners.contains(fixture), is(false));
         verifyAll();
+    }
+
+    @Test(expected= NullPointerException.class)
+    public void statusUpdateNullSource() {
+        fixture.statusUpdate(null, Status.STARTED);
+    }
+
+    @Test(expected= NullPointerException.class)
+    public void statusUpdateNullStatus() {
+        StatusReporter task = new StatusReporter() {};
+        fixture.statusUpdate(task, null);
     }
 }

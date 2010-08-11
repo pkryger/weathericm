@@ -293,6 +293,8 @@ public class MeteorogramBrokerTest {
         assertThat(infoToTask.size(), equalTo(0));
         assertThat(listener.updatedMeteorogramInfo, is(notNullValue()));
         assertThat(listener.updatedMeteorogramInfo, equalTo(info));
+        Vector taskListeners = task.getListeners();
+        assertThat(taskListeners.contains(fixture), is(false));
     }
 
     @Test
@@ -304,6 +306,8 @@ public class MeteorogramBrokerTest {
         fixture.statusUpdate(task, Status.CANCELLED);
         infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
         assertThat(infoToTask.size(), equalTo(0));
+        Vector taskListeners = task.getListeners();
+        assertThat(taskListeners.contains(fixture), is(false));
     }
 
     @Test

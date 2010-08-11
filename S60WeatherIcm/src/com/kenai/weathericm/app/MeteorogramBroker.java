@@ -342,6 +342,7 @@ public class MeteorogramBroker implements StatusListener {
                 fireUpdatedMeteorogramInfo(info);
             }
             infoToDownloadTask.remove(info);
+            task.removeListener(this);
         }
     }
 }

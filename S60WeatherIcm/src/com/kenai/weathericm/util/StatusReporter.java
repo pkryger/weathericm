@@ -62,7 +62,7 @@ public abstract class StatusReporter {
 
     protected void fireStatusUpdate(Status status) {
 //#mdebug
-        log.info(this + ": Notifying on status update = " + status);
+        log.trace(this + ": Notifying on status update = " + status);
 //#enddebug
         synchronized (listeners) {
             Enumeration e = getListeners().elements();
