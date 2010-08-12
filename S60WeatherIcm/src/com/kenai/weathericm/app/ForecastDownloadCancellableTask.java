@@ -102,6 +102,10 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
      * Indicates if this task has succeeded.
      */
     private boolean succeed = false;
+    /**
+     * Indicates if this task has been cancelled.
+     */
+    private boolean cancelled = false;
 
     /**
      * Creates a new instance of {@link ForecastDownloadCancellableTask} wich
@@ -143,6 +147,7 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             log.info("Cancelling task! " + this);
 //#enddebug
             myThread.interrupt();
+            cancelled = true;
             return true;
         } else {
 //#mdebug
@@ -176,8 +181,21 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             if (progress != -1) {
 //#mdebug
                 log.info("The task for info = " + info + " has been already "
-                        + "started and won't be started again");
+                        + "started. Waiting for it to finish.");
 //#enddebug
+                if (myThread != null) {
+                    try {
+                        myThread.join();
+                    } catch (InterruptedException ex) {
+//#mdebug
+                        log.debug("The other thread has been interrupted");
+//#enddebug
+                    }
+                } else {
+//#mdebug
+                    log.debug("The other thread has already finished.");
+//#enddebug
+                }
                 return;
             } else {
 //#mdebug
@@ -201,6 +219,9 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
         HttpConnection connection = null;
         DataInputStream dis = null;
         try {
+            if (cancelled) {
+                throw new InterruptedException();
+            }
             Properties typeProperties = loadTypeProperties();
             int percent = progress;
             long totalBytes = 0;
@@ -226,6 +247,9 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             connection = (HttpConnection) Connector.open(startUrl);
             dis = connection.openDataInputStream();
             setProgress(++percent);
+            if (cancelled) {
+                throw new InterruptedException();
+            }
             // Start data is 2170(UM) or 2310(COAMPS) bytes (by default)
             totalBytes = connection.getLength();
             if (totalBytes == -1) {
@@ -253,6 +277,9 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
                     chunkCounter = 0;
                     setProgress(++percent);
                 }
+                if (cancelled) {
+                    throw new InterruptedException();
+                }
             }
             setProgress(++percent); //8%
             dis.close();
@@ -263,6 +290,9 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             String modelStartDate = parseStartDate(startDateBuffer, typeProperties);
             startDateBuffer = null;
             setProgress(percent = 9);
+            if (cancelled) {
+                throw new InterruptedException();
+            }
             Thread.yield();
             //@todo the image data downloading shall be extracted to
             //      a separate class.
@@ -270,6 +300,9 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             connection = (HttpConnection) Connector.open(imageUrl);
             dis = connection.openDataInputStream();
             setProgress(++percent); //10%
+            if (cancelled) {
+                throw new InterruptedException();
+            }
             // Image is 19800(UM) or 23500(COAMPS) by default
             totalBytes = connection.getLength();
             if (totalBytes == -1) {
@@ -297,6 +330,9 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
                     chunkCounter = 0;
                     setProgress(++percent);
                 }
+                if (cancelled) {
+                    throw new InterruptedException();
+                }
             }
             setProgress(++percent); //98%
             dis.close();
@@ -315,20 +351,21 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             info.setData(forecastData);
             setProgress(progress = 100);
             Thread.yield();
+            if (cancelled) {
+                throw new InterruptedException();
+            }
             succeed = true;
             fireStatusUpdate(Status.FINISHED);
+        } catch (InterruptedException ex) {
+//#mdebug
+            log.info(this + " has been interrupted!");
+//#enddebug
+            fireStatusUpdate(Status.CANCELLED);
         } catch (Exception ex) {
-            if (ex instanceof InterruptedException) {
 //#mdebug
-                log.info(this + " has been interrupted!");
+            log.warn(this + " has an exception!", ex);
 //#enddebug
-                fireStatusUpdate(Status.CANCELLED);
-            } else {
-//#mdebug
-                log.warn(this + " has an exception!", ex);
-//#enddebug
-                fireStatusUpdate(Status.FINISHED);
-            }
+            fireStatusUpdate(Status.FINISHED);
         } finally {
             if (dis != null) {
                 try {

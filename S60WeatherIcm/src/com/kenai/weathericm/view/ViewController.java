@@ -125,7 +125,6 @@ public class ViewController extends MIDlet implements
     private Command backCommand;
     private Command deleteCommand;
     private Command logCommand;
-    private Command backgroundCommand;
     private List mainList;
     private Form newEditForm;
     private ChoiceGroup modelChoiceGroup;
@@ -139,7 +138,6 @@ public class ViewController extends MIDlet implements
     private Alert deleteConfirmationAlert;
     private Alert validationErrorAlert;
     private Alert downloadErrorAlert;
-    private Alert backgroundAlert;
     private Alert exitConfirmationAlert;
     private Image forecastAvaliableImage;
     private Image downloadImage;
@@ -274,127 +272,116 @@ public class ViewController extends MIDlet implements
      */
     public void commandAction(Command command, Displayable displayable) {//GEN-END:|7-commandAction|0|7-preCommandAction
         // write pre-action user code here
-        if (displayable == backgroundAlert) {//GEN-BEGIN:|7-commandAction|1|193-preAction
-            if (command == okCommand) {//GEN-END:|7-commandAction|1|193-preAction
+        if (displayable == deleteConfirmationAlert) {//GEN-BEGIN:|7-commandAction|1|148-preAction
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|1|148-preAction
                 // write pre-action user code here
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|2|193-postAction
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|2|148-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|3|148-preAction
-        } else if (displayable == deleteConfirmationAlert) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|3|148-preAction
+            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|3|149-preAction
                 // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|4|148-postAction
-                // write post-action user code here
-            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|5|149-preAction
-                // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|6|149-postAction
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|4|149-postAction
                 // write post-action user code here
                 handleDeleteAction();
-            }//GEN-BEGIN:|7-commandAction|7|89-preAction
+            }//GEN-BEGIN:|7-commandAction|5|89-preAction
         } else if (displayable == displayForm) {
-            if (command == backCommand) {//GEN-END:|7-commandAction|7|89-preAction
+            if (command == backCommand) {//GEN-END:|7-commandAction|5|89-preAction
                 // write pre-action user code here
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|8|89-postAction
+                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|6|89-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|9|185-preAction
+            }//GEN-BEGIN:|7-commandAction|7|185-preAction
         } else if (displayable == downloadErrorAlert) {
-            if (command == okCommand) {//GEN-END:|7-commandAction|9|185-preAction
+            if (command == okCommand) {//GEN-END:|7-commandAction|7|185-preAction
                 // write pre-action user code here
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|10|185-postAction
+                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|8|185-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|11|97-preAction
+            }//GEN-BEGIN:|7-commandAction|9|97-preAction
         } else if (displayable == downloadWaitScreen) {
-            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|11|97-preAction
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|9|97-preAction
                 // write pre-action user code here
                 unregisterAtDownloadTask(false);
-                isContinueFailure();//GEN-LINE:|7-commandAction|12|97-postAction
+                isContinueFailure();//GEN-LINE:|7-commandAction|10|97-postAction
                 // write post-action user code here
-            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|13|96-preAction
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|11|96-preAction
                 // write pre-action user code here
                 unregisterAtDownloadTask(false);
-                isContinueSuccess();//GEN-LINE:|7-commandAction|14|96-postAction
+                isContinueSuccess();//GEN-LINE:|7-commandAction|12|96-postAction
                 // write post-action user code here
-            } else if (command == backgroundCommand) {//GEN-LINE:|7-commandAction|15|173-preAction
-                // write pre-action user code here
-                unregisterAtDownloadTask(false);
-                switchDisplayable(null, getBackgroundAlert());//GEN-LINE:|7-commandAction|16|173-postAction
-                // write post-action user code here
-            } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|17|169-preAction
+            } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|13|169-preAction
                 // write pre-action user code here
                 unregisterAtDownloadTask(true);
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|18|169-postAction
+                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|14|169-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|19|209-preAction
+            }//GEN-BEGIN:|7-commandAction|15|209-preAction
         } else if (displayable == exitConfirmationAlert) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|19|209-preAction
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|15|209-preAction
                 // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|20|209-postAction
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|16|209-postAction
                 // write post-action user code here
-            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|21|208-preAction
+            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|17|208-preAction
                 // write pre-action user code here
-                exitMIDlet();//GEN-LINE:|7-commandAction|22|208-postAction
+                exitMIDlet();//GEN-LINE:|7-commandAction|18|208-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|23|113-preAction
+            }//GEN-BEGIN:|7-commandAction|19|113-preAction
         } else if (displayable == logForm) {
-            if (command == backCommand) {//GEN-END:|7-commandAction|23|113-preAction
+            if (command == backCommand) {//GEN-END:|7-commandAction|19|113-preAction
                 // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|24|113-postAction
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|20|113-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|25|24-preAction
+            }//GEN-BEGIN:|7-commandAction|21|24-preAction
         } else if (displayable == mainList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|25|24-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|21|24-preAction
                 // write pre-action user code here
-                mainListAction();//GEN-LINE:|7-commandAction|26|24-postAction
+                mainListAction();//GEN-LINE:|7-commandAction|22|24-postAction
                 // write post-action user code here
-            } else if (command == deleteCommand) {//GEN-LINE:|7-commandAction|27|119-preAction
+            } else if (command == deleteCommand) {//GEN-LINE:|7-commandAction|23|119-preAction
                 // write pre-action user code here
                 prepareProcessedInfo();
-                switchDisplayable(null, getDeleteConfirmationAlert());//GEN-LINE:|7-commandAction|28|119-postAction
+                switchDisplayable(null, getDeleteConfirmationAlert());//GEN-LINE:|7-commandAction|24|119-postAction
                 // write post-action user code here
-            } else if (command == editCommand) {//GEN-LINE:|7-commandAction|29|70-preAction
+            } else if (command == editCommand) {//GEN-LINE:|7-commandAction|25|70-preAction
                 // write pre-action user code here
                 prepareEditMode();
-                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|30|70-postAction
+                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|26|70-postAction
                 // write post-action user code here
-            } else if (command == exitCommand) {//GEN-LINE:|7-commandAction|31|28-preAction
+            } else if (command == exitCommand) {//GEN-LINE:|7-commandAction|27|28-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getExitConfirmationAlert());//GEN-LINE:|7-commandAction|32|28-postAction
+                switchDisplayable(null, getExitConfirmationAlert());//GEN-LINE:|7-commandAction|28|28-postAction
                 // write post-action user code here
-            } else if (command == logCommand) {//GEN-LINE:|7-commandAction|33|115-preAction
+            } else if (command == logCommand) {//GEN-LINE:|7-commandAction|29|115-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getLogForm());//GEN-LINE:|7-commandAction|34|115-postAction
+                switchDisplayable(null, getLogForm());//GEN-LINE:|7-commandAction|30|115-postAction
                 // write post-action user code here
-            } else if (command == newCommand) {//GEN-LINE:|7-commandAction|35|46-preAction
+            } else if (command == newCommand) {//GEN-LINE:|7-commandAction|31|46-preAction
                 // write pre-action user code here
                 prepareNewMode();
-                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|36|46-postAction
+                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|32|46-postAction
                 // write post-action user code here
-            } else if (command == showCommand) {//GEN-LINE:|7-commandAction|37|68-preAction
+            } else if (command == showCommand) {//GEN-LINE:|7-commandAction|33|68-preAction
                 // write pre-action user code here
                 prepareProcessedInfo();
-                isForecastAvaliable();//GEN-LINE:|7-commandAction|38|68-postAction
+                isForecastAvaliable();//GEN-LINE:|7-commandAction|34|68-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|39|109-preAction
+            }//GEN-BEGIN:|7-commandAction|35|109-preAction
         } else if (displayable == newEditForm) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|39|109-preAction
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|35|109-preAction
                 // write pre-action user code here
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|40|109-postAction
+                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|36|109-postAction
                 // write post-action user code here
-            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|41|108-preAction
+            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|37|108-preAction
                 // write pre-action user code here
-                isUserDataValid();//GEN-LINE:|7-commandAction|42|108-postAction
+                isUserDataValid();//GEN-LINE:|7-commandAction|38|108-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|43|166-preAction
+            }//GEN-BEGIN:|7-commandAction|39|166-preAction
         } else if (displayable == validationErrorAlert) {
-            if (command == okCommand) {//GEN-END:|7-commandAction|43|166-preAction
+            if (command == okCommand) {//GEN-END:|7-commandAction|39|166-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|44|166-postAction
+                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|40|166-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|45|7-postCommandAction
-        }//GEN-END:|7-commandAction|45|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|41|7-postCommandAction
+        }//GEN-END:|7-commandAction|41|7-postCommandAction
         // write post-action user code here
-    }//GEN-BEGIN:|7-commandAction|46|
-    //</editor-fold>//GEN-END:|7-commandAction|46|
+    }//GEN-BEGIN:|7-commandAction|42|
+    //</editor-fold>//GEN-END:|7-commandAction|42|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
     /**
@@ -649,7 +636,6 @@ public class ViewController extends MIDlet implements
             downloadWaitScreen = new WaitScreen(getDisplay());//GEN-BEGIN:|93-getter|1|93-postInit
             downloadWaitScreen.setTitle("Downloading Meteorogram");
             downloadWaitScreen.addCommand(getCancelCommand());
-            downloadWaitScreen.addCommand(getBackgroundCommand());
             downloadWaitScreen.setCommandListener(this);
             downloadWaitScreen.setImage(getDownloadImage());//GEN-END:|93-getter|1|93-postInit
             // write post-init user code here
@@ -666,10 +652,10 @@ public class ViewController extends MIDlet implements
     public Command getLogCommand() {
         if (logCommand == null) {//GEN-END:|114-getter|0|114-preInit
             // write pre-init user code here
-            //#mdebug
+//#mdebug
             logCommand = new Command("Log", Command.SCREEN, 100);//GEN-LINE:|114-getter|1|114-postInit
             // write post-init user code here
-            //#enddebug
+//#enddebug
         }//GEN-BEGIN:|114-getter|2|
         return logCommand;
     }
@@ -683,12 +669,12 @@ public class ViewController extends MIDlet implements
     public Form getLogForm() {
         if (logForm == null) {//GEN-END:|112-getter|0|112-preInit
             // write pre-init user code here
-            //#mdebug
+//#mdebug
             logForm = new Form("Log");//GEN-BEGIN:|112-getter|1|112-postInit
             logForm.addCommand(getBackCommand());
             logForm.setCommandListener(this);//GEN-END:|112-getter|1|112-postInit
             // write post-init user code here
-            //#enddebug
+//#enddebug
         }//GEN-BEGIN:|112-getter|2|
         return logForm;
     }
@@ -798,21 +784,6 @@ public class ViewController extends MIDlet implements
     }
     //</editor-fold>//GEN-END:|161-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backgroundCommand ">//GEN-BEGIN:|172-getter|0|172-preInit
-    /**
-     * Returns an initiliazed instance of backgroundCommand component.
-     * @return the initialized component instance
-     */
-    public Command getBackgroundCommand() {
-        if (backgroundCommand == null) {//GEN-END:|172-getter|0|172-preInit
-            // write pre-init user code here
-            backgroundCommand = new Command("Background", Command.SCREEN, 0);//GEN-LINE:|172-getter|1|172-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|172-getter|2|
-        return backgroundCommand;
-    }
-    //</editor-fold>//GEN-END:|172-getter|2|
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: isContinueSuccess ">//GEN-BEGIN:|175-if|0|175-preIf
     /**
      * Performs an action assigned to the isContinueSuccess if-point.
@@ -852,24 +823,6 @@ public class ViewController extends MIDlet implements
         // enter post-if user code here
     }//GEN-BEGIN:|180-if|6|
     //</editor-fold>//GEN-END:|180-if|6|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: backgroundAlert ">//GEN-BEGIN:|187-getter|0|187-preInit
-    /**
-     * Returns an initiliazed instance of backgroundAlert component.
-     * @return the initialized component instance
-     */
-    public Alert getBackgroundAlert() {
-        if (backgroundAlert == null) {//GEN-END:|187-getter|0|187-preInit
-            // write pre-init user code here
-            backgroundAlert = new Alert(null, "The download task hasn\'t been cancelled and will continue in background.", null, AlertType.INFO);//GEN-BEGIN:|187-getter|1|187-postInit
-            backgroundAlert.addCommand(okCommand);
-            backgroundAlert.setCommandListener(this);
-            backgroundAlert.setTimeout(3000);//GEN-END:|187-getter|1|187-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|187-getter|2|
-        return backgroundAlert;
-    }
-    //</editor-fold>//GEN-END:|187-getter|2|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitConfirmationAlert ">//GEN-BEGIN:|207-getter|0|207-preInit
     /**

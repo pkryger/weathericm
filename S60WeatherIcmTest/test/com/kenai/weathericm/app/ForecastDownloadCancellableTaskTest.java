@@ -52,6 +52,7 @@ public class ForecastDownloadCancellableTaskTest {
     private final static String PROGRESS = "progress";
     private final static String MY_THREAD = "myThread";
     private final static String INFO = "info";
+    private final static String CANCELLED = "cancelled";
 
     @Before
     public void setUp() {
@@ -84,6 +85,8 @@ public class ForecastDownloadCancellableTaskTest {
         boolean failed = fixture.hasFailed();
         assertThat(cancelled, is(true));
         assertThat(failed, is(true));
+        Boolean internalCancelled = Whitebox.getInternalState(fixture, CANCELLED);
+        assertThat(internalCancelled, equalTo(Boolean.TRUE));
         verifyAll();
     }
 
@@ -97,14 +100,17 @@ public class ForecastDownloadCancellableTaskTest {
         boolean failed = fixture.hasFailed();
         assertThat(cancelled, is(false));
         assertThat(failed, is(true));
+        Boolean internalCancelled = Whitebox.getInternalState(fixture, CANCELLED);
+        assertThat(internalCancelled, equalTo(Boolean.FALSE));
         verifyAll();
     }
 
     @Test
-    public void runAlreadyStarted() {
+    public void runAlreadyStarted() throws Exception {
         int progress = 5;
         Whitebox.setInternalState(fixture, MY_THREAD, threadMock);
         Whitebox.setInternalState(fixture, PROGRESS, progress);
+        threadMock.join();
         replayAll();
         fixture.run();
         verifyAll();
