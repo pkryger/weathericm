@@ -131,14 +131,13 @@ public class ViewController extends MIDlet implements
     private TextField nameTextField;
     private TextField xTextField;
     private TextField yTextField;
-    private Form displayForm;
-    private ImageItem imageItem;
     private WaitScreen downloadWaitScreen;
     private Form logForm;
     private Alert deleteConfirmationAlert;
     private Alert validationErrorAlert;
     private Alert downloadErrorAlert;
     private Alert exitConfirmationAlert;
+    private InfoCanvas displayInfoCanvas;
     private Image forecastAvaliableImage;
     private Image downloadImage;
     private Image forecastNotAvaliableImage;
@@ -282,11 +281,11 @@ public class ViewController extends MIDlet implements
                 switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|4|149-postAction
                 // write post-action user code here
                 handleDeleteAction();
-            }//GEN-BEGIN:|7-commandAction|5|89-preAction
-        } else if (displayable == displayForm) {
-            if (command == backCommand) {//GEN-END:|7-commandAction|5|89-preAction
+            }//GEN-BEGIN:|7-commandAction|5|224-preAction
+        } else if (displayable == displayInfoCanvas) {
+            if (command == backCommand) {//GEN-END:|7-commandAction|5|224-preAction
                 // write pre-action user code here
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|6|89-postAction
+                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|6|224-postAction
                 // write post-action user code here
             }//GEN-BEGIN:|7-commandAction|7|185-preAction
         } else if (displayable == downloadErrorAlert) {
@@ -568,38 +567,6 @@ public class ViewController extends MIDlet implements
     }
     //</editor-fold>//GEN-END:|88-getter|2|
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: displayForm ">//GEN-BEGIN:|87-getter|0|87-preInit
-    /**
-     * Returns an initiliazed instance of displayForm component.
-     * @return the initialized component instance
-     */
-    public Form getDisplayForm() {
-        if (displayForm == null) {//GEN-END:|87-getter|0|87-preInit
-            // write pre-init user code here
-            displayForm = new Form("Meteorogram", new Item[] { getImageItem() });//GEN-BEGIN:|87-getter|1|87-postInit
-            displayForm.addCommand(getBackCommand());
-            displayForm.setCommandListener(this);//GEN-END:|87-getter|1|87-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|87-getter|2|
-        return displayForm;
-    }
-    //</editor-fold>//GEN-END:|87-getter|2|
-
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: imageItem ">//GEN-BEGIN:|92-getter|0|92-preInit
-    /**
-     * Returns an initiliazed instance of imageItem component.
-     * @return the initialized component instance
-     */
-    public ImageItem getImageItem() {
-        if (imageItem == null) {//GEN-END:|92-getter|0|92-preInit
-            // write pre-init user code here
-            imageItem = new ImageItem("<name>", null, ImageItem.LAYOUT_DEFAULT, "<Missing Meteorogram>");//GEN-LINE:|92-getter|1|92-postInit
-            // write post-init user code here
-        }//GEN-BEGIN:|92-getter|2|
-        return imageItem;
-    }
-    //</editor-fold>//GEN-END:|92-getter|2|
-
     //<editor-fold defaultstate="collapsed" desc=" Generated Method: isForecastAvaliable ">//GEN-BEGIN:|100-if|0|100-preIf
     /**
      * Performs an action assigned to the isForecastAvaliable if-point.
@@ -608,9 +575,8 @@ public class ViewController extends MIDlet implements
         // enter pre-if user code here
         if (processedInfo.isDataAvaliable()) {//GEN-LINE:|100-if|1|101-preAction
             // write pre-action user code here
-            getImageItem().setImage(processedInfo.getData().getModelResult());
-            getImageItem().setLabel(processedInfo.getName());
-            switchDisplayable(null, getDisplayForm());//GEN-LINE:|100-if|2|101-postAction
+            getDisplayInfoCanvas().setInfo(processedInfo);
+            switchDisplayable(null, getDisplayInfoCanvas());//GEN-LINE:|100-if|2|101-postAction
             // write post-action user code here
         } else {//GEN-LINE:|100-if|3|102-preAction
             // write pre-action user code here
@@ -792,9 +758,8 @@ public class ViewController extends MIDlet implements
         // enter pre-if user code here
         if (isDownloadWaitScreenVisible()) {//GEN-LINE:|175-if|1|176-preAction
             // write pre-action user code here
-            getImageItem().setImage(processedInfo.getData().getModelResult());
-            getImageItem().setLabel(processedInfo.getName());
-            switchDisplayable(null, getDisplayForm());//GEN-LINE:|175-if|2|176-postAction
+            getDisplayInfoCanvas().setInfo(processedInfo);
+            switchDisplayable(null, getDisplayInfoCanvas());//GEN-LINE:|175-if|2|176-postAction
             // write post-action user code here
         } else {//GEN-LINE:|175-if|3|177-preAction
             // write pre-action user code here
@@ -899,6 +864,24 @@ public class ViewController extends MIDlet implements
         return forecastAvaliableImage;
     }
     //</editor-fold>//GEN-END:|216-getter|3|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: displayInfoCanvas ">//GEN-BEGIN:|222-getter|0|222-preInit
+    /**
+     * Returns an initiliazed instance of displayInfoCanvas component.
+     * @return the initialized component instance
+     */
+    public InfoCanvas getDisplayInfoCanvas() {
+        if (displayInfoCanvas == null) {//GEN-END:|222-getter|0|222-preInit
+            // write pre-init user code here
+            displayInfoCanvas = new InfoCanvas();//GEN-BEGIN:|222-getter|1|222-postInit
+            displayInfoCanvas.addCommand(getBackCommand());
+            displayInfoCanvas.setCommandListener(this);//GEN-END:|222-getter|1|222-postInit
+            // write post-init user code here
+            displayInfoCanvas.setScrollSpeed(25);
+        }//GEN-BEGIN:|222-getter|2|
+        return displayInfoCanvas;
+    }
+    //</editor-fold>//GEN-END:|222-getter|2|
 
     /**
      * Gets the info from {@value #infoToMainListIndex} based on the
