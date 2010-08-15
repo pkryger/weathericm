@@ -62,6 +62,8 @@ public class ScrollableCanvasTest {
     private final static String T_Y = "translationY";
     private final static String LAST_X = "lastPointerX";
     private final static String LAST_Y = "lastPointerY";
+    private final static String IS_H_BAR = "isHorizontalScrollbar";
+    private final static String IS_V_BAR = "isVerticalScrollbar";
 
     @Before
     public void setUp() {
@@ -72,14 +74,16 @@ public class ScrollableCanvasTest {
     }
 
     @Test
-    public void getSetImage() {
-        int width = 30;
-        int height = 40;
+    public void getSetImageSmall() {
+        int imageWidth = 30;
+        int imageHeight = 40;
         Image actual = fixture.getImage();
         assertThat(actual, is(nullValue()));
         fixture.repaint();
-        expect(imageMock.getHeight()).andReturn(height);
-        expect(imageMock.getWidth()).andReturn(width);
+        expect(imageMock.getHeight()).andReturn(imageHeight);
+        expect(imageMock.getWidth()).andReturn(imageWidth);
+        expect(fixture.getHeight()).andReturn(imageHeight + 1);
+        expect(fixture.getWidth()).andReturn(imageWidth + 1);
         Whitebox.setInternalState(fixture, T_X, 7);
         Whitebox.setInternalState(fixture, T_Y, 8);
         replayAll();
@@ -90,10 +94,178 @@ public class ScrollableCanvasTest {
         Integer actualWidth = Whitebox.getInternalState(fixture, IMAGE_WIDTH);
         Integer tX = Whitebox.getInternalState(fixture, T_X);
         Integer tY = Whitebox.getInternalState(fixture, T_Y);
-        assertThat(actualHeight, equalTo(height));
-        assertThat(actualWidth, equalTo(width));
+        Boolean hBar = Whitebox.getInternalState(fixture, IS_H_BAR);
+        Boolean vBar = Whitebox.getInternalState(fixture, IS_V_BAR);
+        assertThat(actualHeight, equalTo(imageHeight));
+        assertThat(actualWidth, equalTo(imageWidth));
         assertThat(tX, equalTo(0));
         assertThat(tY, equalTo(0));
+        assertThat(hBar, equalTo(Boolean.FALSE));
+        assertThat(vBar, equalTo(Boolean.FALSE));
+        verifyAll();
+    }
+
+    @Test
+    public void getSetImageBig() {
+        int imageWidth = 30;
+        int imageHeight = 40;
+        Image actual = fixture.getImage();
+        assertThat(actual, is(nullValue()));
+        fixture.repaint();
+        expect(imageMock.getHeight()).andReturn(imageHeight);
+        expect(imageMock.getWidth()).andReturn(imageWidth);
+        expect(fixture.getHeight()).andReturn(imageHeight - 1);
+        expect(fixture.getWidth()).andReturn(imageWidth - 1);
+        Whitebox.setInternalState(fixture, T_X, 7);
+        Whitebox.setInternalState(fixture, T_Y, 8);
+        replayAll();
+        fixture.setImage(imageMock);
+        actual = fixture.getImage();
+        assertThat(actual, is(imageMock));
+        Integer actualHeight = Whitebox.getInternalState(fixture, IMAGE_HEIGHT);
+        Integer actualWidth = Whitebox.getInternalState(fixture, IMAGE_WIDTH);
+        Integer tX = Whitebox.getInternalState(fixture, T_X);
+        Integer tY = Whitebox.getInternalState(fixture, T_Y);
+        Boolean hBar = Whitebox.getInternalState(fixture, IS_H_BAR);
+        Boolean vBar = Whitebox.getInternalState(fixture, IS_V_BAR);
+        assertThat(actualHeight, equalTo(imageHeight));
+        assertThat(actualWidth, equalTo(imageWidth));
+        assertThat(tX, equalTo(0));
+        assertThat(tY, equalTo(0));
+        assertThat(hBar, equalTo(Boolean.TRUE));
+        assertThat(vBar, equalTo(Boolean.TRUE));
+        verifyAll();
+    }
+
+    @Test
+    public void getSetImageTooWide() {
+        int imageWidth = 30;
+        int imageHeight = 40;
+        Image actual = fixture.getImage();
+        assertThat(actual, is(nullValue()));
+        fixture.repaint();
+        expect(imageMock.getHeight()).andReturn(imageHeight);
+        expect(imageMock.getWidth()).andReturn(imageWidth);
+        expect(fixture.getHeight()).andReturn(imageHeight + 100);
+        expect(fixture.getWidth()).andReturn(imageWidth - 1);
+        Whitebox.setInternalState(fixture, T_X, 7);
+        Whitebox.setInternalState(fixture, T_Y, 8);
+        replayAll();
+        fixture.setImage(imageMock);
+        actual = fixture.getImage();
+        assertThat(actual, is(imageMock));
+        Integer actualHeight = Whitebox.getInternalState(fixture, IMAGE_HEIGHT);
+        Integer actualWidth = Whitebox.getInternalState(fixture, IMAGE_WIDTH);
+        Integer tX = Whitebox.getInternalState(fixture, T_X);
+        Integer tY = Whitebox.getInternalState(fixture, T_Y);
+        Boolean hBar = Whitebox.getInternalState(fixture, IS_H_BAR);
+        Boolean vBar = Whitebox.getInternalState(fixture, IS_V_BAR);
+        assertThat(actualHeight, equalTo(imageHeight));
+        assertThat(actualWidth, equalTo(imageWidth));
+        assertThat(tX, equalTo(0));
+        assertThat(tY, equalTo(0));
+        assertThat(hBar, equalTo(Boolean.TRUE));
+        assertThat(vBar, equalTo(Boolean.FALSE));
+        verifyAll();
+    }
+
+    @Test
+    public void getSetImageTooTall() {
+        int imageWidth = 30;
+        int imageHeight = 40;
+        Image actual = fixture.getImage();
+        assertThat(actual, is(nullValue()));
+        fixture.repaint();
+        expect(imageMock.getHeight()).andReturn(imageHeight);
+        expect(imageMock.getWidth()).andReturn(imageWidth);
+        expect(fixture.getHeight()).andReturn(imageHeight - 1);
+        expect(fixture.getWidth()).andReturn(imageWidth + 100);
+        Whitebox.setInternalState(fixture, T_X, 7);
+        Whitebox.setInternalState(fixture, T_Y, 8);
+        replayAll();
+        fixture.setImage(imageMock);
+        actual = fixture.getImage();
+        assertThat(actual, is(imageMock));
+        Integer actualHeight = Whitebox.getInternalState(fixture, IMAGE_HEIGHT);
+        Integer actualWidth = Whitebox.getInternalState(fixture, IMAGE_WIDTH);
+        Integer tX = Whitebox.getInternalState(fixture, T_X);
+        Integer tY = Whitebox.getInternalState(fixture, T_Y);
+        Boolean hBar = Whitebox.getInternalState(fixture, IS_H_BAR);
+        Boolean vBar = Whitebox.getInternalState(fixture, IS_V_BAR);
+        assertThat(actualHeight, equalTo(imageHeight));
+        assertThat(actualWidth, equalTo(imageWidth));
+        assertThat(tX, equalTo(0));
+        assertThat(tY, equalTo(0));
+        assertThat(hBar, equalTo(Boolean.FALSE));
+        assertThat(vBar, equalTo(Boolean.TRUE));
+        verifyAll();
+    }
+
+    @Test
+    public void getSetImageLittleTooWide() {
+        int imageWidth = 30;
+        int imageHeight = 40;
+        Image actual = fixture.getImage();
+        assertThat(actual, is(nullValue()));
+        fixture.repaint();
+        expect(imageMock.getHeight()).andReturn(imageHeight);
+        expect(imageMock.getWidth()).andReturn(imageWidth);
+        expect(fixture.getHeight()).andReturn(imageHeight + 1);
+        expect(fixture.getWidth()).andReturn(imageWidth - 1);
+        Whitebox.setInternalState(fixture, T_X, 7);
+        Whitebox.setInternalState(fixture, T_Y, 8);
+        replayAll();
+        fixture.setScrollbarMargin(2);
+        fixture.setScrollbarWide(6);
+        fixture.setImage(imageMock);
+        actual = fixture.getImage();
+        assertThat(actual, is(imageMock));
+        Integer actualHeight = Whitebox.getInternalState(fixture, IMAGE_HEIGHT);
+        Integer actualWidth = Whitebox.getInternalState(fixture, IMAGE_WIDTH);
+        Integer tX = Whitebox.getInternalState(fixture, T_X);
+        Integer tY = Whitebox.getInternalState(fixture, T_Y);
+        Boolean hBar = Whitebox.getInternalState(fixture, IS_H_BAR);
+        Boolean vBar = Whitebox.getInternalState(fixture, IS_V_BAR);
+        assertThat(actualHeight, equalTo(imageHeight));
+        assertThat(actualWidth, equalTo(imageWidth));
+        assertThat(tX, equalTo(0));
+        assertThat(tY, equalTo(0));
+        assertThat(hBar, equalTo(Boolean.TRUE));
+        assertThat(vBar, equalTo(Boolean.TRUE));
+        verifyAll();
+    }
+
+    @Test
+    public void getSetImageLittleToTall() {
+        int imageWidth = 30;
+        int imageHeight = 40;
+        Image actual = fixture.getImage();
+        assertThat(actual, is(nullValue()));
+        fixture.repaint();
+        expect(imageMock.getHeight()).andReturn(imageHeight);
+        expect(imageMock.getWidth()).andReturn(imageWidth);
+        expect(fixture.getHeight()).andReturn(imageHeight - 1);
+        expect(fixture.getWidth()).andReturn(imageWidth + 1);
+        Whitebox.setInternalState(fixture, T_X, 7);
+        Whitebox.setInternalState(fixture, T_Y, 8);
+        replayAll();
+        fixture.setScrollbarMargin(2);
+        fixture.setScrollbarWide(6);
+        fixture.setImage(imageMock);
+        actual = fixture.getImage();
+        assertThat(actual, is(imageMock));
+        Integer actualHeight = Whitebox.getInternalState(fixture, IMAGE_HEIGHT);
+        Integer actualWidth = Whitebox.getInternalState(fixture, IMAGE_WIDTH);
+        Integer tX = Whitebox.getInternalState(fixture, T_X);
+        Integer tY = Whitebox.getInternalState(fixture, T_Y);
+        Boolean hBar = Whitebox.getInternalState(fixture, IS_H_BAR);
+        Boolean vBar = Whitebox.getInternalState(fixture, IS_V_BAR);
+        assertThat(actualHeight, equalTo(imageHeight));
+        assertThat(actualWidth, equalTo(imageWidth));
+        assertThat(tX, equalTo(0));
+        assertThat(tY, equalTo(0));
+        assertThat(hBar, equalTo(Boolean.TRUE));
+        assertThat(vBar, equalTo(Boolean.TRUE));
         verifyAll();
     }
 
@@ -151,7 +323,7 @@ public class ScrollableCanvasTest {
         int imageHeight = 20 + height;
         Whitebox.setInternalState(fixture, IMAGE, imageMock);
         Whitebox.setInternalState(fixture, IMAGE_WIDTH, imageWidth);
-        expect(fixture.getWidth()).andReturn(width).times(3);
+        expect(fixture.getWidth()).andReturn(width);
         expect(fixture.getHeight()).andReturn(imageHeight + 1);
         fixture.repaint();
         replayAll();
@@ -188,7 +360,7 @@ public class ScrollableCanvasTest {
         Whitebox.setInternalState(fixture, IMAGE, imageMock);
         Whitebox.setInternalState(fixture, IMAGE_HEIGHT, imageHeight);
         expect(fixture.getWidth()).andReturn(imageWidth + 1);
-        expect(fixture.getHeight()).andReturn(height).times(3);
+        expect(fixture.getHeight()).andReturn(height);
         fixture.repaint();
         replayAll();
         fixture.scrollImage(0, imageHeight + 1);

@@ -72,6 +72,20 @@ public class ScrollableCanvas extends Canvas {
      * How many pixels shall scroll at single click.
      */
     private int scrollSpeed = 1;
+    /**
+     * Shall the horizontal scrollabr be shown?
+     */
+    private boolean isHorizontalScrollbar = false;
+    /**
+     * Shall the vertical scrollbar be shown?
+     */
+    private boolean isVerticalScrollbar = false;
+    private int scrollbarArc = 3;
+    private int scrollbarMargin = 2;
+    private int scrollbarWide = 6;
+    private int backgroundOutlineColor = 0x000000;
+    private int backgroundColor = 0x828282;
+    private int barColor = 0xf5f5f5;
 
     /**
      * Paints the attached image. Uses the {@value #translationX}
@@ -84,7 +98,67 @@ public class ScrollableCanvas extends Canvas {
         if (image != null) {
             g.drawImage(image, -translationX, -translationY, Graphics.TOP | Graphics.LEFT);
         }
-        
+        paintHorizontalScrollbar(g);
+        paintVerticalScrollbar(g);
+
+    }
+
+    /**
+     * Paints the horizontal scrollbar using given {@link Graphics}.
+     * @param g the {@link Graphics} where to draw a bar.
+     */
+    protected void paintHorizontalScrollbar(Graphics g) {
+        if (isHorizontalScrollbar) {
+            // background
+            int backgroundX = scrollbarMargin + 1;
+            int backgroundY = getHeight() - scrollbarMargin - scrollbarWide - 1;
+            int backgroundWidth = getWidth() - 2 * (scrollbarMargin + 1)
+                    - (isVerticalScrollbar ? 2 * scrollbarMargin + scrollbarWide : 0);
+            int backgroundHeight = scrollbarWide;
+            g.setColor(getBackgroundOutlineColor());
+            g.drawRoundRect(backgroundX, backgroundY,
+                    backgroundWidth, backgroundHeight, scrollbarArc, scrollbarArc);
+            g.setColor(getBackgroundColor());
+            g.fillRoundRect(backgroundX + 1, backgroundY + 1,
+                    backgroundWidth - 1, backgroundHeight - 1, scrollbarArc - 1, scrollbarArc - 1);
+            // the bar
+            int barX = scrollbarMargin + 2
+                    + (int) ((double) translationX / (double) imageWidth * (backgroundWidth - 2));
+            int barY = getHeight() - scrollbarMargin - scrollbarWide;
+            int barWidth = (int) ((double) getWidth() / (double) imageWidth * (backgroundWidth - 2)) - 1;
+            int barHeight = scrollbarWide - 1;
+            g.setColor(getBarColor());
+            g.fillRoundRect(barX, barY, barWidth, barHeight, scrollbarArc - 1, scrollbarArc - 1);
+        }
+    }
+
+    /**
+     * Paints the vertical scrollbar using given {@link Graphics}.
+     * @param g the {@link Graphics} where to draw a bar.
+     */
+    protected void paintVerticalScrollbar(Graphics g) {
+        if (isVerticalScrollbar) {
+            // background
+            int backgroundX = getWidth() - scrollbarMargin - scrollbarWide - 1;
+            int backgroundY = scrollbarMargin + 1;
+            int backgroundWidth = scrollbarWide;
+            int backgroundHeight = getHeight() - 2 * (scrollbarMargin + 1)
+                    - (isHorizontalScrollbar ? 2 * scrollbarMargin + scrollbarWide : 0);
+            g.setColor(getBackgroundOutlineColor());
+            g.drawRoundRect(backgroundX, backgroundY,
+                    backgroundWidth, backgroundHeight, scrollbarArc, scrollbarArc);
+            g.setColor(getBackgroundColor());
+            g.fillRoundRect(backgroundX + 1, backgroundY + 1,
+                    backgroundWidth - 1, backgroundHeight - 1, scrollbarArc - 1, scrollbarArc - 1);
+            // the bar
+            int barX = getWidth() - scrollbarMargin - scrollbarWide;
+            int barY = scrollbarMargin + 2
+                    + (int) ((double) translationY / (double) imageHeight * (backgroundHeight - 2));
+            int barWidth = scrollbarWide - 1;
+            int barHeight = (int) ((double) getHeight() / (double) imageHeight * (backgroundHeight - 2)) - 1;
+            g.setColor(getBarColor());
+            g.fillRoundRect(barX, barY, barWidth, barHeight, scrollbarArc - 1, scrollbarArc - 1);
+        }
     }
 
     /**
@@ -183,6 +257,39 @@ public class ScrollableCanvas extends Canvas {
         }
         translationX = 0;
         translationY = 0;
+        int screenWidth = getWidth();
+        if (imageWidth > screenWidth) {
+//#mdebug
+            log.trace("Adding a horizontal scrollbar");
+//#enddebug
+            isHorizontalScrollbar = true;
+        } else {
+            isHorizontalScrollbar = false;
+        }
+        int screenHeight = getHeight();
+        if (imageHeight > screenHeight) {
+//#mdebug
+            log.trace("Adding a vertical scrollbar");
+//#enddebug
+            isVerticalScrollbar = true;
+        } else {
+            isVerticalScrollbar = false;
+        }
+        if (isHorizontalScrollbar == false && isVerticalScrollbar == true) {
+            if (imageWidth + scrollbarMargin + scrollbarWide + 1 > screenWidth) {
+//#mdebug
+                log.debug("Adding a horizontal scrollbar, since image + vertical is too big.");
+//#enddebug
+                isHorizontalScrollbar = true;
+            }
+        } else if (isHorizontalScrollbar == true && isVerticalScrollbar == false) {
+            if (imageHeight + scrollbarMargin + scrollbarWide + 1 > screenHeight) {
+//#mdebug
+                log.debug("Adding a vertical scrollbar, sicnce image + horixontal is too big.");
+//#enddebug
+                isVerticalScrollbar = true;
+            }
+        }
         repaint();
     }
 
@@ -197,20 +304,24 @@ public class ScrollableCanvas extends Canvas {
             log.trace("Scrolling image by: x = " + deltaX
                     + ", y = " + deltaY);
 //#enddebug
-            if (imageWidth > getWidth()) {
+            int screenWidth = getWidth();
+            int scrollbarWidth = isVerticalScrollbar ? scrollbarMargin + scrollbarWide + 1 : 0;
+            if (imageWidth > screenWidth) {
                 translationX += deltaX;
                 if (translationX < 0) {
                     translationX = 0;
-                } else if (translationX + getWidth() > imageWidth) {
-                    translationX = imageWidth - getWidth();
+                } else if (translationX + screenWidth > imageWidth + scrollbarWidth) {
+                    translationX = imageWidth - screenWidth + scrollbarWidth;
                 }
             }
-            if (imageHeight > getHeight()) {
+            int screenHeight = getHeight();
+            int scrollbarHeight = isHorizontalScrollbar ? scrollbarMargin + scrollbarWide + 1 : 0;
+            if (imageHeight > screenHeight) {
                 translationY += deltaY;
                 if (translationY < 0) {
                     translationY = 0;
-                } else if (translationY + getHeight() > imageHeight) {
-                    translationY = imageHeight - getHeight();
+                } else if (translationY + screenHeight > imageHeight + scrollbarHeight) {
+                    translationY = imageHeight - screenHeight + scrollbarHeight;
                 }
             }
             repaint();
@@ -242,5 +353,101 @@ public class ScrollableCanvas extends Canvas {
 //#enddebug
             throw new IllegalArgumentException("Speed must be higher than 0!");
         }
+    }
+
+    /**
+     * Gets the scrollbars' arc size (in pixels).
+     * @return the scrollbarArc
+     */
+    public int getScrollbarArc() {
+        return scrollbarArc;
+    }
+
+    /**
+     * Sets the scrollbars' arc size (in pixels).
+     * @param scrollbarArc the scrollbarArc to set
+     */
+    public void setScrollbarArc(int scrollbarArc) {
+        this.scrollbarArc = scrollbarArc;
+    }
+
+    /**
+     * Gets the margin for scrollbars (in pixels).
+     * @return the scrollbarMargin
+     */
+    public int getScrollbarMargin() {
+        return scrollbarMargin;
+    }
+
+    /**
+     * Sets the margin for scrollbars (in pixels).
+     * @param scrollbarMargin the scrollbarMargin to set
+     */
+    public void setScrollbarMargin(int scrollbarMargin) {
+        this.scrollbarMargin = scrollbarMargin;
+    }
+
+    /**
+     * Gets the scrollbars size (in pixels).
+     * @return the scrollbarWide
+     */
+    public int getScrollbarWide() {
+        return scrollbarWide;
+    }
+
+    /**
+     * Sets the scrollbars size (in pixels).
+     * @param scrollbarWide the scrollbarWide to set
+     */
+    public void setScrollbarWide(int scrollbarWide) {
+        this.scrollbarWide = scrollbarWide;
+    }
+
+    /**
+     * Gets the srollbars' outline color.
+     * @return the backgroundOutlineColor
+     */
+    public int getBackgroundOutlineColor() {
+        return backgroundOutlineColor;
+    }
+
+    /**
+     * Sets the srollbars' outline color.
+     * @param backgroundOutlineColor the backgroundOutlineColor to set
+     */
+    public void setBackgroundOutlineColor(int backgroundOutlineColor) {
+        this.backgroundOutlineColor = backgroundOutlineColor;
+    }
+
+    /**
+     * Gets the srollbars' background color.
+     * @return the backgroundColor
+     */
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    /**
+     * Sets the srollbars' background color.
+     * @param backgroundColor the backgroundColor to set
+     */
+    public void setBackgroundColor(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    /**
+     * Gets the scrollbars' bar color.
+     * @return the barColor
+     */
+    public int getBarColor() {
+        return barColor;
+    }
+
+    /**
+     * Sets the scrollbar's bar color.
+     * @param barColor the barColor to set
+     */
+    public void setBarColor(int barColor) {
+        this.barColor = barColor;
     }
 }
