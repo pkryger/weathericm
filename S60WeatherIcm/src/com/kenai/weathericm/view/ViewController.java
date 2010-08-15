@@ -27,9 +27,9 @@ import com.kenai.weathericm.app.MeteorogramBroker;
 import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
 //#mdebug
-import net.sf.microlog.core.Logger;
-import net.sf.microlog.core.LoggerFactory;
-import net.sf.microlog.midp.appender.FormAppender;
+//# import net.sf.microlog.core.Logger;
+//# import net.sf.microlog.core.LoggerFactory;
+//# import net.sf.microlog.midp.appender.FormAppender;
 //#enddebug
 import org.netbeans.microedition.lcdui.WaitScreen;
 import com.kenai.weathericm.app.ForecastDownloadCancellableTask;
@@ -73,10 +73,10 @@ public class ViewController extends MIDlet implements
      */
     public final static String EDIT_LOCATION_TITLE = "Edit Location";
 //#mdebug
-    /**
-     * Logger for this class
-     */
-    private final static Logger log = LoggerFactory.getLogger(ViewController.class);
+//#     /**
+//#      * Logger for this class
+//#      */
+//#     private final static Logger log = LoggerFactory.getLogger(ViewController.class);
 //#enddebug
     private boolean midletPaused = false;
     /**
@@ -173,16 +173,16 @@ public class ViewController extends MIDlet implements
         // write pre-initialize user code here
         AppConfigurator.configure();
 //#mdebug
-        Logger rootLogger = LoggerFactory.getLogger();
-        FormAppender formAppender = (FormAppender) rootLogger.getAppender(0);
-        //To avoid a bug in FromAppender it needs to be open (have logFrom set)
-        //before you can call setLogForm()
-        try {
-            formAppender.open();
-        } catch (IOException ex) {
-            log.fatal("Cannot inintiate form appender in order to set it up!");
-        }
-        formAppender.setLogForm(getLogForm());
+//#         Logger rootLogger = LoggerFactory.getLogger();
+//#         FormAppender formAppender = (FormAppender) rootLogger.getAppender(0);
+//#         //To avoid a bug in FromAppender it needs to be open (have logFrom set)
+//#         //before you can call setLogForm()
+//#         try {
+//#             formAppender.open();
+//#         } catch (IOException ex) {
+//#             log.fatal("Cannot inintiate form appender in order to set it up!");
+//#         }
+//#         formAppender.setLogForm(getLogForm());
 //#enddebug
         okCommand = new Command("Ok", Command.OK, 0);//GEN-BEGIN:|0-initialize|1|0-postInitialize
         mainList = new List("ICM Weather", Choice.IMPLICIT);
@@ -201,7 +201,7 @@ public class ViewController extends MIDlet implements
         // NetBeans debug settings vs. sceen handling.
         boolean hideLog = true;
 //#mdebug
-        hideLog = false;
+//#         hideLog = false;
 //#enddebug
         if (hideLog) {
             mainList.removeCommand(logCommand);
@@ -619,8 +619,8 @@ public class ViewController extends MIDlet implements
         if (logCommand == null) {//GEN-END:|114-getter|0|114-preInit
             // write pre-init user code here
 //#mdebug
-            logCommand = new Command("Log", Command.SCREEN, 100);//GEN-LINE:|114-getter|1|114-postInit
-            // write post-init user code here
+//#             logCommand = new Command("Log", Command.SCREEN, 100);//GEN-LINE:|114-getter|1|114-postInit
+//#             // write post-init user code here
 //#enddebug
         }//GEN-BEGIN:|114-getter|2|
         return logCommand;
@@ -636,10 +636,10 @@ public class ViewController extends MIDlet implements
         if (logForm == null) {//GEN-END:|112-getter|0|112-preInit
             // write pre-init user code here
 //#mdebug
-            logForm = new Form("Log");//GEN-BEGIN:|112-getter|1|112-postInit
-            logForm.addCommand(getBackCommand());
-            logForm.setCommandListener(this);//GEN-END:|112-getter|1|112-postInit
-            // write post-init user code here
+//#             logForm = new Form("Log");//GEN-BEGIN:|112-getter|1|112-postInit
+//#             logForm.addCommand(getBackCommand());
+//#             logForm.setCommandListener(this);//GEN-END:|112-getter|1|112-postInit
+//#             // write post-init user code here
 //#enddebug
         }//GEN-BEGIN:|112-getter|2|
         return logForm;
@@ -670,7 +670,7 @@ public class ViewController extends MIDlet implements
         if (validateNewEditForm()) {//GEN-LINE:|126-if|1|127-preAction
             // write pre-action user code here
 //#mdebug
-            log.info("Validation passed for " + processedInfo);
+//#             log.info("Validation passed for " + processedInfo);
 //#enddebug
             switchDisplayable(null, mainList);//GEN-LINE:|126-if|2|127-postAction
             // write post-action user code here
@@ -686,7 +686,7 @@ public class ViewController extends MIDlet implements
                 validationErrorAlert.setString(validationError);
             }
 //#mdebug
-            log.info("Validation failed for " + processedInfo);
+//#             log.info("Validation failed for " + processedInfo);
 //#enddebug
             switchDisplayable(null, getValidationErrorAlert());//GEN-LINE:|126-if|4|128-postAction
             // write post-action user code here
@@ -819,7 +819,9 @@ public class ViewController extends MIDlet implements
             try {//GEN-BEGIN:|214-getter|1|214-@java.io.IOException
                 downloadImage = Image.createImage("/com/kenai/weathericm/images/Gnome-image-loading.png");
             } catch (java.io.IOException e) {//GEN-END:|214-getter|1|214-@java.io.IOException
-                e.printStackTrace();
+//#mdebug
+//#                 log.error("Cannod get the download image!", e);
+//#enddebug
             }//GEN-LINE:|214-getter|2|214-postInit
             // write post-init user code here
         }//GEN-BEGIN:|214-getter|3|
@@ -838,7 +840,9 @@ public class ViewController extends MIDlet implements
             try {//GEN-BEGIN:|215-getter|1|215-@java.io.IOException
                 forecastNotAvaliableImage = Image.createImage("/com/kenai/weathericm/images/Gnome-weather-clear-night.png");
             } catch (java.io.IOException e) {//GEN-END:|215-getter|1|215-@java.io.IOException
-                e.printStackTrace();
+//#mdebug
+//#                 log.error("Cannot get the image for forecast unavaliable!", e);
+//#enddebug
             }//GEN-LINE:|215-getter|2|215-postInit
             // write post-init user code here
         }//GEN-BEGIN:|215-getter|3|
@@ -857,7 +861,9 @@ public class ViewController extends MIDlet implements
             try {//GEN-BEGIN:|216-getter|1|216-@java.io.IOException
                 forecastAvaliableImage = Image.createImage("/com/kenai/weathericm/images/Gnome-weather-clear.png");
             } catch (java.io.IOException e) {//GEN-END:|216-getter|1|216-@java.io.IOException
-                e.printStackTrace();
+//#mdebug
+//#                 log.error("Cannot get the image for forecast avaliable!", e);
+//#enddebug
             }//GEN-LINE:|216-getter|2|216-postInit
             // write post-init user code here
         }//GEN-BEGIN:|216-getter|3|
@@ -889,12 +895,12 @@ public class ViewController extends MIDlet implements
      */
     protected void prepareProcessedInfo() {
 //#mdebug
-        log.info("Preparing the selected info to process");
+//#         log.info("Preparing the selected info to process");
 //#enddebug
         processedInfo = getSelectedMeteorogramInfo();
         if (processedInfo == null) {
 //#mdebug
-            log.fatal("Cannot find a info for current selection!");
+//#             log.fatal("Cannot find a info for current selection!");
 //#enddebug
             throw new NullPointerException("Model doesn't contain displayed element!");
         }
@@ -906,7 +912,7 @@ public class ViewController extends MIDlet implements
      */
     protected void prepareNewMode() {
 //#mdebug
-        log.info("Prepraring new location screen");
+//#         log.info("Prepraring new location screen");
 //#enddebug
         newMode = true;
         getNewEditForm().setTitle(NEW_LOCATION_TITLE);
@@ -925,14 +931,14 @@ public class ViewController extends MIDlet implements
      */
     protected void prepareEditMode() {
 //#mdebug
-        log.info("Preparing edit location screen");
+//#         log.info("Preparing edit location screen");
 //#enddebug
         newMode = false;
         getNewEditForm().setTitle(EDIT_LOCATION_TITLE);
         processedInfo = getSelectedMeteorogramInfo();
         if (processedInfo == null) {
 //#mdebug
-            log.fatal("Cannot find a info for current selection!");
+//#             log.fatal("Cannot find a info for current selection!");
 //#enddebug
             throw new NullPointerException("Model doesn't contain displayed element!");
         } else {
@@ -968,7 +974,7 @@ public class ViewController extends MIDlet implements
             }
         }
 //#mdebug
-        log.info("Returning selected info = " + selected);
+//#         log.info("Returning selected info = " + selected);
 //#enddebug
         return selected;
     }
@@ -986,7 +992,7 @@ public class ViewController extends MIDlet implements
      */
     protected boolean validateNewEditForm() {
 //#mdebug
-        log.info("Validating New/Edit Location form data...");
+//#         log.info("Validating New/Edit Location form data...");
 //#enddebug
         validationError = null;
         NewEditMeteorogramInfoFormData data = getNewEditFormData();
@@ -995,13 +1001,13 @@ public class ViewController extends MIDlet implements
         Vector errors = validator.getErrors();
         if (errors == null) {
 //#mdebug
-            log.info("Validation passed");
+//#             log.info("Validation passed");
 //#enddebug
             populateProcessedInfo(data);
             return true;
         } else {
 //#mdebug
-            log.info("Validataion failed");
+//#             log.info("Validataion failed");
 //#enddebug
             StringBuffer errorsBuffer = new StringBuffer("Errors: ");
             Enumeration e = errors.elements();
@@ -1035,7 +1041,7 @@ public class ViewController extends MIDlet implements
     protected void handleDeleteAction() {
         if (processedInfo == null) {
 //#mdebug
-            log.fatal("The info is null when trying to delete it!");
+//#             log.fatal("The info is null when trying to delete it!");
 //#enddebug
             throw new NullPointerException("Internal state broken when deleting entry!");
         }
@@ -1049,7 +1055,7 @@ public class ViewController extends MIDlet implements
     protected void handleNewAction() {
         if (processedInfo == null) {
 //#mdebug
-            log.fatal("The info is null when trying to create it!");
+//#             log.fatal("The info is null when trying to create it!");
 //#enddebug
             throw new NullPointerException("Internal state broken when creating entry!");
         }
@@ -1063,7 +1069,7 @@ public class ViewController extends MIDlet implements
     protected void handleEditAction() {
         if (processedInfo == null) {
 //#mdebug
-            log.fatal("The info is null when trying to update it!");
+//#             log.fatal("The info is null when trying to update it!");
 //#enddebug
             throw new NullPointerException("Internal state broken when updating entry!");
         }
@@ -1153,7 +1159,7 @@ public class ViewController extends MIDlet implements
     public void readMeteorogramInfo(Vector newMeteorogramInfos) {
         if (newMeteorogramInfos != null) {
 //#mdebug
-            log.info("Populating main list with new meteorogram data");
+//#             log.info("Populating main list with new meteorogram data");
 //#enddebug
             mainList.deleteAll();
             // Let's remove info related commands for a while
@@ -1177,7 +1183,7 @@ public class ViewController extends MIDlet implements
             }
         } else {
 //#mdebug
-            log.error("Trying to populate list with null!");
+//#             log.error("Trying to populate list with null!");
 //#enddebug
         }
     }
@@ -1190,7 +1196,7 @@ public class ViewController extends MIDlet implements
         if (addedMeteorogramInfo != null
                 && !infoToMainListIndex.containsKey(addedMeteorogramInfo)) {
 //#mdebug
-            log.info("Adding info to the list: " + addedMeteorogramInfo);
+//#             log.info("Adding info to the list: " + addedMeteorogramInfo);
 //#enddebug
             // If now the list is empty then we'll need to add info related
             // commands (check before adding, so in case of parallel execution
@@ -1208,8 +1214,8 @@ public class ViewController extends MIDlet implements
             }
         } else {
 //#mdebug
-            log.error("Trying to add a null to the list or info already exists in list! "
-                    + addedMeteorogramInfo);
+//#             log.error("Trying to add a null to the list or info already exists in list! "
+//#                     + addedMeteorogramInfo);
 //#enddebug
         }
     }
@@ -1222,7 +1228,7 @@ public class ViewController extends MIDlet implements
         if (deletedMeteorogramInfo != null
                 && infoToMainListIndex.containsKey(deletedMeteorogramInfo)) {
 //#mdebug
-            log.info("Deleting info from list: " + deletedMeteorogramInfo);
+//#             log.info("Deleting info from list: " + deletedMeteorogramInfo);
 //#enddebug
             int deletedIndex =
                     ((Integer) infoToMainListIndex.remove(deletedMeteorogramInfo)).intValue();
@@ -1243,8 +1249,8 @@ public class ViewController extends MIDlet implements
             }
         } else {
 //#mdebug
-            log.error("Trying to delete null from list or info doesn't exist in list! "
-                    + deletedMeteorogramInfo);
+//#             log.error("Trying to delete null from list or info doesn't exist in list! "
+//#                     + deletedMeteorogramInfo);
 //#enddebug
         }
     }
@@ -1257,7 +1263,7 @@ public class ViewController extends MIDlet implements
         if (updatedMeteorogramInfo != null
                 && infoToMainListIndex.containsKey(updatedMeteorogramInfo)) {
 //#mdebug
-            log.info("Updating info in list: " + updatedMeteorogramInfo);
+//#             log.info("Updating info in list: " + updatedMeteorogramInfo);
 //#enddebug
             int index =
                     ((Integer) infoToMainListIndex.get(updatedMeteorogramInfo)).intValue();
@@ -1272,8 +1278,8 @@ public class ViewController extends MIDlet implements
 
         } else {
 //#mdebug
-            log.error("Trying to update null in list or info that doesn't exist in list! "
-                    + updatedMeteorogramInfo);
+//#             log.error("Trying to update null in list or info that doesn't exist in list! "
+//#                     + updatedMeteorogramInfo);
 //#enddebug
         }
     }
@@ -1287,8 +1293,8 @@ public class ViewController extends MIDlet implements
     public void statusUpdate(StatusReporter source, Status status) {
         if (source == null || status == null) {
 //#mdebug
-            log.error("Status or source is null: status = " + status
-                    + "source = " + source);
+//#             log.error("Status or source is null: status = " + status
+//#                     + "source = " + source);
 //#enddebug
             throw new NullPointerException("Updating status with nulls");
         }
@@ -1297,15 +1303,15 @@ public class ViewController extends MIDlet implements
         }
         if (isDownloadWaitScreenVisible()) {
 //#mdebug
-            log.trace("Setting progress to: " + status.getProgress());
+//#             log.trace("Setting progress to: " + status.getProgress());
 //#enddebug
             StringBuffer buffer = new StringBuffer("Downloading... ");
             buffer.append("(").append(status.getProgress()).append("% done)");
             downloadWaitScreen.setText(buffer.toString());
         } else {
 //#mdebug
-            log.warn("The download waiting screen is not visible status update has been "
-                    + "recevied from: " + source);
+//#             log.warn("The download waiting screen is not visible status update has been "
+//#                     + "recevied from: " + source);
 //#enddebug
         }
     }
@@ -1321,7 +1327,7 @@ public class ViewController extends MIDlet implements
             task.removeListener(this);
             if (cancelTask) {
 //#mdebug
-                log.debug("Cancelling the task");
+//#                 log.debug("Cancelling the task");
 //#enddebug
                 task.cancel();
             }
