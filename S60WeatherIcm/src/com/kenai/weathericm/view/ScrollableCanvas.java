@@ -80,11 +80,29 @@ public class ScrollableCanvas extends Canvas {
      * Shall the vertical scrollbar be shown?
      */
     private boolean isVerticalScrollbar = false;
+    /**
+     * The arc of the scrollbar.
+     */
     private int scrollbarArc = 3;
+    /**
+     * The margin of the scrollbars.
+     */
     private int scrollbarMargin = 2;
+    /**
+     * The size of the scrollbar.
+     */
     private int scrollbarWide = 6;
+    /**
+     * The scrollbars' outline color.
+     */
     private int backgroundOutlineColor = 0x000000;
+    /**
+     * The scrollbars' background color.
+     */
     private int backgroundColor = 0x828282;
+    /**
+     * The scrollbats' bar color.
+     */
     private int barColor = 0xf5f5f5;
 
     /**
