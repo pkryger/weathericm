@@ -268,12 +268,12 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             }
             // Start data is around 9% of total data to download and parse.
             // Let's leave one percent for parsing.
-            percentChunk = (totalBytes / ((long) (8 - percent))) + 1L;
+            percentChunk = (totalBytes / ((long) (7 - percent))) + 1L;
             chunkCounter = 0;
             StringBuffer startDateBuffer = new StringBuffer((int) totalBytes);
             while ((readByte = dis.read()) != -1) {
                 startDateBuffer.append((char) readByte);
-                if (++chunkCounter >= percentChunk) {
+                if (++chunkCounter >= percentChunk && percent < 7) {
                     chunkCounter = 0;
                     setProgress(++percent);
                 }
@@ -281,6 +281,13 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
                     throw new InterruptedException();
                 }
             }
+//#mdebug
+            if (chunkCounter >= percentChunk) {
+                log.warn("Last chunkCounter was bigger than percentChunk!"
+                        + " chunkCounter = " + chunkCounter
+                        + ", percentChunk = " + percentChunk);
+            }
+//#enddebug
             setProgress(++percent); //8%
             dis.close();
             connection.close();
@@ -321,12 +328,12 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
             }
             // IM data is around 91% of total data to download and parse.
             // Let's leave two percents for parsing.
-            percentChunk = (totalBytes / ((long) (98 - percent))) + 1L;
+            percentChunk = (totalBytes / ((long) (97 - percent))) + 1L;
             chunkCounter = 0;
             Vector imageBuffer = new Vector((int) totalBytes);
             while ((readByte = dis.read()) != -1) {
                 imageBuffer.addElement(new Byte((byte) readByte));
-                if (++chunkCounter >= percentChunk) {
+                if (++chunkCounter >= percentChunk && percent < 97) {
                     chunkCounter = 0;
                     setProgress(++percent);
                 }
@@ -334,6 +341,13 @@ public class ForecastDownloadCancellableTask extends StatusReporter implements C
                     throw new InterruptedException();
                 }
             }
+//#mdebug
+            if (chunkCounter >= percentChunk) {
+                log.warn("Last chunkCounter was bigger than percentChunk!"
+                        + " chunkCounter = " + chunkCounter
+                        + ", percentChunk = " + percentChunk);
+            }
+//#enddebug
             setProgress(++percent); //98%
             dis.close();
             connection.close();
