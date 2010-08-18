@@ -25,16 +25,16 @@ import net.sf.microlog.core.LoggerFactory;
 //#enddebug
 
 /**
- *
- * @author Przemek
+ * This is the default abstract implementation of {@link StatusReporter}.
+ * @author Przemek Kryger
  */
-public abstract class StatusReporter {
+public abstract class AbstractStatusReporter implements StatusReporter {
 
 //#mdebug
     /**
      * The class logger.
      */
-    private final static Logger log = LoggerFactory.getLogger(StatusReporter.class);
+    private final static Logger log = LoggerFactory.getLogger(AbstractStatusReporter.class);
 //#enddebug
     /**
      * All the registerd {@link StatusListener}s instances.

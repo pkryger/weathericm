@@ -18,7 +18,7 @@
 package com.kenai.weathericm.app;
 
 import com.kenai.weathericm.util.StatusListener;
-import com.kenai.weathericm.util.StatusReporter;
+import com.kenai.weathericm.util.AbstractStatusReporter;
 import com.kenai.weathericm.util.Status;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -45,7 +45,7 @@ import com.kenai.weathericm.util.PropertiesRepository;
  * Note: upon the registration of the listener this task status is sent to the listener.
  * @author Przemek Kryger
  */
-public class ForecastDownloadCancellableTask extends StatusReporter implements CancellableTask {
+public class ForecastDownloadCancellableTask extends AbstractStatusReporter implements CancellableTask {
 
     /**
      * The key used to obtaining the URL for model start data. This value 
