@@ -15,24 +15,33 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.kenai.weathericm.app;
+package com.kenai.weathericm.util;
+
+import java.util.Vector;
 
 /**
- * The interface for the task that will get the start data from the network.
+ * This is an iterface for the tasks that wish to report their status via
+ * {@link Status} objects.
  * @author Przemek Kryger
  */
-public interface StartDataDownloader {
+public interface StatusReporter {
 
     /**
-     * Downloads the start data for the given {@code url}.
-     * @param url the {@link String} where from the data shall be downloaded.
-     * @return the {@link String} that contains start data.
+     * Registers a new listener.
+     * @param listener the {@link StatusListener} to register.
      */
-    String downloadStartData(String url);
+    void addListener(StatusListener listener);
 
     /**
-     * Aborts the start data downloading.
-     * @return {@code true} if download has been aborted, {@code false} otherwise.
+     * Gets all the registered {@link StatusListener}s registered.
+     * @return the {@link Vector} with all registered listeners.
      */
-    boolean cancel();
+    Vector getListeners();
+
+    /**
+     * Removes the {@code listener}.
+     * @param listener the {@link StatusListener} to remove.
+     */
+    void removeListener(StatusListener listener);
+
 }

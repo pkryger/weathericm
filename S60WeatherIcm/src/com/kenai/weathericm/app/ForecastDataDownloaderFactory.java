@@ -19,9 +19,11 @@ package com.kenai.weathericm.app;
 
 /**
  * This is the factory used to get instances of {@link ForecastDataDownloader}s.
+ * It will obtain {@link StartDataDownloader} and {@link ModelResultDownloader}
+ * implementations from {@code ForecastDataDownloaderFactory.properties}.
  * @author Przemek Kryger
  */
-public class ForecastDataDownloadeFactory {
+public class ForecastDataDownloaderFactory {
 
     /**
      * Gets the new instance of {@link ForecastDataDownloader} with propery configured
@@ -32,23 +34,4 @@ public class ForecastDataDownloadeFactory {
         return null;
     }
 
-    /**
-     * Sets the implemenation of {@link StartDataDownloader} to be used for new
-     * {@link ForecastDataDownloader}s.
-     * @param implementation the {@link Class} that implements {@link StartDataDownloader}.
-     * @throws IllegalArgumentException if the the {@code implementation} cannot be instaniated
-     *         or it doesn't implement {@link StartDataDownloader}.
-     */
-    public static void setStartDataDownloaderImplementation(Class implementation) {
-    }
-
-    /**
-     * Sets the implemenation of {@link ModelResultDownloader} to be used for new
-     * {@link ForecastDataDownloader}s.
-     * @param implementation the {@link Class} that implements {@link ModelResultDownloader}.
-     * @throws IllegalArgumentException if the the {@code implementation} cannot be instaniated
-     *         or it doesn't implement {@link ModelResultDownloader}.
-     */
-    public static void setModelResultDownloaderImplementation(Class implementation) {
-    }
 }

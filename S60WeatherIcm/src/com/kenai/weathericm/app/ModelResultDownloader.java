@@ -17,8 +17,6 @@
  */
 package com.kenai.weathericm.app;
 
-import com.kenai.weathericm.domain.MeteorogramInfo;
-
 /**
  * The interface for the task that will download the image with forecast.
  * @author Przemek Kryger
@@ -27,9 +25,15 @@ public interface ModelResultDownloader {
 
     /**
      * Downloads the model result (image with forecast) based on the given
-     * {@code info}
-     * @param info the {@link MeteorogramInfo} the model result shall be downloaded.
+     * {@code url}
+     * @param url the {@link String} where from the data shall be downloaded.
      * @return the {@code byte[]} array with meteorogram data.s
      */
-    byte[] downloadModelResult(MeteorogramInfo info);
+    byte[] downloadModelResult(String url);
+
+    /**
+     * Aborts the model result downloading.
+     * @return {@code true} if download has been aborted, {@code false} otherwise.
+     */
+    boolean cancel();
 }
