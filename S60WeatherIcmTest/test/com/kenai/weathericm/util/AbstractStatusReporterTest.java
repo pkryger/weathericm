@@ -24,17 +24,17 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
- *
+ * Test for {@link AbstractStatusReporter}.
  * @author Przemek Kryger
  */
-public class StatusReporterTest {
+public class AbstractStatusReporterTest {
 
-    private StatusReporter fixture = null;
+    private AbstractStatusReporter fixture = null;
     private DummyListener listener = null;
 
     @Before
     public void setUp() {
-        fixture = new StatusReporter() {};
+        fixture = new AbstractStatusReporter() {};
         listener = new DummyListener();
     }
 
@@ -123,7 +123,8 @@ public class StatusReporterTest {
         fixture.addListener(listener);
         Status status = new Status();
         fixture.fireStatusUpdate(status);
-        assertThat(listener.source, is(fixture));
+        assertThat(listener.source, instanceOf(AbstractStatusReporter.class));
+        assertThat((AbstractStatusReporter)listener.source, is(fixture));
         assertThat(listener.status, is(status));
     }
 

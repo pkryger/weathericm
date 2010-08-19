@@ -20,6 +20,7 @@ package com.kenai.weathericm.view;
 import com.kenai.weathericm.app.MeteorogramBroker;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
+import com.kenai.weathericm.util.AbstractStatusReporter;
 import com.kenai.weathericm.util.Status;
 import com.kenai.weathericm.util.StatusReporter;
 import com.kenai.weathericm.view.validation.MeteorogramInfoDataValidator;
@@ -700,7 +701,7 @@ public class ViewControllerTest {
 
     @Test
     public void statusUpdate() throws Exception {
-        StatusReporter task = new StatusReporter() {};
+        StatusReporter task = new AbstractStatusReporter() {};
         task.addListener(fixture);
         expectPrivate(fixture, "isDownloadWaitScreenVisible").andReturn(true);
         String statusText = "Downloading... (" + Status.FINISHED.getProgress() + "% done)";
@@ -714,7 +715,7 @@ public class ViewControllerTest {
 
     @Test
     public void statusUpdateWaitScreenHidden() throws Exception {
-        StatusReporter task = new StatusReporter() {};
+        StatusReporter task = new AbstractStatusReporter() {};
         task.addListener(fixture);
         expectPrivate(fixture, "isDownloadWaitScreenVisible").andReturn(false);
         replayAll();
@@ -731,7 +732,7 @@ public class ViewControllerTest {
 
     @Test(expected= NullPointerException.class)
     public void statusUpdateNullStatus() {
-        StatusReporter task = new StatusReporter() {};
+        StatusReporter task = new AbstractStatusReporter() {};
         fixture.statusUpdate(task, null);
     }
 }
