@@ -60,6 +60,10 @@ public abstract class AbstractStatusReporter implements StatusReporter {
 //#enddebug
     }
 
+    /**
+     * Notifies all the registered listeners on the {@code status}.
+     * @param status the {@link Status} to be reported.
+     */
     protected void fireStatusUpdate(Status status) {
 //#mdebug
         log.trace(this + ": Notifying on status update = " + status);

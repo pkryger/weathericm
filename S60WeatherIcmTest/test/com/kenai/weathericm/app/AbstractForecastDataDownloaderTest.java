@@ -23,7 +23,9 @@ import com.kenai.weathericm.util.Properties;
 import com.kenai.weathericm.util.Status;
 import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.StatusReporter;
+import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -37,41 +39,44 @@ import static org.powermock.api.easymock.PowerMock.replayAll;
 import static org.powermock.api.easymock.PowerMock.verifyAll;
 
 /**
- * Tests for {@link ForecastDownloadCancellableTask}
+ * Tests for {@link AbstractForecastDataDownloader}
  * @author Przemek Kryger
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ForecastDownloadCancellableTask.class)
-public class ForecastDownloadCancellableTaskTest {
+@PrepareForTest(AbstractForecastDataDownloader.class)
+public class AbstractForecastDataDownloaderTest {
 
+    @BeforeClass
+    public static void setUpClass() {
+        PropertyConfigurator.configure("/testMicrolog.properties");
+    }
+    
     private MeteorogramInfo info;
-    private ForecastDownloadCancellableTask fixture;
+    private AbstractForecastDataDownloader fixture;
     private DummyListener listener;
     private Thread threadMock;
     private Properties properties;
     private final static String PROGRESS = "progress";
     private final static String MY_THREAD = "myThread";
-    private final static String INFO = "info";
     private final static String CANCELLED = "cancelled";
+    private final static String START_DATE_DOWNLOADER = "startDateDownloader";
+    private final static String MODEL_RESULT_DOWNLOADER = "modelResultDownloader";
 
     @Before
     public void setUp() {
         info = new MeteorogramInfo();
-        fixture = new ForecastDownloadCancellableTask(info);
+        fixture = new AbstractForecastDataDownloader() {
+        };
+        fixture.setMeteorogramInfo(info);
         listener = new DummyListener();
         threadMock = createMock(Thread.class);
         properties = new Properties();
-        properties.setProperty(ForecastDownloadCancellableTask.IMAGE_URL_PREFIX_KEY, "img.url");
-        properties.setProperty(ForecastDownloadCancellableTask.PARSE_DAY_KEY, "day.key");
-        properties.setProperty(ForecastDownloadCancellableTask.PARSE_HOUR_KEY, "hour.key");
-        properties.setProperty(ForecastDownloadCancellableTask.PARSE_MONTH_KEY, "month.key");
-        properties.setProperty(ForecastDownloadCancellableTask.PARSE_YEAR_KEY, "year.key");
+        properties.setProperty(AbstractForecastDataDownloader.IMAGE_URL_PREFIX_KEY, "img.url");
+        properties.setProperty(AbstractForecastDataDownloader.PARSE_DAY_KEY, "day.key");
+        properties.setProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY, "hour.key");
+        properties.setProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY, "month.key");
+        properties.setProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY, "year.key");
         mockStatic(Thread.class);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void createWithNull() {
-        fixture = new ForecastDownloadCancellableTask(null);
     }
 
     @Test
@@ -82,9 +87,7 @@ public class ForecastDownloadCancellableTaskTest {
         threadMock.interrupt();
         replayAll();
         boolean cancelled = fixture.cancel();
-        boolean failed = fixture.hasFailed();
         assertThat(cancelled, is(true));
-        assertThat(failed, is(true));
         Boolean internalCancelled = Whitebox.getInternalState(fixture, CANCELLED);
         assertThat(internalCancelled, equalTo(Boolean.TRUE));
         verifyAll();
@@ -97,9 +100,7 @@ public class ForecastDownloadCancellableTaskTest {
         Whitebox.setInternalState(fixture, PROGRESS, progress);
         replayAll();
         boolean cancelled = fixture.cancel();
-        boolean failed = fixture.hasFailed();
         assertThat(cancelled, is(false));
-        assertThat(failed, is(true));
         Boolean internalCancelled = Whitebox.getInternalState(fixture, CANCELLED);
         assertThat(internalCancelled, equalTo(Boolean.FALSE));
         verifyAll();
@@ -121,15 +122,15 @@ public class ForecastDownloadCancellableTaskTest {
         info.setType(MeteorogramType.UM);
         Properties actual = fixture.loadTypeProperties();
         assertThat(actual, is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.IMAGE_URL_PREFIX_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.IMAGE_URL_PREFIX_KEY),
                 is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.PARSE_DAY_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.PARSE_DAY_KEY),
                 is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.PARSE_MONTH_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY),
                 is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.PARSE_HOUR_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY),
                 is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.PARSE_YEAR_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY),
                 is(not(nullValue())));
     }
 
@@ -138,15 +139,15 @@ public class ForecastDownloadCancellableTaskTest {
         info.setType(MeteorogramType.COAMPS);
         Properties actual = fixture.loadTypeProperties();
         assertThat(actual, is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.IMAGE_URL_PREFIX_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.IMAGE_URL_PREFIX_KEY),
                 is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.PARSE_DAY_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.PARSE_DAY_KEY),
                 is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.PARSE_MONTH_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY),
                 is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.PARSE_HOUR_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY),
                 is(not(nullValue())));
-        assertThat(actual.getProperty(ForecastDownloadCancellableTask.PARSE_YEAR_KEY),
+        assertThat(actual.getProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY),
                 is(not(nullValue())));
     }
 
@@ -174,7 +175,7 @@ public class ForecastDownloadCancellableTaskTest {
 
     @Test(expected = NullPointerException.class)
     public void parseStartDateNoYearKey() {
-        properties.remove(ForecastDownloadCancellableTask.PARSE_YEAR_KEY);
+        properties.remove(AbstractForecastDataDownloader.PARSE_YEAR_KEY);
         String day = "12";
         String month = "13";
         String year = "1999";
@@ -185,7 +186,7 @@ public class ForecastDownloadCancellableTaskTest {
 
     @Test(expected = NullPointerException.class)
     public void parseStartDateNoMonthKey() {
-        properties.remove(ForecastDownloadCancellableTask.PARSE_MONTH_KEY);
+        properties.remove(AbstractForecastDataDownloader.PARSE_MONTH_KEY);
         String day = "12";
         String month = "13";
         String year = "1999";
@@ -196,7 +197,7 @@ public class ForecastDownloadCancellableTaskTest {
 
     @Test(expected = NullPointerException.class)
     public void parseStartDateNoDayKey() {
-        properties.remove(ForecastDownloadCancellableTask.PARSE_DAY_KEY);
+        properties.remove(AbstractForecastDataDownloader.PARSE_DAY_KEY);
         String day = "12";
         String month = "13";
         String year = "1999";
@@ -207,7 +208,7 @@ public class ForecastDownloadCancellableTaskTest {
 
     @Test(expected = NullPointerException.class)
     public void parseStartDateNoHourKey() {
-        properties.remove(ForecastDownloadCancellableTask.PARSE_HOUR_KEY);
+        properties.remove(AbstractForecastDataDownloader.PARSE_HOUR_KEY);
         String day = "12";
         String month = "13";
         String year = "1999";
@@ -260,7 +261,7 @@ public class ForecastDownloadCancellableTaskTest {
         info.setY(7);
         String expected = prefix + startData
                 + "&row=" + info.getY() + "&col=" + info.getX() + "&lang=pl";
-        properties.setProperty(ForecastDownloadCancellableTask.IMAGE_URL_PREFIX_KEY, prefix);
+        properties.setProperty(AbstractForecastDataDownloader.IMAGE_URL_PREFIX_KEY, prefix);
         String actual = fixture.createForecastDataUrl(startData, properties);
         assertThat(actual, is(not(nullValue())));
         assertThat(actual, equalTo(expected));
@@ -271,7 +272,7 @@ public class ForecastDownloadCancellableTaskTest {
         String prefix = "http://a.com/sd=";
         info.setX(9);
         info.setY(7);
-        properties.setProperty(ForecastDownloadCancellableTask.IMAGE_URL_PREFIX_KEY, prefix);
+        properties.setProperty(AbstractForecastDataDownloader.IMAGE_URL_PREFIX_KEY, prefix);
         String actual = fixture.createForecastDataUrl(null, properties);
     }
 
@@ -289,7 +290,7 @@ public class ForecastDownloadCancellableTaskTest {
         String startData = "2010031400";
         info.setX(9);
         info.setY(7);
-        properties.setProperty(ForecastDownloadCancellableTask.IMAGE_URL_PREFIX_KEY, prefix);
+        properties.setProperty(AbstractForecastDataDownloader.IMAGE_URL_PREFIX_KEY, prefix);
         String actual = fixture.createForecastDataUrl(startData, properties);
     }
 
@@ -298,26 +299,26 @@ public class ForecastDownloadCancellableTaskTest {
         String startData = "2010031400";
         info.setX(9);
         info.setY(7);
-        properties.remove(ForecastDownloadCancellableTask.IMAGE_URL_PREFIX_KEY);
+        properties.remove(AbstractForecastDataDownloader.IMAGE_URL_PREFIX_KEY);
         String actual = fixture.createForecastDataUrl(startData, properties);
     }
 
     private StringBuffer prepareDateStringBuffer(String year, String month, String day, String hour) {
         StringBuffer buffer = new StringBuffer();
         if (year != null) {
-            buffer.append(properties.getProperty(ForecastDownloadCancellableTask.PARSE_YEAR_KEY));
+            buffer.append(properties.getProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY));
             buffer.append(year);
         }
         if (month != null) {
-            buffer.append(properties.getProperty(ForecastDownloadCancellableTask.PARSE_MONTH_KEY));
+            buffer.append(properties.getProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY));
             buffer.append(month);
         }
         if (day != null) {
-            buffer.append(properties.getProperty(ForecastDownloadCancellableTask.PARSE_DAY_KEY));
+            buffer.append(properties.getProperty(AbstractForecastDataDownloader.PARSE_DAY_KEY));
             buffer.append(day);
         }
         if (hour != null) {
-            buffer.append(properties.getProperty(ForecastDownloadCancellableTask.PARSE_HOUR_KEY));
+            buffer.append(properties.getProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY));
             buffer.append(hour);
         }
         return buffer;
@@ -330,11 +331,79 @@ public class ForecastDownloadCancellableTaskTest {
         assertThat(listener.status.getProgress(), equalTo(2));
     }
 
+    @Test
+    public void fireStatusUpdate() {
+        Status status = Status.CANCELLED;
+        fixture.fireStatusUpdate(status);
+        assertThat(fixture.lastStatus, equalTo(status));
+    }
+
+    @Test
+    public void getSetStartDateDownloader() {
+        StartDateDownloader downloader = new StartDateDownloader() {
+
+            @Override
+            public String downloadStartDate(String url) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean cancel() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        };
+        fixture.setStartDateDownloader(downloader);
+        StartDateDownloader actual = Whitebox.getInternalState(fixture, START_DATE_DOWNLOADER);
+        assertThat(actual, equalTo(downloader));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void setStartDateDownloaderNull() {
+        fixture.setStartDateDownloader(null);
+    }
+
+    @Test
+    public void getSetModelResultDownloader() {
+        ModelResultDownloader downloader = new ModelResultDownloader() {
+
+            @Override
+            public byte[] downloadModelResult(String url) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean cancel() {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        };
+        fixture.setModelResultDownloader(downloader);
+        ModelResultDownloader actual = Whitebox.getInternalState(fixture, MODEL_RESULT_DOWNLOADER);
+        assertThat(actual, equalTo(downloader));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void setModelResultDownloaderNull() {
+        fixture.setModelResultDownloader(null);
+    }
+
+    @Test
+    public void getSetMeteorogramInfo() {
+        fixture.setMeteorogramInfo(info);
+        MeteorogramInfo actual = fixture.getMeteorogramInfo();
+        assertThat(actual, equalTo(info));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void setMeteorogramInfoNull() {
+        fixture.setMeteorogramInfo(null);
+    }
+
     private class DummyListener implements StatusListener {
 
         public StatusReporter source = null;
         public Status status = null;
 
+        @Override
         public void statusUpdate(StatusReporter source, Status status) {
             this.source = source;
             this.status = status;

@@ -18,7 +18,9 @@
 package com.kenai.weathericm.util;
 
 import java.util.Vector;
+import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -32,9 +34,15 @@ public class AbstractStatusReporterTest {
     private AbstractStatusReporter fixture = null;
     private DummyListener listener = null;
 
+    @BeforeClass
+    public static void setUpClass() {
+        PropertyConfigurator.configure("/testMicrolog.properties");
+    }
+
     @Before
     public void setUp() {
-        fixture = new AbstractStatusReporter() {};
+        fixture = new AbstractStatusReporter() {
+        };
         listener = new DummyListener();
     }
 
@@ -124,7 +132,7 @@ public class AbstractStatusReporterTest {
         Status status = new Status();
         fixture.fireStatusUpdate(status);
         assertThat(listener.source, instanceOf(AbstractStatusReporter.class));
-        assertThat((AbstractStatusReporter)listener.source, is(fixture));
+        assertThat((AbstractStatusReporter) listener.source, is(fixture));
         assertThat(listener.status, is(status));
     }
 

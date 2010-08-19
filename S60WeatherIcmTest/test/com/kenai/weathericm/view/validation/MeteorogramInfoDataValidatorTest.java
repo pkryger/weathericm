@@ -17,7 +17,9 @@
  */
 package com.kenai.weathericm.view.validation;
 
+import org.junit.BeforeClass;
 import java.util.Vector;
+import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
@@ -30,6 +32,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class MeteorogramInfoDataValidatorTest {
 
+    @BeforeClass
+    public static void setUpClass() {
+        PropertyConfigurator.configure("/testMicrolog.properties");
+    }
     private final static String ERRORS_NAME = "errors";
     private MeteorogramInfoDataValidator fixture = null;
 

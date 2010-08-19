@@ -21,14 +21,14 @@ package com.kenai.weathericm.app;
  * The interface for the task that will get the start data from the network.
  * @author Przemek Kryger
  */
-public interface StartDataDownloader {
+public interface StartDateDownloader {
 
     /**
      * Downloads the start data for the given {@code url}.
      * @param url the {@link String} where from the data shall be downloaded.
      * @return the {@link String} that contains start data.
      */
-    String downloadStartData(String url);
+    String downloadStartDate(String url);
 
     /**
      * Aborts the start data downloading.

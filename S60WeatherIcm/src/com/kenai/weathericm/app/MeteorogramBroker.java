@@ -57,7 +57,7 @@ public class MeteorogramBroker implements StatusListener {
     private final Vector listeners = new Vector();
     /**
      * The map that contains {@link MeteorogramInfo} to a corresponding
-     * {@link ForecastDownloadCancellableTask}s mapping.
+     * {@link ForecastDownloader}s mapping.
      */
     private Hashtable infoToDownloadTask = new Hashtable();
 
@@ -296,19 +296,20 @@ public class MeteorogramBroker implements StatusListener {
      * already is a task that downloads forecast for a given info, it is returned.
      * Otherwise a new task is created.
      * @param info the {@link MeteorogramInfo} that needs a task to perform a download.
-     * @return the {@link ForecastDownloadCancellableTask} that performs a download.
+     * @return the {@link ForecastDataDownloader} that performs a download.
      */
-    public ForecastDownloadCancellableTask getDownloadTask(MeteorogramInfo info) {
+    public ForecastDataDownloader getDownloadTask(MeteorogramInfo info) {
 //#mdebug
         log.info("Getting a downaload task for info: " + info);
 //#enddebug
-        ForecastDownloadCancellableTask task =
-                (ForecastDownloadCancellableTask) infoToDownloadTask.get(info);
+        ForecastDataDownloader task =
+                (ForecastDataDownloader) infoToDownloadTask.get(info);
         if (task == null) {
 //#mdebug
             log.debug("Creating a new download task for info: " + info);
 //#enddebug
-            task = new ForecastDownloadCancellableTask(info);
+            task = ForecastDataDownloaderFactory.getDownloader();
+            task.setMeteorogramInfo(info);
             infoToDownloadTask.put(info, task);
         }
         task.addListener(this);
@@ -316,7 +317,7 @@ public class MeteorogramBroker implements StatusListener {
     }
 
     /**
-     * When one of the {@link ForecastDownloadCancellableTask}s finishes it's downloading
+     * When one of the {@link ForecastDataDownloader}s finishes it's downloading
      * it's removed from mapping. It's done whenever {@code status} is one of:
      * {@value Status#CANCELLED} or {@value Status#FINISHED}.
      * @param source the {@link StatusReporter} that triggered the event.
@@ -330,14 +331,14 @@ public class MeteorogramBroker implements StatusListener {
                     + ", source = " + source);
 //#enddebug
             throw new NullPointerException("Cannot update status for task if one of them is null!");
-        } else if (!(source instanceof ForecastDownloadCancellableTask)) {
+        } else if (!(source instanceof ForecastDataDownloader)) {
 //#mdebug
             log.error("Someone strange reports to broker: " + source);
 //#enddebug
         } else if (status == Status.CANCELLED
                 || status == Status.FINISHED) {
-            ForecastDownloadCancellableTask task = (ForecastDownloadCancellableTask)source;
-            MeteorogramInfo info = task.getInfo();
+            ForecastDataDownloader task = (ForecastDataDownloader)source;
+            MeteorogramInfo info = task.getMeteorogramInfo();
             if (status == Status.FINISHED) {
                 fireUpdatedMeteorogramInfo(info);
             }

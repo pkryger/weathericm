@@ -45,7 +45,7 @@ import com.kenai.weathericm.util.PropertiesRepository;
  * Note: upon the registration of the listener this task status is sent to the listener.
  * @author Przemek Kryger
  */
-public class ForecastDownloadCancellableTask extends AbstractStatusReporter implements CancellableTask {
+public abstract class AbstractForecastDataDownloader extends AbstractStatusReporter implements ForecastDataDownloader {
 
     /**
      * The key used to obtaining the URL for model start data. This value 
@@ -82,7 +82,7 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
      * The logger for the class.
      */
     private final static Logger log =
-            LoggerFactory.getLogger(ForecastDownloadCancellableTask.class);
+            LoggerFactory.getLogger(AbstractForecastDataDownloader.class);
 //#enddebug
     /**
      * The {@link MeteorogramInfo} that this task will download forecast data.
@@ -99,28 +99,21 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
      */
     private Thread myThread = null;
     /**
-     * Indicates if this task has succeeded.
+     * Indicates the last status of this task.
      */
-    private boolean succeed = false;
+    protected Status lastStatus = null;
     /**
      * Indicates if this task has been cancelled.
      */
     private boolean cancelled = false;
-
     /**
-     * Creates a new instance of {@link ForecastDownloadCancellableTask} wich
-     * will download forecast data for given {@code info}.
-     * @param info the {@link MeteorogramInfo} that needs data to be downloaded
+     * This one will be used to get the start data for the {@link ForecastData}.
      */
-    public ForecastDownloadCancellableTask(MeteorogramInfo info) {
-        if (info == null) {
-//#mdebug
-            log.error("Cannot create new instance with null info!");
-//#enddebug
-            throw new NullPointerException("Cannot create new instance with null info!");
-        }
-        this.info = info;
-    }
+    private StartDateDownloader startDateDownloader;
+    /**
+     * This will be used to get the model result for the {@link ForecastData}.
+     */
+    private ModelResultDownloader modelResultDownloader;
 
     /**
      * Adds a listener and afterwards, if taks is in progress notifies it about
@@ -136,6 +129,15 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
         }
     }
 
+   /**
+     * Notifies all the registered listeners on the {@code status}.
+     * @param status the {@link Status} to be reported.
+     */
+    protected void fireStatusUpdate(Status status) {
+        super.fireStatusUpdate(status);
+        lastStatus = status;
+    }
+    
     /**
      * Advises to interrupt the run method and cancel it's task.
      *
@@ -146,8 +148,22 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
 //#mdebug
             log.info("Cancelling task! " + this);
 //#enddebug
-            myThread.interrupt();
             cancelled = true;
+            if (startDateDownloader != null) {
+                startDateDownloader.cancel();
+            } else {
+//#mdebug
+                log.error("Cannot cancel start date downloader - it is null!");
+//#enddebug
+            }
+            if (modelResultDownloader != null) {
+                modelResultDownloader.cancel();
+            } else {
+//#mdebug
+                log.error("Cannot cancel model result downloader - it is null!");
+//#enddebug
+            }
+            myThread.interrupt();
             return true;
         } else {
 //#mdebug
@@ -155,25 +171,6 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
 //#enddebug
             return false;
         }
-    }
-
-    /**
-     * Informs whether the task run was not successfull. Since the {@value #succeed}
-     * is set only after the task succesfully finishes, so until finish this returns
-     * {@code true}.
-     * @return {@code true} if the task did not finish correctly.
-     *         {@code false} if everything was ok.
-     */
-    public boolean hasFailed() {
-        return !succeed;
-    }
-
-    /**
-     * Gets the reason for the failure. In the case there was not any failure, this method should return null.
-     * @return A descriptive message of the failuire or null if there was no failure.
-     */
-    public String getFailureMessage() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void run() {
@@ -368,7 +365,6 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
             if (cancelled) {
                 throw new InterruptedException();
             }
-            succeed = true;
             fireStatusUpdate(Status.FINISHED);
         } catch (InterruptedException ex) {
 //#mdebug
@@ -379,7 +375,7 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
 //#mdebug
             log.warn(this + " has an exception!", ex);
 //#enddebug
-            fireStatusUpdate(Status.FINISHED);
+            fireStatusUpdate(Status.CANCELLED);
         } finally {
             if (dis != null) {
                 try {
@@ -406,17 +402,10 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
     }
 
     /**
-     * @return the {@link MeteorogramInfo} that this task downloads forecast data
-     */
-    public MeteorogramInfo getInfo() {
-        return info;
-    }
-
-    /**
      * Sets the new progress and notifies all the listeners.
      * @param progress the {@code int} to set.
      */
-    public void setProgress(int progress) {
+    protected void setProgress(int progress) {
 //#mdebug
         log.debug(this + ": Setting progress to: " + progress);
 //#enddebug
@@ -583,5 +572,59 @@ public class ForecastDownloadCancellableTask extends AbstractStatusReporter impl
         StringBuffer buffer = new StringBuffer("Downloader for info = {");
         buffer.append(info).append("}, progress = ").append(progress);
         return buffer.toString();
+    }
+
+    /**
+     * Sets the {@code info} that the {@link ForecastData} shall be downloaded for.
+     * @param info the {@link MeteorogramInfo} to download forecast data.
+     * @throws NullPointerException if the {@code info} is null.
+     */
+    public void setMeteorogramInfo(MeteorogramInfo info) {
+        if (info == null) {
+//#mdebug
+            log.error("Cannot set the info to null!");
+//#enddebug
+            throw new NullPointerException("Cannot create new instance with null info!");
+        }
+        this.info = info;
+    }
+
+    /**
+     * @return the {@link MeteorogramInfo} that this task downloads forecast data.
+     */
+    public MeteorogramInfo getMeteorogramInfo() {
+        return info;
+    }
+
+    /**
+     * Sets the implemantation of {@link StartDateDownloader} to be used to get
+     * {@link ForecastData} start date.
+     * @param startDateDownloader the instance to be used to get start date.
+     * @throws NullPointerException if the {@code startDateDownloader} is {@code null}.
+     */
+    public void setStartDateDownloader(StartDateDownloader startDateDownloader) {
+        if (startDateDownloader == null) {
+//#mdebug
+            log.error("Trying to set null as start date downloader!");
+//#enddebug
+            throw new NullPointerException("Cannot set null as start date downloader!");
+        }
+        this.startDateDownloader = startDateDownloader;
+    }
+
+    /**
+     * Sets the implemantation of {@link ModelResultDownloader} to be used to get
+     * {@link ForecastData} model result.
+     * @param modelResultDownloader  the instance to be used to get start date.
+     * @throws NullPointerException if the {@code modelResultDownloader} is {@code null}.
+     */
+    public void setModelResultDownloader(ModelResultDownloader modelResultDownloader) {
+        if (modelResultDownloader == null) {
+//#mdebug
+            log.error("Trying to set null as model result downloader!");
+//#enddebug
+            throw new NullPointerException("Cannot set null as model result downloader!");
+        }
+        this.modelResultDownloader = modelResultDownloader;
     }
 }

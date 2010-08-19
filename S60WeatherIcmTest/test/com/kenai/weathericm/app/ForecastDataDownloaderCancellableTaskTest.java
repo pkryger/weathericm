@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2010 Przemek
+ *  Copyright (C) 2010 Przemek Kryger
  * 
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -15,62 +15,50 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.kenai.weathericm.view.validation;
+package com.kenai.weathericm.app;
 
+import com.kenai.weathericm.util.Status;
 import net.sf.microlog.core.config.PropertyConfigurator;
-import org.junit.BeforeClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
- * Tests for {@link NewEditFormData}.
+ * Tests for {@link ForecastDataDownloaderCancellableTask}.
  * @author Przemek Kryger
  */
-public class NewEditMeteorogramInfoFormDataTest {
-
-    private NewEditMeteorogramInfoFormData fixture;
+public class ForecastDataDownloaderCancellableTaskTest {
 
     @BeforeClass
     public static void setUpClass() {
         PropertyConfigurator.configure("/testMicrolog.properties");
     }
+    private ForecastDataDownloaderCancellableTask fixture;
 
     @Before
     public void setUp() {
-        fixture = new NewEditMeteorogramInfoFormData();
+        fixture = new ForecastDataDownloaderCancellableTask();
     }
 
     @Test
-    public void getSetName() {
-        String name = "x";
-        fixture.setName(name);
-        String actual = fixture.getName();
-        assertThat(actual, equalTo(name));
+    public void hasFailedNullStatus() {
+        boolean actual = fixture.hasFailed();
+        assertThat(actual, is(true));
     }
 
     @Test
-    public void getX() {
-        String x = "12";
-        fixture.setX(x);
-        String actual = fixture.getX();
-        assertThat(actual, equalTo(x));
+    public void hasFailedNotFinished() {
+        fixture.lastStatus = Status.CANCELLED;
+        boolean actual = fixture.hasFailed();
+        assertThat(actual, is(true));
     }
 
     @Test
-    public void getY() {
-        String y = "18";
-        fixture.setY(y);
-        String actual = fixture.getY();
-        assertThat(actual, equalTo(y));
-    }
-
-    @Test
-    public void getType() {
-        int type = 0;
-        fixture.setType(type);
-        int actual = fixture.getType();
-        assertThat(actual, equalTo(type));
+    public void hasFailedFinished() {
+        fixture.lastStatus = Status.FINISHED;
+        boolean actual = fixture.hasFailed();
+        assertThat(actual, is(false));
     }
 }

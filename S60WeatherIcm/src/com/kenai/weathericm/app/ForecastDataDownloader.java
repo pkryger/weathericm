@@ -27,15 +27,7 @@ import com.kenai.weathericm.util.StatusReporter;
  * Note: it shall be instantiaded by a {@link ForecastDataDownloaderFactory}.
  * @author Przemek Kryger
  */
-public interface ForecastDataDownloader extends StatusReporter {
-
-    /**
-     * Starts the data downloading for the given meteorogram info. This operation
-     * shall be cancellable by {@value #cancel()} call.
-     * @throws NullPointerException if the {@link MeteorogramInfo},
-     *         {@link StartDataDownloader} or {@link ModelResultDownloader} is null.
-     */
-    void run();
+public interface ForecastDataDownloader extends Runnable, StatusReporter {
 
     /**
      * Aborts the download operation.
@@ -59,9 +51,9 @@ public interface ForecastDataDownloader extends StatusReporter {
 
     /**
      * Sets the downloader to obtain start data for {@link ForecastData}.
-     * @param startDataDownloader the {@link StartDataDownloader} to be used.
+     * @param startDateDownloader the {@link StartDateDownloader} to be used.
      */
-    void setStartDataDownloader(StartDataDownloader startDataDownloader);
+    void setStartDateDownloader(StartDateDownloader startDateDownloader);
 
     /**
      * Sets the downloader to obtain the model result for {@link ForecastData}.

@@ -22,6 +22,7 @@ import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoSerializer;
 import com.kenai.weathericm.util.Status;
+import com.kenai.weathericm.util.StatusListener;
 import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.BeforeClass;
 import java.util.Enumeration;
@@ -256,9 +257,9 @@ public class MeteorogramBrokerTest {
 
     @Test
     public void getDownloadTaskNotExisting() {
-        ForecastDownloadCancellableTask t1 =
+        ForecastDataDownloader t1 =
                 fixture.getDownloadTask(new MeteorogramInfo());
-        ForecastDownloadCancellableTask t2 =
+        ForecastDataDownloader t2 =
                 fixture.getDownloadTask(new MeteorogramInfo());
         assertThat(t1, is(not(nullValue())));
         assertThat(t2, is(not(nullValue())));
@@ -272,8 +273,8 @@ public class MeteorogramBrokerTest {
     @Test
     public void getDownloadTaskExisting() {
         MeteorogramInfo info = new MeteorogramInfo();
-        ForecastDownloadCancellableTask t1 = fixture.getDownloadTask(info);
-        ForecastDownloadCancellableTask t2 = fixture.getDownloadTask(info);
+        ForecastDataDownloader t1 = fixture.getDownloadTask(info);
+        ForecastDataDownloader t2 = fixture.getDownloadTask(info);
         assertThat(t1, is(not(nullValue())));
         assertThat(t2, is(not(nullValue())));
         assertThat(t1, equalTo(t2));
@@ -285,7 +286,8 @@ public class MeteorogramBrokerTest {
     public void statusUpdateFinished() {
         fixture.addListener(listener);
         MeteorogramInfo info = new MeteorogramInfo();
-        ForecastDownloadCancellableTask task = new ForecastDownloadCancellableTask(info);
+        ForecastDataDownloader task = new DummyForecastDataDownloader();
+        task.setMeteorogramInfo(info);
         Hashtable infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
         infoToTask.put(info, task);
         fixture.statusUpdate(task, Status.FINISHED);
@@ -300,7 +302,8 @@ public class MeteorogramBrokerTest {
     @Test
     public void statusUpdateCanceled() {
         MeteorogramInfo info = new MeteorogramInfo();
-        ForecastDownloadCancellableTask task = new ForecastDownloadCancellableTask(info);
+        ForecastDataDownloader task = new DummyForecastDataDownloader();
+        task.setMeteorogramInfo(info);
         Hashtable infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
         infoToTask.put(info, task);
         fixture.statusUpdate(task, Status.CANCELLED);
@@ -313,7 +316,7 @@ public class MeteorogramBrokerTest {
     @Test
     public void statusUpdateNotFinishedNorCanceled() {
         MeteorogramInfo info = new MeteorogramInfo();
-        ForecastDownloadCancellableTask task = new ForecastDownloadCancellableTask(info);
+        ForecastDataDownloader task = new DummyForecastDataDownloader();
         Hashtable infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
         infoToTask.put(info, task);
         fixture.statusUpdate(task, new Status());
@@ -328,8 +331,7 @@ public class MeteorogramBrokerTest {
 
     @Test(expected = NullPointerException.class)
     public void statusUpdateNullStatus() {
-        fixture.statusUpdate(new ForecastDownloadCancellableTask(new MeteorogramInfo()),
-                null);
+        fixture.statusUpdate(new DummyForecastDataDownloader(), null);
     }
 
     @Test
@@ -412,5 +414,56 @@ public class MeteorogramBrokerTest {
                 this.notify();
             }
         }
+    }
+
+    private class DummyForecastDataDownloader implements ForecastDataDownloader {
+
+        MeteorogramInfo info;
+        
+        @Override
+        public boolean cancel() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void setMeteorogramInfo(MeteorogramInfo info) {
+            this.info = info;
+        }
+
+        @Override
+        public MeteorogramInfo getMeteorogramInfo() {
+            return info;
+        }
+
+        @Override
+        public void setStartDateDownloader(StartDateDownloader startDateDownloader) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void setModelResultDownloader(ModelResultDownloader modelResultDownloader) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void run() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void addListener(StatusListener listener) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public Vector getListeners() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void removeListener(StatusListener listener) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        
     }
 }
