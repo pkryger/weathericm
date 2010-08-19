@@ -21,6 +21,7 @@ import com.kenai.weathericm.debug.MeteorogramInfoInMemoryDao;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoSerializer;
+import com.kenai.weathericm.util.AbstractStatusReporter;
 import com.kenai.weathericm.util.Status;
 import com.kenai.weathericm.util.StatusListener;
 import net.sf.microlog.core.config.PropertyConfigurator;
@@ -416,10 +417,10 @@ public class MeteorogramBrokerTest {
         }
     }
 
-    private class DummyForecastDataDownloader implements ForecastDataDownloader {
+    private class DummyForecastDataDownloader extends AbstractStatusReporter implements ForecastDataDownloader {
 
         MeteorogramInfo info;
-        
+
         @Override
         public boolean cancel() {
             throw new UnsupportedOperationException("Not supported yet.");
@@ -449,21 +450,5 @@ public class MeteorogramBrokerTest {
         public void run() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-
-        @Override
-        public void addListener(StatusListener listener) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public Vector getListeners() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @Override
-        public void removeListener(StatusListener listener) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-        
     }
 }
