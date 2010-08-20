@@ -17,11 +17,13 @@
  */
 package com.kenai.weathericm.app;
 
+import com.kenai.weathericm.util.StatusReporter;
+
 /**
  * The interface for the task that will get the start data from the network.
  * @author Przemek Kryger
  */
-public interface StartDateDownloader {
+public interface StartDateDownloader extends StatusReporter {
 
     /**
      * Downloads the start data for the given {@code url}.

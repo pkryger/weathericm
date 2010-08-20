@@ -19,6 +19,7 @@ package com.kenai.weathericm.app;
 
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
+import com.kenai.weathericm.util.AbstractStatusReporter;
 import com.kenai.weathericm.util.Properties;
 import com.kenai.weathericm.util.Status;
 import com.kenai.weathericm.util.StatusListener;
@@ -50,9 +51,10 @@ public class AbstractForecastDataDownloaderTest {
     public static void setUpClass() {
         PropertyConfigurator.configure("/testMicrolog.properties");
     }
-    
     private MeteorogramInfo info;
     private AbstractForecastDataDownloader fixture;
+    private StartDateDownloader startDateDownloader;
+    private ModelResultDownloader modelResultDownloader;
     private DummyListener listener;
     private Thread threadMock;
     private Properties properties;
@@ -65,8 +67,12 @@ public class AbstractForecastDataDownloaderTest {
     @Before
     public void setUp() {
         info = new MeteorogramInfo();
+        startDateDownloader = new DummyStartDateDownloader();
+        modelResultDownloader = new DummyModelResultDownloader();
         fixture = new AbstractForecastDataDownloader() {
         };
+        fixture.setStartDateDownloader(startDateDownloader);
+        fixture.setModelResultDownloader(modelResultDownloader);
         fixture.setMeteorogramInfo(info);
         listener = new DummyListener();
         threadMock = createMock(Thread.class);
@@ -90,6 +96,8 @@ public class AbstractForecastDataDownloaderTest {
         assertThat(cancelled, is(true));
         Boolean internalCancelled = Whitebox.getInternalState(fixture, CANCELLED);
         assertThat(internalCancelled, equalTo(Boolean.TRUE));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
+        assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
         verifyAll();
     }
 
@@ -104,6 +112,8 @@ public class AbstractForecastDataDownloaderTest {
         Boolean internalCancelled = Whitebox.getInternalState(fixture, CANCELLED);
         assertThat(internalCancelled, equalTo(Boolean.FALSE));
         verifyAll();
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(true));
+        assertThat(modelResultDownloader.getListeners().contains(fixture), is(true));
     }
 
     @Test
@@ -340,21 +350,12 @@ public class AbstractForecastDataDownloaderTest {
 
     @Test
     public void getSetStartDateDownloader() {
-        StartDateDownloader downloader = new StartDateDownloader() {
-
-            @Override
-            public String downloadStartDate(String url) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            @Override
-            public boolean cancel() {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
+        fixture = new AbstractForecastDataDownloader() {
         };
-        fixture.setStartDateDownloader(downloader);
+        fixture.setStartDateDownloader(startDateDownloader);
         StartDateDownloader actual = Whitebox.getInternalState(fixture, START_DATE_DOWNLOADER);
-        assertThat(actual, equalTo(downloader));
+        assertThat(actual, equalTo(startDateDownloader));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(true));
     }
 
     @Test(expected = NullPointerException.class)
@@ -364,21 +365,12 @@ public class AbstractForecastDataDownloaderTest {
 
     @Test
     public void getSetModelResultDownloader() {
-        ModelResultDownloader downloader = new ModelResultDownloader() {
-
-            @Override
-            public byte[] downloadModelResult(String url) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            @Override
-            public boolean cancel() {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
+        fixture = new AbstractForecastDataDownloader() {
         };
-        fixture.setModelResultDownloader(downloader);
+        fixture.setModelResultDownloader(modelResultDownloader);
         ModelResultDownloader actual = Whitebox.getInternalState(fixture, MODEL_RESULT_DOWNLOADER);
-        assertThat(actual, equalTo(downloader));
+        assertThat(actual, equalTo(modelResultDownloader));
+        assertThat(modelResultDownloader.getListeners().contains(fixture), is(true));
     }
 
     @Test(expected = NullPointerException.class)
@@ -396,6 +388,48 @@ public class AbstractForecastDataDownloaderTest {
     @Test(expected = NullPointerException.class)
     public void setMeteorogramInfoNull() {
         fixture.setMeteorogramInfo(null);
+    }
+
+    private class DummyStartDateDownloader extends AbstractStatusReporter
+            implements StartDateDownloader {
+
+        public String startDate = "2010082000";
+        public boolean cancelSuccess = true;
+        public boolean cancelled = false;
+        public String url = null;
+
+        @Override
+        public String downloadStartDate(String url) {
+            this.url = url;
+            return startDate;
+        }
+
+        @Override
+        public boolean cancel() {
+            this.cancelled = true;
+            return cancelSuccess;
+        }
+    }
+
+    private class DummyModelResultDownloader extends AbstractStatusReporter
+            implements ModelResultDownloader {
+
+        public byte[] modelResult = null;
+        public boolean cancelSuccess = true;
+        public boolean cancelled = false;
+        public String url = null;
+
+        @Override
+        public byte[] downloadModelResult(String url) {
+            this.url = url;
+            return modelResult;
+        }
+
+        @Override
+        public boolean cancel() {
+            this.cancelled = true;
+            return cancelSuccess;
+        }
     }
 
     private class DummyListener implements StatusListener {

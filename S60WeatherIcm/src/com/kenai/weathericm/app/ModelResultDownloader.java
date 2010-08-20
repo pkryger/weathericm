@@ -17,11 +17,13 @@
  */
 package com.kenai.weathericm.app;
 
+import com.kenai.weathericm.util.StatusReporter;
+
 /**
  * The interface for the task that will download the image with forecast.
  * @author Przemek Kryger
  */
-public interface ModelResultDownloader {
+public interface ModelResultDownloader extends StatusReporter {
 
     /**
      * Downloads the model result (image with forecast) based on the given

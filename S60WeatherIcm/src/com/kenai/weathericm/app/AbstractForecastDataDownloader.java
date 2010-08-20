@@ -30,12 +30,12 @@ import javax.microedition.lcdui.Image;
 import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
 //#enddebug
-import org.netbeans.microedition.util.CancellableTask;
 import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
 import com.kenai.weathericm.util.Properties;
 import com.kenai.weathericm.util.PropertiesRepository;
+import com.kenai.weathericm.util.StatusReporter;
 
 /**
  * This one is responsible for downloading a forecast for a given {@link MeteorogramInfo}.
@@ -45,7 +45,8 @@ import com.kenai.weathericm.util.PropertiesRepository;
  * Note: upon the registration of the listener this task status is sent to the listener.
  * @author Przemek Kryger
  */
-public abstract class AbstractForecastDataDownloader extends AbstractStatusReporter implements ForecastDataDownloader {
+public abstract class AbstractForecastDataDownloader extends AbstractStatusReporter
+        implements ForecastDataDownloader, StatusListener {
 
     /**
      * The key used to obtaining the URL for model start data. This value 
@@ -129,7 +130,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
         }
     }
 
-   /**
+    /**
      * Notifies all the registered listeners on the {@code status}.
      * @param status the {@link Status} to be reported.
      */
@@ -137,7 +138,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
         super.fireStatusUpdate(status);
         lastStatus = status;
     }
-    
+
     /**
      * Advises to interrupt the run method and cancel it's task.
      *
@@ -151,6 +152,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             cancelled = true;
             if (startDateDownloader != null) {
                 startDateDownloader.cancel();
+                startDateDownloader.removeListener(this);
             } else {
 //#mdebug
                 log.error("Cannot cancel start date downloader - it is null!");
@@ -158,6 +160,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             }
             if (modelResultDownloader != null) {
                 modelResultDownloader.cancel();
+                modelResultDownloader.removeListener(this);
             } else {
 //#mdebug
                 log.error("Cannot cancel model result downloader - it is null!");
@@ -395,6 +398,8 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
 //#enddebug
                 }
             }
+            startDateDownloader.removeListener(this);
+            modelResultDownloader.removeListener(this);
             synchronized (this) {
                 myThread = null;
             }
@@ -610,6 +615,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             throw new NullPointerException("Cannot set null as start date downloader!");
         }
         this.startDateDownloader = startDateDownloader;
+        startDateDownloader.addListener(this);
     }
 
     /**
@@ -626,5 +632,10 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             throw new NullPointerException("Cannot set null as model result downloader!");
         }
         this.modelResultDownloader = modelResultDownloader;
+        modelResultDownloader.addListener(this);
+    }
+
+    public void statusUpdate(StatusReporter source, Status status) {
+        throw new UnsupportedOperationException("Not supported yet!");
     }
 }
