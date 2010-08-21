@@ -63,6 +63,8 @@ public class AbstractForecastDataDownloaderTest {
     private final static String CANCELLED = "cancelled";
     private final static String START_DATE_DOWNLOADER = "startDateDownloader";
     private final static String MODEL_RESULT_DOWNLOADER = "modelResultDownloader";
+    private final static String CHUNK_START = "chunkStart";
+    private final static String CHUNK_SIZE = "chunkSize";
 
     @Before
     public void setUp() {
@@ -96,8 +98,6 @@ public class AbstractForecastDataDownloaderTest {
         assertThat(cancelled, is(true));
         Boolean internalCancelled = Whitebox.getInternalState(fixture, CANCELLED);
         assertThat(internalCancelled, equalTo(Boolean.TRUE));
-        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
-        assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
         verifyAll();
     }
 
@@ -112,8 +112,6 @@ public class AbstractForecastDataDownloaderTest {
         Boolean internalCancelled = Whitebox.getInternalState(fixture, CANCELLED);
         assertThat(internalCancelled, equalTo(Boolean.FALSE));
         verifyAll();
-        assertThat(startDateDownloader.getListeners().contains(fixture), is(true));
-        assertThat(modelResultDownloader.getListeners().contains(fixture), is(true));
     }
 
     @Test
@@ -355,7 +353,6 @@ public class AbstractForecastDataDownloaderTest {
         fixture.setStartDateDownloader(startDateDownloader);
         StartDateDownloader actual = Whitebox.getInternalState(fixture, START_DATE_DOWNLOADER);
         assertThat(actual, equalTo(startDateDownloader));
-        assertThat(startDateDownloader.getListeners().contains(fixture), is(true));
     }
 
     @Test(expected = NullPointerException.class)
@@ -370,7 +367,6 @@ public class AbstractForecastDataDownloaderTest {
         fixture.setModelResultDownloader(modelResultDownloader);
         ModelResultDownloader actual = Whitebox.getInternalState(fixture, MODEL_RESULT_DOWNLOADER);
         assertThat(actual, equalTo(modelResultDownloader));
-        assertThat(modelResultDownloader.getListeners().contains(fixture), is(true));
     }
 
     @Test(expected = NullPointerException.class)
@@ -388,6 +384,56 @@ public class AbstractForecastDataDownloaderTest {
     @Test(expected = NullPointerException.class)
     public void setMeteorogramInfoNull() {
         fixture.setMeteorogramInfo(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void updateStatusNullStatus() {
+        StatusReporter source = new AbstractStatusReporter() {
+        };
+        fixture.statusUpdate(source, null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void updateStatusNullSource() {
+        fixture.statusUpdate(null, Status.STARTED);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void updateStatusUnknownSource() {
+        fixture.setStartDateDownloader(startDateDownloader);
+        fixture.setModelResultDownloader(modelResultDownloader);
+        fixture.statusUpdate(new AbstractStatusReporter() {
+        }, Status.STARTED);
+    }
+
+    @Test
+    public void updateStatusFinished() {
+        int start = 1;
+        int size = 8;
+        int total = start + size;
+        Whitebox.setInternalState(fixture, CHUNK_START, start);
+        Whitebox.setInternalState(fixture, CHUNK_SIZE, size);
+        fixture.setStartDateDownloader(startDateDownloader);
+        startDateDownloader.addListener(fixture);
+        fixture.addListener(listener);
+        fixture.statusUpdate(startDateDownloader, Status.FINISHED);
+        assertThat(listener.status.getProgress(), equalTo(total));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
+    }
+
+    @Test
+    public void updateStatusStarted() {
+        int start = 1;
+        int size = 8;
+        int total = start + size;
+        Whitebox.setInternalState(fixture, CHUNK_START, start);
+        Whitebox.setInternalState(fixture, CHUNK_SIZE, size);
+        fixture.setStartDateDownloader(startDateDownloader);
+        startDateDownloader.addListener(fixture);
+        fixture.addListener(listener);
+        fixture.statusUpdate(startDateDownloader, Status.STARTED);
+        assertThat(listener.status.getProgress(), equalTo(start));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(true));
     }
 
     private class DummyStartDateDownloader extends AbstractStatusReporter

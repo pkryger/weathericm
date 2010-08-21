@@ -23,7 +23,6 @@ import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoSerializer;
 import com.kenai.weathericm.util.AbstractStatusReporter;
 import com.kenai.weathericm.util.Status;
-import com.kenai.weathericm.util.StatusListener;
 import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.BeforeClass;
 import java.util.Enumeration;

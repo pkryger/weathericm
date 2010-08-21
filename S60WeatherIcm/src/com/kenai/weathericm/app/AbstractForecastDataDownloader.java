@@ -115,6 +115,16 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
      * This will be used to get the model result for the {@link ForecastData}.
      */
     private ModelResultDownloader modelResultDownloader;
+    /**
+     * The total amount of chunk size that {@value #startDateDownloader}
+     * or {@value #modelResultDownloader} will advance the progress.
+     */
+    private int chunkSize;
+    /**
+     * The progress the {@value #startDateDownloader} or {@value #modelResultDownloader}
+     * has been actuatlly started.
+     */
+    private int chunkStart;
 
     /**
      * Adds a listener and afterwards, if taks is in progress notifies it about
@@ -152,7 +162,6 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             cancelled = true;
             if (startDateDownloader != null) {
                 startDateDownloader.cancel();
-                startDateDownloader.removeListener(this);
             } else {
 //#mdebug
                 log.error("Cannot cancel start date downloader - it is null!");
@@ -160,7 +169,6 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             }
             if (modelResultDownloader != null) {
                 modelResultDownloader.cancel();
-                modelResultDownloader.removeListener(this);
             } else {
 //#mdebug
                 log.error("Cannot cancel model result downloader - it is null!");
@@ -615,7 +623,6 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             throw new NullPointerException("Cannot set null as start date downloader!");
         }
         this.startDateDownloader = startDateDownloader;
-        startDateDownloader.addListener(this);
     }
 
     /**
@@ -632,10 +639,38 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             throw new NullPointerException("Cannot set null as model result downloader!");
         }
         this.modelResultDownloader = modelResultDownloader;
-        modelResultDownloader.addListener(this);
     }
 
+    /**
+     * Handles the status updates from either {@value #startDateDownloader} or
+     * {@value #modelResultDownloader}. It uses current settings of
+     * @param source
+     * @param status
+     * @throws NullPointerException if either {@code source} or {@code status}
+     *         is null
+     * @throws IllegalArgumentException if source is niether {@value #startDateDownloader}
+     *         nor {@value #modelResultDownloader}.
+     */
     public void statusUpdate(StatusReporter source, Status status) {
-        throw new UnsupportedOperationException("Not supported yet!");
+        if (source == null || status == null) {
+//#mdebug
+            log.error(this + "Cannot update status! source = " + source
+                    + ", status = " + status);
+//#enddebug
+            throw new NullPointerException("Cannot update if either source or"
+                    + "status is null!");
+        }
+        if (source != startDateDownloader && source != modelResultDownloader) {
+//#mdebug
+            log.error("Cannot update status with unknown source = " + source);
+//#enddebug
+            throw new IllegalArgumentException("Cannot update status with unknown source!");
+        }
+        int currentProgress = (int) ((double) chunkSize / 100d
+                * (double) status.getProgress()) + chunkStart;
+        setProgress(currentProgress);
+        if (status.equals(Status.CANCELLED) || status.equals(Status.FINISHED)) {
+            source.removeListener(this);
+        }
     }
 }
