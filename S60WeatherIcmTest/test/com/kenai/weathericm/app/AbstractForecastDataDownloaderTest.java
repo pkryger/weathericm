@@ -17,13 +17,18 @@
  */
 package com.kenai.weathericm.app;
 
+import java.util.TimeZone;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
 import com.kenai.weathericm.util.AbstractStatusReporter;
 import com.kenai.weathericm.util.Properties;
+import com.kenai.weathericm.util.PropertiesRepository;
 import com.kenai.weathericm.util.Status;
 import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.StatusReporter;
+import java.util.Calendar;
+import java.util.Date;
+import javax.microedition.lcdui.Image;
 import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -34,6 +39,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.eq;
 import static org.powermock.api.easymock.PowerMock.createMock;
 import static org.powermock.api.easymock.PowerMock.mockStatic;
 import static org.powermock.api.easymock.PowerMock.replayAll;
@@ -44,7 +51,7 @@ import static org.powermock.api.easymock.PowerMock.verifyAll;
  * @author Przemek Kryger
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(AbstractForecastDataDownloader.class)
+@PrepareForTest({AbstractForecastDataDownloader.class, PropertiesRepository.class})
 public class AbstractForecastDataDownloaderTest {
 
     @BeforeClass
@@ -53,8 +60,8 @@ public class AbstractForecastDataDownloaderTest {
     }
     private MeteorogramInfo info;
     private AbstractForecastDataDownloader fixture;
-    private StartDateDownloader startDateDownloader;
-    private ModelResultDownloader modelResultDownloader;
+    private DummyStartDateDownloader startDateDownloader;
+    private DummyModelResultDownloader modelResultDownloader;
     private DummyListener listener;
     private Thread threadMock;
     private Properties properties;
@@ -84,7 +91,6 @@ public class AbstractForecastDataDownloaderTest {
         properties.setProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY, "hour.key");
         properties.setProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY, "month.key");
         properties.setProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY, "year.key");
-        mockStatic(Thread.class);
     }
 
     @Test
@@ -123,6 +129,96 @@ public class AbstractForecastDataDownloaderTest {
         replayAll();
         fixture.run();
         verifyAll();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void runNoStartDateDownloader() {
+        Whitebox.setInternalState(fixture, START_DATE_DOWNLOADER, (StartDateDownloader) null);
+        fixture.run();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void runNoModelResultDownloader() {
+        Whitebox.setInternalState(fixture, MODEL_RESULT_DOWNLOADER, (ModelResultDownloader) null);
+        fixture.run();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void runNoStartDateUrl() {
+        properties = createMock(Properties.class);
+        mockStatic(PropertiesRepository.class);
+        expect(PropertiesRepository.getProperties(eq("/UM.properties"))).andReturn(properties);
+        expect(properties.getProperty(AbstractForecastDataDownloader.START_URL_KEY)).andReturn(null);
+        replayAll();
+        fixture.run();
+        verifyAll();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void runInvalidStartDateUrl() {
+        String invalid = "notAHttp";
+        properties = createMock(Properties.class);
+        mockStatic(PropertiesRepository.class);
+        expect(PropertiesRepository.getProperties(eq("/UM.properties"))).andReturn(properties);
+        expect(properties.getProperty(AbstractForecastDataDownloader.START_URL_KEY)).andReturn(invalid);
+        replayAll();
+        fixture.run();
+        verifyAll();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void runStartDateDownloadFailed() {
+        fixture.addListener(listener);
+        fixture.run();
+        assertThat(listener.status, equalTo(Status.CANCELLED));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void runModelResultDownloadFailed() {
+        String day = "12";
+        String month = "13";
+        String year = "1999";
+        String hour = "18";
+        startDateDownloader.startDate = prepareDateStringBuffer(year, month, day, hour);
+        fixture.addListener(listener);
+        fixture.run();
+        assertThat(listener.status, equalTo(Status.CANCELLED));
+        assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
+    }
+
+    @Test
+    public void run() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        String year = Integer.toString(calendar.get(Calendar.YEAR));
+        int nMonth = calendar.get(Calendar.MONTH) + 1;
+        String month = nMonth > 9 ? Integer.toString(nMonth) : "0" + Integer.toString(nMonth);
+        int nDay = calendar.get(Calendar.DAY_OF_MONTH);
+        String day = nDay > 9 ? Integer.toString(nDay) : "0" + Integer.toString(nDay);
+        int nHour = calendar.get(Calendar.HOUR_OF_DAY);
+        String hour = nHour > 9 ? Integer.toString(nHour) : "0" + Integer.toString(nHour);
+        Date startDate = calendar.getTime();
+        Properties umProperties = PropertiesRepository.getProperties("/UM.properties");
+        String startDateData =
+                umProperties.getProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY) + year
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY) + month
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_DAY_KEY) + day
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY) + hour;
+        startDateDownloader.startDate = startDateData;
+        byte[] modelResult = new byte[]{1, 2, 3,};
+        modelResultDownloader.modelResult = modelResult;
+        fixture.addListener(listener);
+        fixture.run();
+        assertThat(listener.status, equalTo(Status.FINISHED));
+        assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
+        assertThat(info.isDataAvaliable(), is(true));
+        assertThat(info.getData().getModelStart(), equalTo(startDate));
+        //@todo change to modelRsult
+        assertThat(info.getData().getModelResult(), equalTo((Image) null));
     }
 
     @Test
@@ -166,7 +262,7 @@ public class AbstractForecastDataDownloaderTest {
         String year = "1999";
         String hour = "18";
         String expected = year + month + day + hour;
-        StringBuffer buffer = prepareDateStringBuffer(year, month, day, hour);
+        String buffer = prepareDateStringBuffer(year, month, day, hour);
         String actual = fixture.parseStartDate(buffer, properties);
         assertThat(actual, equalTo(expected));
     }
@@ -178,7 +274,7 @@ public class AbstractForecastDataDownloaderTest {
 
     @Test(expected = NullPointerException.class)
     public void parseStartDateNullProperties() {
-        fixture.parseStartDate(new StringBuffer(), null);
+        fixture.parseStartDate("", null);
     }
 
     @Test(expected = NullPointerException.class)
@@ -188,7 +284,7 @@ public class AbstractForecastDataDownloaderTest {
         String month = "13";
         String year = "1999";
         String hour = "18";
-        StringBuffer buffer = prepareDateStringBuffer(year, month, day, hour);
+        String buffer = prepareDateStringBuffer(year, month, day, hour);
         fixture.parseStartDate(buffer, properties);
     }
 
@@ -199,7 +295,7 @@ public class AbstractForecastDataDownloaderTest {
         String month = "13";
         String year = "1999";
         String hour = "18";
-        StringBuffer buffer = prepareDateStringBuffer(year, month, day, hour);
+        String buffer = prepareDateStringBuffer(year, month, day, hour);
         fixture.parseStartDate(buffer, properties);
     }
 
@@ -210,7 +306,7 @@ public class AbstractForecastDataDownloaderTest {
         String month = "13";
         String year = "1999";
         String hour = "18";
-        StringBuffer buffer = prepareDateStringBuffer(year, month, day, hour);
+        String buffer = prepareDateStringBuffer(year, month, day, hour);
         fixture.parseStartDate(buffer, properties);
     }
 
@@ -221,7 +317,7 @@ public class AbstractForecastDataDownloaderTest {
         String month = "13";
         String year = "1999";
         String hour = "18";
-        StringBuffer buffer = prepareDateStringBuffer(year, month, day, hour);
+        String buffer = prepareDateStringBuffer(year, month, day, hour);
         fixture.parseStartDate(buffer, properties);
     }
 
@@ -230,7 +326,7 @@ public class AbstractForecastDataDownloaderTest {
         String day = "12";
         String month = "13";
         String hour = "18";
-        StringBuffer buffer = prepareDateStringBuffer(null, month, day, hour);
+        String buffer = prepareDateStringBuffer(null, month, day, hour);
         fixture.parseStartDate(buffer, properties);
     }
 
@@ -239,7 +335,7 @@ public class AbstractForecastDataDownloaderTest {
         String day = "12";
         String year = "2000";
         String hour = "18";
-        StringBuffer buffer = prepareDateStringBuffer(year, null, day, hour);
+        String buffer = prepareDateStringBuffer(year, null, day, hour);
         fixture.parseStartDate(buffer, properties);
     }
 
@@ -248,7 +344,7 @@ public class AbstractForecastDataDownloaderTest {
         String year = "2012";
         String month = "13";
         String hour = "18";
-        StringBuffer buffer = prepareDateStringBuffer(year, month, null, hour);
+        String buffer = prepareDateStringBuffer(year, month, null, hour);
         fixture.parseStartDate(buffer, properties);
     }
 
@@ -257,7 +353,7 @@ public class AbstractForecastDataDownloaderTest {
         String day = "12";
         String month = "13";
         String year = "1918";
-        StringBuffer buffer = prepareDateStringBuffer(year, month, day, null);
+        String buffer = prepareDateStringBuffer(year, month, day, null);
         fixture.parseStartDate(buffer, properties);
     }
 
@@ -311,7 +407,7 @@ public class AbstractForecastDataDownloaderTest {
         String actual = fixture.createForecastDataUrl(startData, properties);
     }
 
-    private StringBuffer prepareDateStringBuffer(String year, String month, String day, String hour) {
+    private String prepareDateStringBuffer(String year, String month, String day, String hour) {
         StringBuffer buffer = new StringBuffer();
         if (year != null) {
             buffer.append(properties.getProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY));
@@ -329,7 +425,7 @@ public class AbstractForecastDataDownloaderTest {
             buffer.append(properties.getProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY));
             buffer.append(hour);
         }
-        return buffer;
+        return buffer.toString();
     }
 
     @Test
@@ -352,7 +448,7 @@ public class AbstractForecastDataDownloaderTest {
         };
         fixture.setStartDateDownloader(startDateDownloader);
         StartDateDownloader actual = Whitebox.getInternalState(fixture, START_DATE_DOWNLOADER);
-        assertThat(actual, equalTo(startDateDownloader));
+        assertThat(actual, equalTo((StartDateDownloader) startDateDownloader));
     }
 
     @Test(expected = NullPointerException.class)
@@ -366,7 +462,7 @@ public class AbstractForecastDataDownloaderTest {
         };
         fixture.setModelResultDownloader(modelResultDownloader);
         ModelResultDownloader actual = Whitebox.getInternalState(fixture, MODEL_RESULT_DOWNLOADER);
-        assertThat(actual, equalTo(modelResultDownloader));
+        assertThat(actual, equalTo((ModelResultDownloader) modelResultDownloader));
     }
 
     @Test(expected = NullPointerException.class)
@@ -400,8 +496,6 @@ public class AbstractForecastDataDownloaderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateStatusUnknownSource() {
-        fixture.setStartDateDownloader(startDateDownloader);
-        fixture.setModelResultDownloader(modelResultDownloader);
         fixture.statusUpdate(new AbstractStatusReporter() {
         }, Status.STARTED);
     }
@@ -413,7 +507,6 @@ public class AbstractForecastDataDownloaderTest {
         int total = start + size;
         Whitebox.setInternalState(fixture, CHUNK_START, start);
         Whitebox.setInternalState(fixture, CHUNK_SIZE, size);
-        fixture.setStartDateDownloader(startDateDownloader);
         startDateDownloader.addListener(fixture);
         fixture.addListener(listener);
         fixture.statusUpdate(startDateDownloader, Status.FINISHED);
@@ -425,10 +518,8 @@ public class AbstractForecastDataDownloaderTest {
     public void updateStatusStarted() {
         int start = 1;
         int size = 8;
-        int total = start + size;
         Whitebox.setInternalState(fixture, CHUNK_START, start);
         Whitebox.setInternalState(fixture, CHUNK_SIZE, size);
-        fixture.setStartDateDownloader(startDateDownloader);
         startDateDownloader.addListener(fixture);
         fixture.addListener(listener);
         fixture.statusUpdate(startDateDownloader, Status.STARTED);
@@ -439,7 +530,7 @@ public class AbstractForecastDataDownloaderTest {
     private class DummyStartDateDownloader extends AbstractStatusReporter
             implements StartDateDownloader {
 
-        public String startDate = "2010082000";
+        public String startDate = null;
         public boolean cancelSuccess = true;
         public boolean cancelled = false;
         public String url = null;

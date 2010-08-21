@@ -20,11 +20,6 @@ package com.kenai.weathericm.app;
 import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.AbstractStatusReporter;
 import com.kenai.weathericm.util.Status;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Vector;
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
 import javax.microedition.lcdui.Image;
 //#mdebug
 import net.sf.microlog.core.Logger;
@@ -32,7 +27,6 @@ import net.sf.microlog.core.LoggerFactory;
 //#enddebug
 import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.domain.MeteorogramInfo;
-import com.kenai.weathericm.domain.MeteorogramType;
 import com.kenai.weathericm.util.Properties;
 import com.kenai.weathericm.util.PropertiesRepository;
 import com.kenai.weathericm.util.StatusReporter;
@@ -223,23 +217,19 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
                 fireStatusUpdate(Status.STARTED);
             }
         }
-
-        HttpConnection connection = null;
-        DataInputStream dis = null;
+        if (startDateDownloader == null || modelResultDownloader == null) {
+//#mdebug
+            log.fatal(this + "Either startDateDownloader or modelResultDownloader is null");
+            log.debug("startdDateDownloader = " + startDateDownloader);
+            log.debug("modelResultDownloader = " + modelResultDownloader);
+//#enddebug
+            throw new NullPointerException("Internal state is broken for downloader!");
+        }
         try {
             if (cancelled) {
                 throw new InterruptedException();
             }
             Properties typeProperties = loadTypeProperties();
-            int percent = progress;
-            long totalBytes = 0;
-            long percentChunk, chunkCounter;
-            int readByte;
-//#mdebug
-            log.info(this + ": Reading start data...");
-//#enddebug
-            //@todo the start data downloading and parsing shall be extracted to
-            //      a separate class. - start here
             String startUrl = typeProperties.getProperty(START_URL_KEY);
             if (startUrl == null) {
 //#mdebug
@@ -252,126 +242,42 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
 //#enddebug
                 throw new IllegalArgumentException("URL for start data is invalid!");
             }
-            connection = (HttpConnection) Connector.open(startUrl);
-            dis = connection.openDataInputStream();
-            setProgress(++percent);
-            if (cancelled) {
-                throw new InterruptedException();
-            }
-            // Start data is 2170(UM) or 2310(COAMPS) bytes (by default)
-            totalBytes = connection.getLength();
-            if (totalBytes == -1) {
-                if (info.getType().equals(MeteorogramType.UM)) {
-                    totalBytes = 2170L;
-                } else {
-                    totalBytes = 2310L;
-                }
 //#mdebug
-                log.debug("Setting totalBytes to default = " + totalBytes);
+            log.info(this + ": Reading start data...");
 //#enddebug
-            } else {
-//#mdebug
-                log.debug("Got totalBytes = " + totalBytes);
-//#enddebug
-            }
-            // Start data is around 9% of total data to download and parse.
-            // Let's leave one percent for parsing.
-            percentChunk = (totalBytes / ((long) (7 - percent))) + 1L;
-            chunkCounter = 0;
-            StringBuffer startDateBuffer = new StringBuffer((int) totalBytes);
-            while ((readByte = dis.read()) != -1) {
-                startDateBuffer.append((char) readByte);
-                if (++chunkCounter >= percentChunk && percent < 7) {
-                    chunkCounter = 0;
-                    setProgress(++percent);
-                }
-                if (cancelled) {
-                    throw new InterruptedException();
-                }
-            }
-//#mdebug
-            if (chunkCounter >= percentChunk) {
-                log.warn("Last chunkCounter was bigger than percentChunk!"
-                        + " chunkCounter = " + chunkCounter
-                        + ", percentChunk = " + percentChunk);
-            }
-//#enddebug
-            setProgress(++percent); //8%
-            dis.close();
-            connection.close();
+            chunkStart = progress;
+            chunkSize = 8 - progress;
+            startDateDownloader.addListener(this);
+            String dateBuffer = startDateDownloader.downloadStartDate(startUrl);
+            startDateDownloader.removeListener(this);
 //#mdebug
             log.info(this + ": Parsing received start data...");
 //#enddebug
-            String modelStartDate = parseStartDate(startDateBuffer, typeProperties);
-            startDateBuffer = null;
-            setProgress(percent = 9);
+            String modelStartDate = parseStartDate(dateBuffer, typeProperties);
+            dateBuffer = null;
+            String imageUrl = createForecastDataUrl(modelStartDate, typeProperties);
+            setProgress(9);
             if (cancelled) {
                 throw new InterruptedException();
             }
             Thread.yield();
-            //@todo the image data downloading shall be extracted to
-            //      a separate class.
-            String imageUrl = createForecastDataUrl(modelStartDate, typeProperties);
-            connection = (HttpConnection) Connector.open(imageUrl);
-            dis = connection.openDataInputStream();
-            setProgress(++percent); //10%
-            if (cancelled) {
-                throw new InterruptedException();
-            }
-            // Image is 19800(UM) or 23500(COAMPS) by default
-            totalBytes = connection.getLength();
-            if (totalBytes == -1) {
-                if (info.getType().equals(MeteorogramType.UM)) {
-                    totalBytes = 19800L;
-                } else {
-                    totalBytes = 23500L;
-                }
+            chunkStart = progress;
+            chunkSize = 99 - chunkStart;
+            modelResultDownloader.addListener(this);
+            byte[] imageData = modelResultDownloader.downloadModelResult(imageUrl);
+            modelResultDownloader.removeListener(this);
+            if (imageData == null) {
 //#mdebug
-                log.debug("Setting totalBytes to default = " + totalBytes);
+                log.error("Cannot download image data from: " + imageUrl);
 //#enddebug
-            } else {
-//#mdebug
-                log.debug("Got totalBytes = " + totalBytes);
-//#enddebug
+                throw new NullPointerException("Image download failed!");
             }
-            // IM data is around 91% of total data to download and parse.
-            // Let's leave two percents for parsing.
-            percentChunk = (totalBytes / ((long) (97 - percent))) + 1L;
-            chunkCounter = 0;
-            Vector imageBuffer = new Vector((int) totalBytes);
-            while ((readByte = dis.read()) != -1) {
-                imageBuffer.addElement(new Byte((byte) readByte));
-                if (++chunkCounter >= percentChunk && percent < 97) {
-                    chunkCounter = 0;
-                    setProgress(++percent);
-                }
-                if (cancelled) {
-                    throw new InterruptedException();
-                }
-            }
-//#mdebug
-            if (chunkCounter >= percentChunk) {
-                log.warn("Last chunkCounter was bigger than percentChunk!"
-                        + " chunkCounter = " + chunkCounter
-                        + ", percentChunk = " + percentChunk);
-            }
-//#enddebug
-            setProgress(++percent); //98%
-            dis.close();
-            connection.close();
-//#mdebug
-            log.info(this + ": Parsing received image data...");
-//#enddebug
-            byte[] imageData = new byte[imageBuffer.size()];
-            for (int i = 0; i < imageData.length; i++) {
-                imageData[i] = ((Byte) imageBuffer.elementAt(i)).byteValue();
-            }
-            setProgress(++percent); //99%
             Image modelResult = Image.createImage(imageData, 0, imageData.length);
             ForecastData forecastData = new ForecastData(modelStartDate);
             forecastData.setModelResult(modelResult);
             info.setData(forecastData);
             setProgress(progress = 100);
+            modelResultDownloader.removeListener(this);
             Thread.yield();
             if (cancelled) {
                 throw new InterruptedException();
@@ -382,30 +288,13 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             log.info(this + " has been interrupted!");
 //#enddebug
             fireStatusUpdate(Status.CANCELLED);
-        } catch (Exception ex) {
+        } catch (RuntimeException ex) {
 //#mdebug
             log.warn(this + " has an exception!", ex);
 //#enddebug
             fireStatusUpdate(Status.CANCELLED);
+            throw ex;
         } finally {
-            if (dis != null) {
-                try {
-                    dis.close();
-                } catch (IOException ex) {
-//#mdebug
-                    log.debug("Error occurred while closing stream: ", ex);
-//#enddebug
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (IOException ex) {
-//#mdebug
-                    log.debug("Error occurred while chlosing connection: ", ex);
-//#enddebug
-                }
-            }
             startDateDownloader.removeListener(this);
             modelResultDownloader.removeListener(this);
             synchronized (this) {
@@ -445,12 +334,12 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
     /**
      * Parses {@code dataBuffer} into format acceptable for {@link ForecastData}
      * constructor (yyyymmddhh). It uses properties from {@code PARSE}* mambers.
-     * @param dataBuffer the {@link StringBuffer} to be parsed.
+     * @param dataBuffer the {@link String} to be parsed.
      * @param properties the {@link Properties} to look the parsing constants.
      * @return the {@link String} date to be used for {@link ForecastData}.
      * @see ForecastData#ForecastData(java.lang.String)
      */
-    protected String parseStartDate(StringBuffer dataBuffer, Properties properties) {
+    protected String parseStartDate(String dataBuffer, Properties properties) {
         if (dataBuffer == null || properties == null) {
 //#mdebug
             log.error(this + ": Cannot extract start date from null!");
@@ -459,9 +348,8 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             throw new NullPointerException("Canot parse nulls!");
         }
         StringBuffer buffer = new StringBuffer(10);
-        String data = dataBuffer.toString();
 //#mdebug
-        log.info("Beginning of buffer is: " + data.substring(0, data.length() > 50 ? 50 : data.length()));
+        log.info("Beginning of buffer is: " + dataBuffer.substring(0, dataBuffer.length() > 50 ? 50 : dataBuffer.length()));
 //#enddebug
         String parseYear = properties.getProperty(PARSE_YEAR_KEY);
         if (parseYear == null) {
@@ -491,28 +379,28 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
 //#enddebug
             throw new NullPointerException("Cannot load property for " + PARSE_HOUR_KEY);
         }
-        int idxYear = data.indexOf(parseYear);
+        int idxYear = dataBuffer.indexOf(parseYear);
         if (idxYear == -1) {
 //#mdebug
             log.error(this + ": Cannot find year in data");
 //#enddebug
             throw new NullPointerException("Cannot find year in data");
         }
-        int idxMonth = data.indexOf(parseMonth);
+        int idxMonth = dataBuffer.indexOf(parseMonth);
         if (idxMonth == -1) {
 //#mdebug
             log.error(this + ": Cannot find month in data");
 //#enddebug
             throw new NullPointerException("Cannot find month in data");
         }
-        int idxDay = data.indexOf(parseDay);
+        int idxDay = dataBuffer.indexOf(parseDay);
         if (idxDay == -1) {
 //#mdebug
             log.error(this + ": Cannot find day in data");
 //#enddebug
             throw new NullPointerException("Cannot find day in data");
         }
-        int idxHour = data.indexOf(parseHour);
+        int idxHour = dataBuffer.indexOf(parseHour);
         if (idxHour == -1) {
 //#mdebug
             log.error(this + ": Cannot find hour in data");
@@ -521,16 +409,16 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
         }
         String extracted;
         idxYear += parseYear.length();
-        extracted = data.substring(idxYear, idxYear + 4);
+        extracted = dataBuffer.substring(idxYear, idxYear + 4);
         buffer.append(extracted);
         idxMonth += parseMonth.length();
-        extracted = data.substring(idxMonth, idxMonth + 2);
+        extracted = dataBuffer.substring(idxMonth, idxMonth + 2);
         buffer.append(extracted);
         idxDay += parseDay.length();
-        extracted = data.substring(idxDay, idxDay + 2);
+        extracted = dataBuffer.substring(idxDay, idxDay + 2);
         buffer.append(extracted);
         idxHour += parseHour.length();
-        extracted = data.substring(idxHour, idxHour + 2);
+        extracted = dataBuffer.substring(idxHour, idxHour + 2);
         buffer.append(extracted);
 //#mdebug
         log.debug("Extracted start date = " + buffer.toString());
@@ -668,7 +556,9 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
         }
         int currentProgress = (int) ((double) chunkSize / 100d
                 * (double) status.getProgress()) + chunkStart;
-        setProgress(currentProgress);
+        if (currentProgress > progress) {
+            setProgress(currentProgress);
+        }
         if (status.equals(Status.CANCELLED) || status.equals(Status.FINISHED)) {
             source.removeListener(this);
         }
