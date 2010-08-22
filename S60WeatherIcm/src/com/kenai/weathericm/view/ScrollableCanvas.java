@@ -145,6 +145,9 @@ public class ScrollableCanvas extends Canvas {
             int barY = getHeight() - scrollbarMargin - scrollbarWide;
             int barWidth = (int) ((double) getWidth() / (double) imageWidth * (backgroundWidth - 2)) - 1;
             int barHeight = scrollbarWide - 1;
+            if (barX + barWidth > backgroundX + backgroundWidth) {
+                barWidth = backgroundX + backgroundWidth - barX;
+            }
             g.setColor(getBarColor());
             g.fillRoundRect(barX, barY, barWidth, barHeight, scrollbarArc - 1, scrollbarArc - 1);
         }
@@ -174,6 +177,9 @@ public class ScrollableCanvas extends Canvas {
                     + (int) ((double) translationY / (double) imageHeight * (backgroundHeight - 2));
             int barWidth = scrollbarWide - 1;
             int barHeight = (int) ((double) getHeight() / (double) imageHeight * (backgroundHeight - 2)) - 1;
+            if (barY + barHeight > backgroundY + backgroundHeight) {
+                barHeight = backgroundY + backgroundHeight - barY;
+            }
             g.setColor(getBarColor());
             g.fillRoundRect(barX, barY, barWidth, barHeight, scrollbarArc - 1, scrollbarArc - 1);
         }
