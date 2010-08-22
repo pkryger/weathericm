@@ -17,6 +17,13 @@
  */
 package com.kenai.weathericm.app;
 
+import com.kenai.weathericm.util.Properties;
+import com.kenai.weathericm.util.PropertiesRepository;
+//#mdebug
+import net.sf.microlog.core.Logger;
+import net.sf.microlog.core.LoggerFactory;
+//#enddebug
+
 /**
  * This is the factory used to get instances of {@link ForecastDataDownloader}s.
  * It will obtain {@link StartDataDownloader} and {@link ModelResultDownloader}
@@ -26,12 +33,72 @@ package com.kenai.weathericm.app;
 public class ForecastDataDownloaderFactory {
 
     /**
+     * The key for implementation of {@link ForecastDataDownloader}.
+     */
+    public static final String FORECAST_DATA_DOWNLOADER_KEY = "forecast.data.downloader";
+    /**
+     * The key for implementation of {@link StartDateDownloader}.
+     */
+    public static final String START_DATE_DOWNLOADER_KEY = "start.date.downloader";
+    /**
+     * The key for implementation of {@link ModelResultDownloader}.
+     */
+    public static final String MODEL_RESULT_DOWNLOADER_KEY = "model.result.downloader";
+//#mdebug
+    /**
+     * The logger for the class.
+     */
+    private static final Logger log = LoggerFactory.getLogger(ForecastDataDownloader.class);
+//#enddebug
+    /**
+     * The holder for properties.
+     */
+    private static Properties properties = null;
+           
+
+    /**
      * Gets the new instance of {@link ForecastDataDownloader} with propery configured
      * {@link StartDataDownloader} and {@link ModelResultDownloader}.
      * @return the new {@link ForecastDataDownloader}.
      */
     public static ForecastDataDownloader getDownloader() {
-        return null;
+        if (properties == null) {
+//#mdebug
+            log.info("Instantiating properties");
+//#enddebug
+            properties = PropertiesRepository.getProperties("/ForecastDataDownloaderFactory.properties");
+        }
+        ForecastDataDownloader forecastDataDownloader = null;
+        String implementation = properties.getProperty(FORECAST_DATA_DOWNLOADER_KEY);
+        try {
+           forecastDataDownloader =
+                   (ForecastDataDownloader) Class.forName(implementation).newInstance();
+           implementation =
+                   properties.getProperty(START_DATE_DOWNLOADER_KEY);
+           StartDateDownloader startDateDownloader =
+                   (StartDateDownloader)Class.forName(implementation).newInstance();
+           implementation =
+                   properties.getProperty(MODEL_RESULT_DOWNLOADER_KEY);
+           ModelResultDownloader modelResultDownloader =
+                   (ModelResultDownloader)Class.forName(implementation).newInstance();
+           forecastDataDownloader.setStartDateDownloader(startDateDownloader);
+           forecastDataDownloader.setModelResultDownloader(modelResultDownloader);
+        } catch (ClassNotFoundException ex) {
+//#mdebug
+            log.fatal("Cannot find a class for " + implementation, ex);
+//#enddebug
+            forecastDataDownloader = null;
+        } catch (IllegalAccessException ex) {
+//#mdebug
+            log.fatal("Cannot acces class for " + implementation, ex);
+//#enddebug
+            forecastDataDownloader = null;
+        } catch (InstantiationException ex) {
+//#mdebug
+            log.fatal("Cannot instantiate " + implementation, ex);
+//#enddebug
+            forecastDataDownloader = null;
+        }
+        return forecastDataDownloader;
     }
-
 }
