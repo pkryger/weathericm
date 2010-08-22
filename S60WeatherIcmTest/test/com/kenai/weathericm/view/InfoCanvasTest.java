@@ -28,17 +28,21 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.powermock.modules.junit4.PowerMockRunner;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.aryEq;
 import static org.powermock.api.easymock.PowerMock.createMock;
 import static org.powermock.api.easymock.PowerMock.createPartialMock;
 import static org.powermock.api.easymock.PowerMock.replayAll;
 import static org.powermock.api.easymock.PowerMock.verifyAll;
+import static org.powermock.api.easymock.PowerMock.mockStatic;
 
 /**
  * Tests for {@link InfoCanvas} class.
  * @author Przemek Kryger
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(InfoCanvas.class)
+@PrepareForTest({InfoCanvas.class, Image.class})
 @SuppressStaticInitializationFor({"javax.microedition.lcdui.Displayable",
     "javax.microedition.lcdui.Canvas",
     "javax.microedition.lcdui.Graphics",
@@ -64,12 +68,28 @@ public class InfoCanvasTest {
     @Test
     public void setInfoWithData() {
         String title = "df";
+        byte[] modelResult = new byte[]{1, 2, 3};
         ForecastData data = new ForecastData(2010, 8, 10, 0);
-        data.setModelResult(imageMock);
+        data.setModelResult(modelResult);
         info.setData(data);
         info.setName(title);
+        mockStatic(Image.class);
+        expect(Image.createImage(aryEq(modelResult), eq(0), eq(modelResult.length))).andReturn(imageMock);
         fixture.setImage(imageMock);
         fixture.setTitle(title);
+        replayAll();
+        fixture.setInfo(info);
+        verifyAll();
+    }
+
+    @Test
+    public void setInfoWithBrokenData() {
+        String title = "xy";
+        info.setName(title);
+        ForecastData data = new ForecastData(2010, 8, 10, 0);
+        info.setData(data);
+        fixture.setTitle(title);
+        fixture.setImage(null);
         replayAll();
         fixture.setInfo(info);
         verifyAll();

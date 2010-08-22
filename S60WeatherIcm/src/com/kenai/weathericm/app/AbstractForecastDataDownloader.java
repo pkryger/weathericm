@@ -264,15 +264,14 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             chunkStart = progress;
             chunkSize = 99 - chunkStart;
             modelResultDownloader.addListener(this);
-            byte[] imageData = modelResultDownloader.downloadModelResult(imageUrl);
+            byte[] modelResult = modelResultDownloader.downloadModelResult(imageUrl);
             modelResultDownloader.removeListener(this);
-            if (imageData == null) {
+            if (modelResult == null) {
 //#mdebug
                 log.error("Cannot download image data from: " + imageUrl);
 //#enddebug
                 throw new NullPointerException("Image download failed!");
             }
-            Image modelResult = Image.createImage(imageData, 0, imageData.length);
             ForecastData forecastData = new ForecastData(modelStartDate);
             forecastData.setModelResult(modelResult);
             info.setData(forecastData);

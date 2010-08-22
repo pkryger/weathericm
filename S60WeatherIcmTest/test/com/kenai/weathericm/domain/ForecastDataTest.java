@@ -20,7 +20,6 @@ package com.kenai.weathericm.domain;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import javax.microedition.lcdui.Image;
 import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -30,9 +29,6 @@ import org.powermock.core.classloader.annotations.SuppressStaticInitializationFo
 import org.powermock.modules.junit4.PowerMockRunner;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.powermock.api.easymock.PowerMock.createMock;
-import static org.powermock.api.easymock.PowerMock.replayAll;
-import static org.powermock.api.easymock.PowerMock.verifyAll;
 
 /**
  * Tests for {@link ForecastData} class.
@@ -166,12 +162,10 @@ public class ForecastDataTest {
 
     @Test
     public void getSetModelResult() {
-        Image image = createMock(Image.class);
-        replayAll();
+        byte[] data = new byte[] {1, 2, 3};
         fixture = new ForecastData(year, month, day, hour);
-        fixture.setModelResult(image);
-        Image actual = fixture.getModelResult();
-        assertThat(actual, equalTo(image));
-        verifyAll();
+        fixture.setModelResult(data);
+        byte[] actual = fixture.getModelResult();
+        assertThat(actual, equalTo(data));
     }
 }

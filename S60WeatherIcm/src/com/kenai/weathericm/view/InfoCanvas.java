@@ -19,6 +19,7 @@ package com.kenai.weathericm.view;
 
 import com.kenai.weathericm.domain.MeteorogramInfo;
 //#mdebug
+import javax.microedition.lcdui.Image;
 import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
 //#enddebug
@@ -46,7 +47,16 @@ public class InfoCanvas extends ScrollableCanvas {
     public void setInfo(MeteorogramInfo info) {
         if (info != null) {
             if (info.isDataAvaliable()) {
-                setImage(info.getData().getModelResult());
+                byte[] forecastData = info.getData().getModelResult();
+                Image forecast = null;
+                if (forecastData != null) {
+                    forecast = Image.createImage(forecastData, 0, forecastData.length);
+                } else {
+//#mdebug
+                    log.warn("The " + info + " has broken forecast data!");
+//#enddebug
+                }
+                setImage(forecast);
             } else {
 //#mdebug
                 log.warn("Info has no data avaliable. Setting null image.");

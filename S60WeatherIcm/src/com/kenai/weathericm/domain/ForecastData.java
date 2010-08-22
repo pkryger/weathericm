@@ -46,9 +46,10 @@ public class ForecastData {
      */
     private Date modelStart;
     /**
-     * The model results in a form of {@link Image} that can be displayed as forecast.
+     * The model results in a form of {@code byte[]} array that can be transformed
+     * into image and displayed as forecast.
      */
-    private Image modelResult;
+    private byte[] modelResult;
 
     /**
      * Creates a new instance using a passed in {@link String} to set up
@@ -141,14 +142,14 @@ public class ForecastData {
     /**
      * @return the {@link Image} that contains forecast model result.
      */
-    public Image getModelResult() {
+    public byte[] getModelResult() {
         return modelResult;
     }
 
     /**
-     * @param modelResult the {@link Image} for forecast modet result to set.
+     * @param modelResult the {@code byte[]} array for forecast model result to set.
      */
-    public void setModelResult(Image modelResult) {
+    public void setModelResult(byte[] modelResult) {
         this.modelResult = modelResult;
     }
 

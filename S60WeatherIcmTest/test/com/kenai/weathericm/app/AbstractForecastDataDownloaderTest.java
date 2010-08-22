@@ -217,8 +217,7 @@ public class AbstractForecastDataDownloaderTest {
         assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
         assertThat(info.isDataAvaliable(), is(true));
         assertThat(info.getData().getModelStart(), equalTo(startDate));
-        //@todo change to modelRsult
-        assertThat(info.getData().getModelResult(), equalTo((Image) null));
+        assertThat(info.getData().getModelResult(), equalTo(modelResult));
     }
 
     @Test
