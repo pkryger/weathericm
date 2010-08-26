@@ -15,16 +15,16 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.kenai.weathericm.debug;
+package com.kenai.weathericm.app.helpers;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoSerializer;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple implementation of {@link MeteorogramInfoDao} that uses RAM for storage.
@@ -38,10 +38,10 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      */
     private final static Logger log = LoggerFactory.getLogger(MeteorogramInfoInMemoryDao.class);
     /**
-     * The in-RAM storage. It's simple {@link Hashtable}. It maps
+     * The in-RAM storage. It's simple {@link HashMap}. It maps
      * {@link MeteorogramInfo}'s id to actual object.
      */
-    private Hashtable store = new Hashtable();
+    private Map<Integer, MeteorogramInfo> store = new HashMap<Integer, MeteorogramInfo>();
     /**
      * Counter for the last
      */
@@ -51,6 +51,7 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      * Creates given {@code info} in store. 
      * @param info the {@link MeteorogramInfo} to be created in store.
      */
+    @Override
     public void create(MeteorogramInfo info) {
         log.info("In create...");
         if (info.getId() == null) {
@@ -67,6 +68,7 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      * Updates given {@code info} in store.
      * @param info the {@link MeteorogramInfo} to be updated in store.
      */
+    @Override
     public void update(MeteorogramInfo info) {
         log.info("In update...");
         if (info.getId() != null) {
@@ -81,6 +83,7 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      * Deletes given {@code info} from store.
      * @param info the {@link MeteorogramInfo} to be deleted from store.
      */
+    @Override
     public void delete(MeteorogramInfo info) {
         log.info("In delete...");
         if (info.getId() != null) {
@@ -96,6 +99,7 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      * if one dosn't exist in store or update it if it already exists in store.
      * @param info the {@link MeteorogramInfo} to be persisted.
      */
+    @Override
     public void createOrUpdate(MeteorogramInfo info) {
         log.info("In create or update...");
         if (info.getId() == null) {
@@ -113,9 +117,10 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      * @return the {@link MeteorogramInfo} read from store or {@code null} if an
      * error occurred.
      */
+    @Override
     public MeteorogramInfo read(int id) {
         log.info("In read...");
-        MeteorogramInfo retValue = (MeteorogramInfo) store.get(new Integer(id));
+        MeteorogramInfo retValue = store.get(new Integer(id));
         if (null == retValue) {
             log.error("Object doesn't exist in store for key = " + id);
         } else {
@@ -129,14 +134,10 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      * The order of read elements depends on given implementation.
      * @return the {@link Vector} with all {@link MeteorogramInfo}s in store.
      */
+    @Override
     public Vector readAll() {
         log.info("In read all...");
-        Vector infos = new Vector(store.size());
-        Enumeration e = store.keys();
-        while (e.hasMoreElements()) {
-            infos.addElement(store.get(e.nextElement()));
-        }
-        log.info("Read total = " + infos.size());
+        Vector infos = new Vector(store.values());
         return infos;
     }
 
@@ -146,6 +147,7 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      * @return the {@link MeteorogramInfoSerializer}.
      * @throws UnsupportedOperationException
      */
+    @Override
     public MeteorogramInfoSerializer getMeteorogramInfoSerializer() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -156,6 +158,7 @@ public class MeteorogramInfoInMemoryDao implements MeteorogramInfoDao {
      * @param meteorogramInfoSerializer the {@link MeteorogramInfoSerializer} to set.
      * @throws UnsupportedOperationException
      */
+    @Override
     public void setMeteorogramInfoSerializer(MeteorogramInfoSerializer meteorogramInfoSerializer) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

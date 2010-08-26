@@ -20,7 +20,6 @@ package com.kenai.weathericm.app;
 import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.AbstractStatusReporter;
 import com.kenai.weathericm.util.Status;
-import javax.microedition.lcdui.Image;
 //#mdebug
 import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
@@ -274,7 +273,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             }
             ForecastData forecastData = new ForecastData(modelStartDate);
             forecastData.setModelResult(modelResult);
-            info.setData(forecastData);
+            info.setForecastData(forecastData);
             setProgress(progress = 100);
             modelResultDownloader.removeListener(this);
             Thread.yield();

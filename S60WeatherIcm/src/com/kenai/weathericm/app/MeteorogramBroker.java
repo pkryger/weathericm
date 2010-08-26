@@ -17,6 +17,7 @@
  */
 package com.kenai.weathericm.app;
 
+import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.StatusReporter;
 import com.kenai.weathericm.util.Status;
@@ -28,6 +29,7 @@ import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
 //#enddebug
 import com.kenai.weathericm.domain.MeteorogramInfo;
+import com.kenai.weathericm.repository.ForecastDataDao;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 
 /**
@@ -50,7 +52,11 @@ public class MeteorogramBroker implements StatusListener {
     /**
      * The {@link MeteorogramInfoDao} instance.
      */
-    private MeteorogramInfoDao dao = null;
+    private MeteorogramInfoDao meteorogramInfoDao = null;
+    /**
+     * The {@link ForecastDataDao} instance.
+     */
+    private ForecastDataDao forecastDataDao = null;
     /**
      * All the registerd {@link MeteorogramBrokerListener}s instances.
      */
@@ -82,17 +88,17 @@ public class MeteorogramBroker implements StatusListener {
     }
 
     /**
-     * @return the dao
+     * @return the meteorogramInfoDao
      */
-    public MeteorogramInfoDao getDao() {
-        return dao;
+    public MeteorogramInfoDao getMeteorogramInfoDao() {
+        return meteorogramInfoDao;
     }
 
     /**
-     * @param dao the dao to set
+     * @param meteorogramInfoDao the meteorogramInfoDao to set
      */
-    public void setDao(MeteorogramInfoDao dao) {
-        this.dao = dao;
+    public void setMeteorogramInfoDao(MeteorogramInfoDao meteorogramInfoDao) {
+        this.meteorogramInfoDao = meteorogramInfoDao;
     }
 
     /**
@@ -230,7 +236,15 @@ public class MeteorogramBroker implements StatusListener {
 //#mdebug
                 log.info("Reading all infos from DAO");
 //#enddebug
-                Vector meteorogramInfos = dao.readAll();
+                Vector meteorogramInfos = meteorogramInfoDao.readAll();
+                Enumeration e = meteorogramInfos.elements();
+                while (e.hasMoreElements()) {
+                    MeteorogramInfo info = (MeteorogramInfo)e.nextElement();
+                    if (forecastDataDao.exits(info.getId())) {
+                        ForecastData forecastData = forecastDataDao.read(info.getId());
+                        info.setForecastData(forecastData);
+                    }
+                }
                 fireReadMeteorogramInfo(meteorogramInfos);
             }
         };
@@ -248,7 +262,13 @@ public class MeteorogramBroker implements StatusListener {
 //#mdebug
                 log.info("Creating info in DAO: " + info);
 //#enddebug
-                dao.create(info);
+                meteorogramInfoDao.create(info);
+                if (forecastDataDao.exits(info.getId())) {
+//#mdebug
+                    log.warn("The ForecastData already exists for a brand new info, deleting it!");
+//#enddebug
+                    forecastDataDao.delete(info.getId());
+                }
                 fireAddedMeteorogramInfo(info);
             }
         };
@@ -266,7 +286,13 @@ public class MeteorogramBroker implements StatusListener {
 //#mdebug
                 log.info("Updating info in DAO: " + info);
 //#enddebug
-                dao.update(info);
+                meteorogramInfoDao.update(info);
+                if (info.isDataAvaliable() == false && forecastDataDao.exits(info.getId())) {
+//#mdebug
+                    log.debug("The info has no ForecsastData any longer, let's delete it!");
+//#enddebug
+                    forecastDataDao.delete(info.getId());
+                }
                 fireUpdatedMeteorogramInfo(info);
             }
         };
@@ -284,7 +310,8 @@ public class MeteorogramBroker implements StatusListener {
 //#mdebug
                 log.info("Deleting info from DAO: " + info);
 //#enddebug
-                dao.delete(info);
+                forecastDataDao.delete(info.getId());
+                meteorogramInfoDao.delete(info);
                 fireDeletedMeteorogramInfo(info);
             }
         };
@@ -340,10 +367,32 @@ public class MeteorogramBroker implements StatusListener {
             ForecastDataDownloader task = (ForecastDataDownloader)source;
             MeteorogramInfo info = task.getMeteorogramInfo();
             if (status == Status.FINISHED) {
+                if (info.isDataAvaliable()) {
+                    forecastDataDao.createOrUpdate(info.getId(), info.getForecastData());
+                } else {
+//#mdebug
+                    log.warn("The download task has finished, but there is no ForecastData! " + source);
+//#enddebug
+                    forecastDataDao.delete(info.getId());
+                }
                 fireUpdatedMeteorogramInfo(info);
             }
             infoToDownloadTask.remove(info);
             task.removeListener(this);
         }
+    }
+
+    /**
+     * @return the forecastDataDao
+     */
+    public ForecastDataDao getForecastDataDao() {
+        return forecastDataDao;
+    }
+
+    /**
+     * @param forecastDataDao the forecastDataDao to set
+     */
+    public void setForecastDataDao(ForecastDataDao forecastDataDao) {
+        this.forecastDataDao = forecastDataDao;
     }
 }

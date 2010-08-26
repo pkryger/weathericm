@@ -73,7 +73,7 @@ public class MeteorogramInfo {
      */
     //@todo for now it's not persistend and doesn't taint instance, but
     //      this shall be changed when implementing persistence for info.
-    private ForecastData data = null;
+    private ForecastData forecastData = null;
 
     /**
      * If this is not-{@code null} then object is marked as stored.
@@ -160,7 +160,7 @@ public class MeteorogramInfo {
         } else if (x != this.x) {
             tainted = true;
             this.x = x;
-            data = null;
+            forecastData = null;
         }
     }
 
@@ -194,7 +194,7 @@ public class MeteorogramInfo {
         } else if (y != this.y) {
             tainted = true;
             this.y = y;
-            data = null;
+            forecastData = null;
         }
 
     }
@@ -244,7 +244,7 @@ public class MeteorogramInfo {
         } else if (!type.equals(this.type)) {
             tainted = true;
             this.type = type;
-            data = null;
+            forecastData = null;
         }
     }
 
@@ -252,8 +252,8 @@ public class MeteorogramInfo {
      * Gets the current forecast data for this info.
      * @return the {@link ForecastData} for this info.
      */
-    public ForecastData getData() {
-        return data;
+    public ForecastData getForecastData() {
+        return forecastData;
     }
 
     /**
@@ -261,11 +261,11 @@ public class MeteorogramInfo {
      * @param data the {@link ForecastData} to be set.
      */
     //@todo imeplement tainting when doing persistency for data
-    public void setData(ForecastData data) {
+    public void setForecastData(ForecastData data) {
 //#mdebug
         log.debug("Setting data to: " + data);
 //#enddebug
-        this.data = data;
+        this.forecastData = data;
     }
 
     /**
@@ -275,7 +275,7 @@ public class MeteorogramInfo {
     //@todo this need to be serialized for data persistency, so it is known
     //      if data need to be restored upon resurection.
     public boolean isDataAvaliable() {
-        return data != null;
+        return forecastData != null;
     }
 
     /**

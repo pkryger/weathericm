@@ -72,15 +72,15 @@ public class MeteorogramInfoTest {
     public void getSetValidName() {
         assertThat(fixture.getName(), equalTo(""));
         String expected = "Kraków";
-        fixture.setData(new ForecastData("2010050607"));
+        fixture.setForecastData(new ForecastData("2010050607"));
         fixture.setName(expected);
         assertThat(fixture.getName(), equalTo(expected));
         assertThat(fixture.isTainted(), is(true));
-        assertThat(fixture.getData(), is(notNullValue()));
+        assertThat(fixture.getForecastData(), is(notNullValue()));
         fixture.setTainted(false);
         fixture.setName(expected);
         assertThat(fixture.isTainted(), is(false));
-        assertThat(fixture.getData(), is(notNullValue()));
+        assertThat(fixture.getForecastData(), is(notNullValue()));
     }
 
     @Test(expected = NullPointerException.class)
@@ -92,16 +92,16 @@ public class MeteorogramInfoTest {
     public void getSetValidX() {
         assertThat(fixture.getX(), equalTo(0));
         int expected = MeteorogramInfo.MAX_X / 2;
-        fixture.setData(new ForecastData("2010050607"));
+        fixture.setForecastData(new ForecastData("2010050607"));
         fixture.setX(expected);
         assertThat(fixture.getX(), equalTo(expected));
         assertThat(fixture.isTainted(), is(true));
-        assertThat(fixture.getData(), is(nullValue()));
+        assertThat(fixture.getForecastData(), is(nullValue()));
         fixture.setTainted(false);
-        fixture.setData(new ForecastData("2010050607"));
+        fixture.setForecastData(new ForecastData("2010050607"));
         fixture.setX(expected);
         assertThat(fixture.isTainted(), is(false));
-        assertThat(fixture.getData(), is(notNullValue()));
+        assertThat(fixture.getForecastData(), is(notNullValue()));
     }
 
     @Test
@@ -125,16 +125,16 @@ public class MeteorogramInfoTest {
     public void getSetValidY() {
         assertThat(fixture.getY(), equalTo(0));
         int expected = MeteorogramInfo.MAX_Y / 2;
-        fixture.setData(new ForecastData("2010050607"));
+        fixture.setForecastData(new ForecastData("2010050607"));
         fixture.setY(expected);
         assertThat(fixture.getY(), equalTo(expected));
         assertThat(fixture.isTainted(), is(true));
-        assertThat(fixture.getData(), is(nullValue()));
+        assertThat(fixture.getForecastData(), is(nullValue()));
         fixture.setTainted(false);
-        fixture.setData(new ForecastData("2010050607"));
+        fixture.setForecastData(new ForecastData("2010050607"));
         fixture.setY(expected);
         assertThat(fixture.isTainted(), is(false));
-        assertThat(fixture.getData(), is(notNullValue()));
+        assertThat(fixture.getForecastData(), is(notNullValue()));
     }
 
     @Test
@@ -157,11 +157,11 @@ public class MeteorogramInfoTest {
     @Test
     public void getSetValidType() {
         assertThat(fixture.getType(), equalTo(MeteorogramType.UM));
-        fixture.setData(new ForecastData("2010050607"));
+        fixture.setForecastData(new ForecastData("2010050607"));
         fixture.setType(MeteorogramType.COAMPS);
         assertThat(fixture.getType(), equalTo(MeteorogramType.COAMPS));
         assertThat(fixture.isTainted(), is(true));
-        assertThat(fixture.getData(), is(nullValue()));
+        assertThat(fixture.getForecastData(), is(nullValue()));
     }
 
     @Test(expected = NullPointerException.class)
@@ -190,15 +190,15 @@ public class MeteorogramInfoTest {
     }
 
     @Test
-    public void getSetData() {
+    public void getsetForecastData() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         ForecastData data = new ForecastData(cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH),
                 cal.get(Calendar.HOUR_OF_DAY));
         assertThat(fixture.isDataAvaliable(), is(false));
-        fixture.setData(data);
+        fixture.setForecastData(data);
         assertThat(fixture.isTainted(), is(false));
-        ForecastData actual = fixture.getData();
+        ForecastData actual = fixture.getForecastData();
         assertThat(actual, is(not(nullValue())));
         assertThat(actual, equalTo(data));
         assertThat(fixture.isDataAvaliable(), is(true));

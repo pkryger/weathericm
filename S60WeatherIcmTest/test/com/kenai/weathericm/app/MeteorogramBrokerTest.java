@@ -17,8 +17,11 @@
  */
 package com.kenai.weathericm.app;
 
-import com.kenai.weathericm.debug.MeteorogramInfoInMemoryDao;
+import com.kenai.weathericm.app.helpers.ForecastDataInMemoryDao;
+import com.kenai.weathericm.domain.ForecastData;
+import com.kenai.weathericm.app.helpers.MeteorogramInfoInMemoryDao;
 import com.kenai.weathericm.domain.MeteorogramInfo;
+import com.kenai.weathericm.repository.ForecastDataDao;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoSerializer;
 import com.kenai.weathericm.util.AbstractStatusReporter;
@@ -62,7 +65,7 @@ public class MeteorogramBrokerTest {
             }
         }
         Whitebox.setInternalState(fixture, INFO_TO_TASK, new Hashtable());
-        fixture.setDao(null);
+        fixture.setMeteorogramInfoDao(null);
         listener = getDummyListener();
     }
 
@@ -187,27 +190,39 @@ public class MeteorogramBrokerTest {
 
     @Test
     public void readAllMeteorogramInfos() throws Exception {
+        ForecastDataDao forecastDataDao = new ForecastDataInMemoryDao();
+        fixture.setForecastDataDao(forecastDataDao);
         fixture.addListener(listener);
-        MeteorogramInfoInMemoryDao dao = new MeteorogramInfoInMemoryDao();
-        MeteorogramInfo info = new MeteorogramInfo();
-        dao.create(info);
-        fixture.setDao(dao);
+        MeteorogramInfoInMemoryDao meteorogramInfoInMemoryDao = new MeteorogramInfoInMemoryDao();
+        MeteorogramInfo infoWithData = new MeteorogramInfo();
+        MeteorogramInfo infoWithoutData = new MeteorogramInfo();
+        meteorogramInfoInMemoryDao.create(infoWithData);
+        meteorogramInfoInMemoryDao.create(infoWithoutData);
+        forecastDataDao.create(infoWithData.getId(), new ForecastData("1994090800"));
+        fixture.setMeteorogramInfoDao(meteorogramInfoInMemoryDao);
         final MeteorogramBrokerListener lock = listener;
         synchronized (lock) {
             fixture.readAllMeteorogramInfos();
             lock.wait(timeout);
         }
         Vector actual = listener.readMeteorogramInfos;
-        assertThat(actual.size(), equalTo(1));
-        assertThat(actual.contains(info), is(true));
+        assertThat(actual.size(), equalTo(2));
+        assertThat(actual.contains(infoWithData), is(true));
+        assertThat(actual.contains(infoWithoutData), is(true));
+        assertThat(infoWithoutData.getForecastData(), is(nullValue()));
+        assertThat(infoWithData.getForecastData(), is(not(nullValue())));
     }
 
     @Test
     public void createMeteorogramInfo() throws Exception {
+        ForecastDataDao forecastDataDao = new ForecastDataInMemoryDao();
+        fixture.setForecastDataDao(forecastDataDao);
         fixture.addListener(listener);
-        MeteorogramInfoInMemoryDao dao = new MeteorogramInfoInMemoryDao();
+        MeteorogramInfoInMemoryDao meteorogramInfoInMemoryDao = new MeteorogramInfoInMemoryDao();
         MeteorogramInfo info = new MeteorogramInfo();
-        fixture.setDao(dao);
+        int id = (Integer) Whitebox.getInternalState(meteorogramInfoInMemoryDao, "lastElement");
+        forecastDataDao.create(id, new ForecastData("1999080701"));
+        fixture.setMeteorogramInfoDao(meteorogramInfoInMemoryDao);
         final MeteorogramBrokerListener lock = listener;
         synchronized (lock) {
             fixture.createMeteorogramInfo(info);
@@ -215,17 +230,23 @@ public class MeteorogramBrokerTest {
         }
         MeteorogramInfo actual = listener.addedMeteorogramInfo;
         assertThat(actual, equalTo(info));
-        Vector inDaoInfos = dao.readAll();
+        Vector inDaoInfos = meteorogramInfoInMemoryDao.readAll();
         assertThat(inDaoInfos.contains(info), is(true));
+        assertThat(forecastDataDao.exits(id), is(false));
     }
 
     @Test
-    public void updateMeteorogramInfo() throws Exception {
+    public void updateMeteorogramInfoForecastDataLost() throws Exception {
+        ForecastDataDao forecastDataDao = new ForecastDataInMemoryDao();
+        fixture.setForecastDataDao(forecastDataDao);
         fixture.addListener(listener);
-        MeteorogramInfoInMemoryDao dao = new MeteorogramInfoInMemoryDao();
+        MeteorogramInfoInMemoryDao meteorogramInfoInMemoryDao = new MeteorogramInfoInMemoryDao();
         MeteorogramInfo info = new MeteorogramInfo();
-        dao.create(info);
-        fixture.setDao(dao);
+        ForecastData forecastData = new ForecastData("1954101018");
+        meteorogramInfoInMemoryDao.create(info);
+        int id = info.getId();
+        forecastDataDao.create(id, forecastData);
+        fixture.setMeteorogramInfoDao(meteorogramInfoInMemoryDao);
         final MeteorogramBrokerListener lock = listener;
         synchronized (lock) {
             fixture.updateMeteorogramInfo(info);
@@ -233,17 +254,47 @@ public class MeteorogramBrokerTest {
         }
         MeteorogramInfo actual = listener.updatedMeteorogramInfo;
         assertThat(actual, equalTo(info));
-        Vector inDaoInfos = dao.readAll();
+        Vector inDaoInfos = meteorogramInfoInMemoryDao.readAll();
         assertThat(inDaoInfos.contains(info), is(true));
+        assertThat(forecastDataDao.exits(id), is(false));
+    }
+
+    @Test
+    public void updateMeteorogramInfoForecastDataNotLost() throws Exception {
+        ForecastDataDao forecastDataDao = new ForecastDataInMemoryDao();
+        fixture.setForecastDataDao(forecastDataDao);
+        fixture.addListener(listener);
+        MeteorogramInfoInMemoryDao meteorogramInfoInMemoryDao = new MeteorogramInfoInMemoryDao();
+        MeteorogramInfo info = new MeteorogramInfo();
+        ForecastData forecastData = new ForecastData("1954101018");
+        info.setForecastData(forecastData);
+        meteorogramInfoInMemoryDao.create(info);
+        int id = info.getId();
+        forecastDataDao.create(id, forecastData);
+        fixture.setMeteorogramInfoDao(meteorogramInfoInMemoryDao);
+        final MeteorogramBrokerListener lock = listener;
+        synchronized (lock) {
+            fixture.updateMeteorogramInfo(info);
+            lock.wait(timeout);
+        }
+        MeteorogramInfo actual = listener.updatedMeteorogramInfo;
+        assertThat(actual, equalTo(info));
+        Vector inDaoInfos = meteorogramInfoInMemoryDao.readAll();
+        assertThat(inDaoInfos.contains(info), is(true));
+        assertThat(forecastDataDao.exits(id), is(true));
     }
 
     @Test
     public void deleteMeteorogramInfo() throws Exception {
+        ForecastDataDao forecastDataDao = new ForecastDataInMemoryDao();
+        fixture.setForecastDataDao(forecastDataDao);
         fixture.addListener(listener);
-        MeteorogramInfoInMemoryDao dao = new MeteorogramInfoInMemoryDao();
+        MeteorogramInfoInMemoryDao meteorogramInfoInMemoryDao = new MeteorogramInfoInMemoryDao();
         MeteorogramInfo info = new MeteorogramInfo();
-        dao.create(info);
-        fixture.setDao(dao);
+        meteorogramInfoInMemoryDao.create(info);
+        int id = info.getId();
+        forecastDataDao.create(id, new ForecastData("1999080701"));
+        fixture.setMeteorogramInfoDao(meteorogramInfoInMemoryDao);
         final MeteorogramBrokerListener lock = listener;
         synchronized (lock) {
             fixture.deleteMeteorogramInfo(info);
@@ -251,8 +302,9 @@ public class MeteorogramBrokerTest {
         }
         MeteorogramInfo actual = listener.deletedMeteorogramInfo;
         assertThat(actual, equalTo(info));
-        Vector inDaoInfos = dao.readAll();
+        Vector inDaoInfos = meteorogramInfoInMemoryDao.readAll();
         assertThat(inDaoInfos.contains(info), is(false));
+        assertThat(forecastDataDao.exits(id), is(false));
     }
 
     @Test
@@ -285,7 +337,13 @@ public class MeteorogramBrokerTest {
     @Test
     public void statusUpdateFinished() {
         fixture.addListener(listener);
+        ForecastDataDao forecastDataDao = new ForecastDataInMemoryDao();
+        fixture.setForecastDataDao(forecastDataDao);
         MeteorogramInfo info = new MeteorogramInfo();
+        int id = 7;
+        info.setId(id);
+        ForecastData data = new ForecastData("2009090900");
+        info.setForecastData(data);
         ForecastDataDownloader task = new DummyForecastDataDownloader();
         task.setMeteorogramInfo(info);
         Hashtable infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
@@ -297,11 +355,18 @@ public class MeteorogramBrokerTest {
         assertThat(listener.updatedMeteorogramInfo, equalTo(info));
         Vector taskListeners = task.getListeners();
         assertThat(taskListeners.contains(fixture), is(false));
+        assertThat(forecastDataDao.exits(id), is(true));
     }
 
     @Test
     public void statusUpdateCanceled() {
+        ForecastDataDao forecastDataDao = new ForecastDataInMemoryDao();
+        fixture.setForecastDataDao(forecastDataDao);
         MeteorogramInfo info = new MeteorogramInfo();
+        int id = 5;
+        info.setId(id);
+        ForecastData data = new ForecastData("2009080900");
+        info.setForecastData(data);
         ForecastDataDownloader task = new DummyForecastDataDownloader();
         task.setMeteorogramInfo(info);
         Hashtable infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
@@ -311,17 +376,25 @@ public class MeteorogramBrokerTest {
         assertThat(infoToTask.size(), equalTo(0));
         Vector taskListeners = task.getListeners();
         assertThat(taskListeners.contains(fixture), is(false));
+        assertThat(forecastDataDao.exits(id), is(false));
     }
 
     @Test
     public void statusUpdateNotFinishedNorCanceled() {
+        ForecastDataDao forecastDataDao = new ForecastDataInMemoryDao();
+        fixture.setForecastDataDao(forecastDataDao);
         MeteorogramInfo info = new MeteorogramInfo();
+        int id = 9;
+        info.setId(id);
+        ForecastData data = new ForecastData("2009090800");
+        info.setForecastData(data);
         ForecastDataDownloader task = new DummyForecastDataDownloader();
         Hashtable infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
         infoToTask.put(info, task);
         fixture.statusUpdate(task, new Status());
         infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
         assertThat(infoToTask.contains(task), is(true));
+        assertThat(forecastDataDao.exits(id), is(false));
     }
 
     @Test(expected = NullPointerException.class)
@@ -335,7 +408,7 @@ public class MeteorogramBrokerTest {
     }
 
     @Test
-    public void getSetDao() {
+    public void getSetMeteorogramInfoDao() {
         MeteorogramInfoDao expected = new MeteorogramInfoDao() {
 
             public void create(MeteorogramInfo info) {
@@ -370,10 +443,50 @@ public class MeteorogramBrokerTest {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         };
-        fixture.setDao(null);
-        assertThat(fixture.getDao(), is(nullValue()));
-        fixture.setDao(expected);
-        assertThat(fixture.getDao(), equalTo(expected));
+        fixture.setMeteorogramInfoDao(null);
+        assertThat(fixture.getMeteorogramInfoDao(), is(nullValue()));
+        fixture.setMeteorogramInfoDao(expected);
+        assertThat(fixture.getMeteorogramInfoDao(), is(expected));
+    }
+
+    @Test
+    public void getSetForecastDataDao() {
+        ForecastDataDao expected = new ForecastDataDao() {
+
+            @Override
+            public boolean create(Integer id, ForecastData forecastData) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public ForecastData read(Integer id) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean update(Integer id, ForecastData forecastData) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean delete(Integer id) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean exits(Integer id) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public boolean createOrUpdate(Integer id, ForecastData forecastData) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        };
+        fixture.setForecastDataDao(expected);
+        assertThat(fixture.getForecastDataDao(), is(expected));
+        fixture.setForecastDataDao(null);
+        assertThat(fixture.getForecastDataDao(), is(nullValue()));
     }
 
     private DummyMeteorogramBrokerListener getDummyListener() {

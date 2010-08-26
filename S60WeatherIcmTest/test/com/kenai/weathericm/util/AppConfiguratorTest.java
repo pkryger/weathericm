@@ -61,10 +61,10 @@ public class AppConfiguratorTest {
         replayAll();
         MeteorogramBroker broker = MeteorogramBroker.getInstance();
         assertThat(broker, is(not(nullValue())));
-        MeteorogramInfoDao dao = broker.getDao();
-        assertThat(dao, is(not(nullValue())));
-        assertThat(dao, is((MeteorogramInfoDao)MeteorogramInfoRecordStoreDao.getInstance()));
-        MeteorogramInfoSerializer serializer = dao.getMeteorogramInfoSerializer();
+        MeteorogramInfoDao meteorogramInfoDao = broker.getMeteorogramInfoDao();
+        assertThat(meteorogramInfoDao, is(not(nullValue())));
+        assertThat(meteorogramInfoDao, is((MeteorogramInfoDao)MeteorogramInfoRecordStoreDao.getInstance()));
+        MeteorogramInfoSerializer serializer = meteorogramInfoDao.getMeteorogramInfoSerializer();
         assertThat(serializer, is(not(nullValue())));
         assertThat(serializer, instanceOf(MeteorogramInfoRecordStoreSerializer.class));
         verifyAll();

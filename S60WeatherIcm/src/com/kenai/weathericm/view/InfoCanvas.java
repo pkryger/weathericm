@@ -47,7 +47,7 @@ public class InfoCanvas extends ScrollableCanvas {
     public void setInfo(MeteorogramInfo info) {
         if (info != null) {
             if (info.isDataAvaliable()) {
-                byte[] forecastData = info.getData().getModelResult();
+                byte[] forecastData = info.getForecastData().getModelResult();
                 Image forecast = null;
                 if (forecastData != null) {
                     forecast = Image.createImage(forecastData, 0, forecastData.length);

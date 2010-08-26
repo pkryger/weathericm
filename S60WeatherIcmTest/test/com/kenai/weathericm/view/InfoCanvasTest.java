@@ -71,7 +71,7 @@ public class InfoCanvasTest {
         byte[] modelResult = new byte[]{1, 2, 3};
         ForecastData data = new ForecastData(2010, 8, 10, 0);
         data.setModelResult(modelResult);
-        info.setData(data);
+        info.setForecastData(data);
         info.setName(title);
         mockStatic(Image.class);
         expect(Image.createImage(aryEq(modelResult), eq(0), eq(modelResult.length))).andReturn(imageMock);
@@ -87,7 +87,7 @@ public class InfoCanvasTest {
         String title = "xy";
         info.setName(title);
         ForecastData data = new ForecastData(2010, 8, 10, 0);
-        info.setData(data);
+        info.setForecastData(data);
         fixture.setTitle(title);
         fixture.setImage(null);
         replayAll();

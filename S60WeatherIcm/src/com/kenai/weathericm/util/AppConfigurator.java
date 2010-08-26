@@ -42,7 +42,7 @@ public class AppConfigurator {
 //#enddebug
         MeteorogramBroker broker = MeteorogramBroker.getInstance();
         MeteorogramInfoDao dao = MeteorogramInfoRecordStoreDao.getInstance();
-        broker.setDao(dao);
+        broker.setMeteorogramInfoDao(dao);
         MeteorogramInfoSerializer serializationHelper = new MeteorogramInfoRecordStoreSerializer();
         dao.setMeteorogramInfoSerializer(serializationHelper);
     }

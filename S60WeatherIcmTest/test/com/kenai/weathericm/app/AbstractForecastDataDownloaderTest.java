@@ -28,7 +28,6 @@ import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.StatusReporter;
 import java.util.Calendar;
 import java.util.Date;
-import javax.microedition.lcdui.Image;
 import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -216,8 +215,8 @@ public class AbstractForecastDataDownloaderTest {
         assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
         assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
         assertThat(info.isDataAvaliable(), is(true));
-        assertThat(info.getData().getModelStart(), equalTo(startDate));
-        assertThat(info.getData().getModelResult(), equalTo(modelResult));
+        assertThat(info.getForecastData().getModelStart(), equalTo(startDate));
+        assertThat(info.getForecastData().getModelResult(), equalTo(modelResult));
     }
 
     @Test
