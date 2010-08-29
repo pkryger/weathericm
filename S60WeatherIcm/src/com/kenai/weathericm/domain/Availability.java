@@ -24,17 +24,21 @@ package com.kenai.weathericm.domain;
  */
 public class Availability {
 
-    public final static Availability NOT_AVALIABLE = new Availability("Not Available");
-    public final static Availability AVALIABLE = new Availability("Available");
-    public final static Availability AVALIABLE_OLD = new Availability("Available Old");
+    public final static int NOT_AVAILABLE_VALUE = 0;
+    public final static Availability NOT_AVAILABLE = new Availability("Not Available", NOT_AVAILABLE_VALUE);
+    public final static int AVAILABLE_VALUE = 1;
+    public final static Availability AVAILABLE = new Availability("Available", AVAILABLE_VALUE);
+    public final static int AVAILABLE_OLD_VALUE = 2;
+    public final static Availability AVAILABLE_OLD = new Availability("Available Old", AVAILABLE_OLD_VALUE);
 
     /**
      * Creates a new {@link Availability} with {@code displayString}
      * as a presentation name.
      * @param displayString the {@link String} to be used as a presentation name.
      */
-    private Availability(String displayString) {
+    private Availability(String displayString, int value) {
         this.displayString = displayString;
+        this.value = value;
     }
     /**
      * This availability diplay string used to present it by {@value #toString()}
@@ -42,10 +46,24 @@ public class Availability {
     private String displayString;
 
     /**
+     * The instance value
+     */
+    private int value;
+
+    /**
+     * @return this instance {@value #value}.
+     */
+    public int getValue() {
+        return value;
+    }
+    
+    /**
      * Gives this {@link Availability} display string.
      * @return the {@link String} to be used as a presentation name.
      */
     public String toString() {
-        return displayString;
+        StringBuffer buffer = new StringBuffer(displayString);
+        buffer.append(" [").append(value).append("]");
+        return buffer.toString();
     }
 }

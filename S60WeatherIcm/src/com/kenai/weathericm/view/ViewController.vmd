@@ -19,7 +19,7 @@
                 <Component componentID="5" typeID="C#Display"/>
                 <Component componentID="100" typeID="C#IfPoint">
                     <Property name="methodName" typeID="Pjava.lang.String" value="VisForecastAvaliable"/>
-                    <Property name="condition" typeID="P#javacode" value="VprocessedInfo.isDataAvaliable()"/>
+                    <Property name="condition" typeID="P#javacode" value="V!processedInfo.dataAvailability().equals(Availability.NOT_AVAILABLE)"/>
                     <Property name="true" typeID="C#IfTrueEventSource" value="R101"/>
                     <Property name="false" typeID="C#IfFalseEventSource" value="R102"/>
                     <Component componentID="102" typeID="C#IfFalseEventSource">
@@ -470,7 +470,7 @@
             </Component>
             <Component componentID="13" typeID="C#ResourcesCategory">
                 <Component componentID="216" typeID="Cjavax.microedition.lcdui.Image">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VforecastAvaliableImage"/>
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VforecastAvailableImage"/>
                     <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
                     <Property name="resourcePath" typeID="Pjava.lang.String" value="V/com/kenai/weathericm/images/Gnome-weather-clear.png"/>
                 </Component>
@@ -480,28 +480,33 @@
                     <Property name="resourcePath" typeID="Pjava.lang.String" value="V/com/kenai/weathericm/images/Gnome-image-loading.png"/>
                 </Component>
                 <Component componentID="215" typeID="Cjavax.microedition.lcdui.Image">
-                    <Property name="instanceName" typeID="Pjava.lang.String" value="VforecastNotAvaliableImage"/>
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VforecastNotAvailableImage"/>
                     <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
                     <Property name="resourcePath" typeID="Pjava.lang.String" value="V/com/kenai/weathericm/images/Gnome-weather-clear-night.png"/>
+                </Component>
+                <Component componentID="227" typeID="Cjavax.microedition.lcdui.Image">
+                    <Property name="instanceName" typeID="Pjava.lang.String" value="VforecastAvailableOldImage"/>
+                    <Property name="codeGenerated" typeID="Pboolean" value="Vtrue"/>
+                    <Property name="resourcePath" typeID="Pjava.lang.String" value="V/com/kenai/weathericm/images/Gnome-weather-clear-night-day.png"/>
                 </Component>
             </Component>
             <Component componentID="21" typeID="C#DatabindingCategory"/>
         </Component>
     </Document>
     <FlowScene version="1">
-        <Node componentID="222" descriptorID="componentNode222" x="1255" y="646"/>
-        <Node componentID="175" descriptorID="componentNode175" x="1400" y="882"/>
-        <Node componentID="143" descriptorID="componentNode143" x="312" y="584"/>
-        <Node componentID="126" descriptorID="componentNode126" x="603" y="733"/>
-        <Node componentID="161" descriptorID="componentNode161" x="312" y="202"/>
-        <Node componentID="156" descriptorID="componentNode156" x="857" y="882"/>
-        <Node componentID="93" descriptorID="componentNode93" x="34" y="32"/>
-        <Node componentID="2" descriptorID="componentNode2" x="857" y="202"/>
-        <Node componentID="100" descriptorID="componentNode100" x="34" y="351"/>
         <Node componentID="112" descriptorID="componentNode112" x="857" y="584"/>
-        <Node componentID="180" descriptorID="componentNode180" x="603" y="32"/>
-        <Node componentID="207" descriptorID="componentNode207" x="1123" y="351"/>
-        <Node componentID="47" descriptorID="componentNode47" x="34" y="733"/>
         <Node componentID="22" descriptorID="componentNode22" x="603" y="351"/>
+        <Node componentID="143" descriptorID="componentNode143" x="312" y="584"/>
+        <Node componentID="222" descriptorID="componentNode222" x="1255" y="646"/>
+        <Node componentID="126" descriptorID="componentNode126" x="603" y="733"/>
+        <Node componentID="180" descriptorID="componentNode180" x="603" y="32"/>
+        <Node componentID="100" descriptorID="componentNode100" x="34" y="351"/>
+        <Node componentID="93" descriptorID="componentNode93" x="34" y="32"/>
+        <Node componentID="161" descriptorID="componentNode161" x="312" y="202"/>
+        <Node componentID="207" descriptorID="componentNode207" x="1123" y="351"/>
+        <Node componentID="2" descriptorID="componentNode2" x="857" y="202"/>
+        <Node componentID="47" descriptorID="componentNode47" x="34" y="733"/>
+        <Node componentID="156" descriptorID="componentNode156" x="857" y="882"/>
+        <Node componentID="175" descriptorID="componentNode175" x="1400" y="882"/>
     </FlowScene>
 </VisualDesign>

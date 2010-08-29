@@ -17,6 +17,7 @@
  */
 package com.kenai.weathericm.view;
 
+import com.kenai.weathericm.domain.Availability;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 //#mdebug
 import javax.microedition.lcdui.Image;
@@ -46,7 +47,7 @@ public class InfoCanvas extends ScrollableCanvas {
      */
     public void setInfo(MeteorogramInfo info) {
         if (info != null) {
-            if (info.isDataAvaliable()) {
+            if (info.dataAvailability() != Availability.NOT_AVAILABLE) {
                 byte[] forecastData = info.getForecastData().getModelResult();
                 Image forecast = null;
                 if (forecastData != null) {

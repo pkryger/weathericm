@@ -17,20 +17,32 @@
  */
 package com.kenai.weathericm.domain;
 
+import com.kenai.weathericm.util.ComparableForecastData;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.TimeZone;
 import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.BeforeClass;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.easymock.EasyMock.expect;
+import static org.powermock.api.easymock.PowerMock.createMock;
+import static org.powermock.api.easymock.PowerMock.replayAll;
+import static org.powermock.api.easymock.PowerMock.verifyAll;
+import static org.powermock.api.easymock.PowerMock.expectNew;
 
 /**
  * Tests for {@link MeteorogramInfo}
  * @author Przemek Kryger
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(MeteorogramInfo.class)
 public class MeteorogramInfoTest {
 
     MeteorogramInfo fixture;
@@ -195,13 +207,13 @@ public class MeteorogramInfoTest {
         ForecastData data = new ForecastData(cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH),
                 cal.get(Calendar.HOUR_OF_DAY));
-        assertThat(fixture.isDataAvaliable(), is(false));
+        assertThat(fixture.dataAvailability(), equalTo(Availability.NOT_AVAILABLE));
         fixture.setForecastData(data);
         assertThat(fixture.isTainted(), is(false));
         ForecastData actual = fixture.getForecastData();
         assertThat(actual, is(not(nullValue())));
         assertThat(actual, equalTo(data));
-        assertThat(fixture.isDataAvaliable(), is(true));
+        assertThat(fixture.dataAvailability(), is(not(equalTo(Availability.NOT_AVAILABLE))));
     }
 
     @Test
@@ -222,5 +234,38 @@ public class MeteorogramInfoTest {
         assertThat(hash.containsKey(fixture), is(true));
         actual = hash.get(fixture);
         assertThat(actual, is(not(value)));
+    }
+
+    @Test
+    public void dataAvailabilityNotAvailable() {
+        assertThat(fixture.dataAvailability(), equalTo(Availability.NOT_AVAILABLE));
+    }
+
+    @Test
+    public void dataAvailabilityAvailable() throws Exception {
+        Date forecastDataDate = new Date();
+        Date now = new Date(forecastDataDate.getTime());
+        ForecastData forecastData = createMock(ForecastData.class);
+        fixture.setForecastData(forecastData);
+        expect(forecastData.getModelStart()).andReturn(forecastDataDate).atLeastOnce();
+        expectNew(Date.class).andReturn(now);
+        replayAll();
+        Availability actual = fixture.dataAvailability();
+        assertThat(actual, equalTo(Availability.AVAILABLE));
+        verifyAll();
+    }
+
+    @Test
+    public void dataAvailabilityAvailableOld() throws Exception {
+        Date forecastDataDate = new Date();
+        Date now = new Date(forecastDataDate.getTime() + ComparableForecastData.getOffset() + 1);
+        ForecastData forecastData = createMock(ForecastData.class);
+        fixture.setForecastData(forecastData);
+        expect(forecastData.getModelStart()).andReturn(forecastDataDate).atLeastOnce();
+        expectNew(Date.class).andReturn(now);
+        replayAll();
+        Availability actual = fixture.dataAvailability();
+        assertThat(actual, equalTo(Availability.AVAILABLE_OLD));
+        verifyAll();
     }
 }

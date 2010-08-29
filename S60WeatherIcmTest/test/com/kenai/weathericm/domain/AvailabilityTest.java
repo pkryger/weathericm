@@ -29,15 +29,18 @@ public class AvailabilityTest {
 
     @Test
     public void unique() {
-        assertThat(Availability.AVALIABLE, is(not(Availability.NOT_AVALIABLE)));
-        assertThat(Availability.AVALIABLE, is(not(Availability.AVALIABLE_OLD)));
-        assertThat(Availability.AVALIABLE_OLD, is(not(Availability.NOT_AVALIABLE)));
+        assertThat(Availability.AVAILABLE, is(not(Availability.NOT_AVAILABLE)));
+        assertThat(Availability.AVAILABLE, is(not(Availability.AVAILABLE_OLD)));
+        assertThat(Availability.AVAILABLE_OLD, is(not(Availability.NOT_AVAILABLE)));
+        assertThat(Availability.AVAILABLE.getValue(), is(not(Availability.NOT_AVAILABLE.getValue())));
+        assertThat(Availability.AVAILABLE.getValue(), is(not(Availability.AVAILABLE_OLD.getValue())));
+        assertThat(Availability.AVAILABLE_OLD.getValue(), is(not(Availability.NOT_AVAILABLE.getValue())));
     }
 
     @Test
     public void displayString() {
-        assertThat(Availability.AVALIABLE.toString(), equalTo("Available"));
-        assertThat(Availability.NOT_AVALIABLE.toString(), equalTo("Not Available"));
-        assertThat(Availability.AVALIABLE_OLD.toString(), equalTo("Available Old"));
+        assertThat(Availability.AVAILABLE.toString(), equalTo("Available [" + Availability.AVAILABLE_VALUE + "]"));
+        assertThat(Availability.NOT_AVAILABLE.toString(), equalTo("Not Available [" + Availability.NOT_AVAILABLE_VALUE + "]"));
+        assertThat(Availability.AVAILABLE_OLD.toString(), equalTo("Available Old [" + Availability.AVAILABLE_OLD_VALUE + "]"));
     }
 }

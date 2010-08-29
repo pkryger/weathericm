@@ -17,6 +17,8 @@
  */
 package com.kenai.weathericm.domain;
 
+import com.kenai.weathericm.util.ComparableForecastData;
+import java.util.Date;
 //#mdebug
 import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
@@ -69,10 +71,8 @@ public class MeteorogramInfo {
     private MeteorogramType type = MeteorogramType.UM;
     /**
      * The {@link ForecastData} that contains forecast for this info.
-     * Based on this the {@value #isDataAvaliable} is calculated.
+     * Based on this the {@value #dataAvailability} is calculated.
      */
-    //@todo for now it's not persistend and doesn't taint instance, but
-    //      this shall be changed when implementing persistence for info.
     private ForecastData forecastData = null;
 
     /**
@@ -260,7 +260,6 @@ public class MeteorogramInfo {
      * Sets the forecast data for this info.
      * @param data the {@link ForecastData} to be set.
      */
-    //@todo imeplement tainting when doing persistency for data
     public void setForecastData(ForecastData data) {
 //#mdebug
         log.debug("Setting data to: " + data);
@@ -269,13 +268,24 @@ public class MeteorogramInfo {
     }
 
     /**
-     * Checks if this info has forecast data or not.
+     * Checks if this info has forecast data. If it has the data, then it's checked
+     * if it's not to old.
      * @return {@code true} if this info has forecast data, {@code false} otherwise.
      */
-    //@todo this need to be serialized for data persistency, so it is known
-    //      if data need to be restored upon resurection.
-    public boolean isDataAvaliable() {
-        return forecastData != null;
+    public Availability dataAvailability() {
+        Availability retValue = null;
+        if (forecastData != null) {
+            ComparableForecastData myData = new ComparableForecastData(forecastData);
+            Date now = new Date();
+            if (myData.isOlderThan(now)) {
+                retValue = Availability.AVAILABLE_OLD;
+            } else {
+                retValue = Availability.AVAILABLE;
+            }
+        } else {
+            retValue = Availability.NOT_AVAILABLE;
+        }
+        return retValue;
     }
 
     /**

@@ -121,7 +121,24 @@ public class ComparableForecastData extends ForecastData {
             throw new NullPointerException("Cannot compare with null!");
 //#enddebug
         }
-        return getModelStart().equals(other.getModelStart());
+        return isSameAs(other.getModelStart());
+    }
+
+    /**
+     * Checks if this instance's {@value #getModelResult()} is the same as the {@code other} date.
+     * @param other the {@link Date} to comapre this instance with.
+     * @return {@code true} if the {@code other} is equal to this instance
+     *         {@value #getModelStart()} response, {@code false} otherwise.
+     * @throws NullPointerException if the {@code other} is {@code null}.
+     */
+    public boolean isSameAs(Date other) {
+        if (other == null) {
+            log.error("Cannot compare if it is the same with null!");
+//#mdebug
+            throw new NullPointerException("Cannot compare with null!");
+//#enddebug
+        }
+        return getModelStart().equals(other);
     }
 
     /**
@@ -139,8 +156,26 @@ public class ComparableForecastData extends ForecastData {
             throw new NullPointerException("Cannot compare with null!");
 //#enddebug
         }
+        return isOlderThan(other.getModelStart());
+    }
+
+    /**
+     * Checks if this instance is the older than {@code other} date.
+     * @param other the {@link ForecastData} to comapre this instance with.
+     * @return {@code true} if the {@value #getModelStart()} + {@value #offset} is
+     *         lower (earlier in time) that the {@code other},
+     *         {@code false} otherwise.
+     * @throws NullPointerException if the {@code other} is {@code null}.
+     */
+    public boolean isOlderThan(Date other) {
+        if (other == null) {
+            log.error("Cannot compare if it is older with null!");
+//#mdebug
+            throw new NullPointerException("Cannot compare with null!");
+//#enddebug
+        }
         return (getModelStart().getTime() + offset)
-                < other.getModelStart().getTime();
+                < other.getTime();
     }
 
     /**
@@ -158,7 +193,24 @@ public class ComparableForecastData extends ForecastData {
             throw new NullPointerException("Cannot compare with null!");
 //#enddebug
         }
+        return isNewerThan(other.getModelStart());
+    }
+        /**
+     * Checks if this instance is the newer than {@code other} date.
+     * @param other the {@link ForecastData} to comapre this instance with.
+     * @return {@code true} if the {@value #getModelStart()} is greater (later in time)
+     *         than the {@code other} + {@value #offset},
+     *         {@code false} otherwise.
+     * @throws NullPointerException if the {@code other} is {@code null}.
+     */
+    public boolean isNewerThan(Date other) {
+        if (other == null) {
+            log.error("Cannot compare if it is newer with null!");
+//#mdebug
+            throw new NullPointerException("Cannot compare with null!");
+//#enddebug
+        }
         return getModelStart().getTime()
-                > (other.getModelStart().getTime() + offset);
+                > (other.getTime() + offset);
     }
 }

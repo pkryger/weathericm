@@ -151,7 +151,7 @@ public class ViewControllerTest {
         expect(fixture.getDeleteCommand()).andReturn(deleteCommandMock).times(2);
         mainListMock.removeCommand(deleteCommandMock);
         mainListMock.addCommand(deleteCommandMock);
-        expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage).times(2);
+        expect(fixture.getForecastNotAvailableImage()).andReturn(notAvaliableImage).times(2);
         expect(mainListMock.append(name1, notAvaliableImage)).andReturn(position1);
         expect(mainListMock.append(name0, notAvaliableImage)).andReturn(position0);
         Vector data = new Vector(2);
@@ -200,7 +200,7 @@ public class ViewControllerTest {
     public void addedMeteorogramInfoNotInListFirst() {
         int position = 7;
         String name = "c";
-        expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage);
+        expect(fixture.getForecastNotAvailableImage()).andReturn(notAvaliableImage);
         expect(mainListMock.append(name, notAvaliableImage)).andReturn(position);
         expect(fixture.getShowCommand()).andReturn(showCommandMock);
         mainListMock.addCommand(showCommandMock);
@@ -221,7 +221,7 @@ public class ViewControllerTest {
     public void addedMeteorogramInfoNotInListNotFirst() {
         int position = 7;
         String name = "c";
-        expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage);
+        expect(fixture.getForecastNotAvailableImage()).andReturn(notAvaliableImage);
         expect(mainListMock.append(name, notAvaliableImage)).andReturn(position);
         Hashtable internalInfoToIndex = new Hashtable(1);
         MeteorogramInfo info = new MeteorogramInfo();
@@ -376,7 +376,7 @@ public class ViewControllerTest {
         String newName = "x";
         expect(mainListMock.getString(position)).andReturn(name);
         expect(mainListMock.getImage(position)).andReturn(avaliableImage);
-        expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage);
+        expect(fixture.getForecastNotAvailableImage()).andReturn(notAvaliableImage);
         mainListMock.set(position, newName, notAvaliableImage);
         replayAll();
         info.setName(newName);
@@ -399,7 +399,7 @@ public class ViewControllerTest {
         Whitebox.setInternalState(fixture, INFO_TO_INDEX_NAME, internalInfoToIndex);
         expect(mainListMock.getString(position)).andReturn(name);
         expect(mainListMock.getImage(position)).andReturn(avaliableImage);
-        expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage);
+        expect(fixture.getForecastNotAvailableImage()).andReturn(notAvaliableImage);
         mainListMock.set(position, name, notAvaliableImage);
         replayAll();
         fixture.updatedMeteorogramInfo(info);
@@ -422,7 +422,7 @@ public class ViewControllerTest {
         String newName = "x";
         expect(mainListMock.getString(position)).andReturn(name);
         expect(mainListMock.getImage(position)).andReturn(notAvaliableImage);
-        expect(fixture.getForecastNotAvaliableImage()).andReturn(notAvaliableImage);
+        expect(fixture.getForecastNotAvailableImage()).andReturn(notAvaliableImage);
         mainListMock.set(position, newName, notAvaliableImage);
         replayAll();
         info.setName(newName);
@@ -445,7 +445,7 @@ public class ViewControllerTest {
         Whitebox.setInternalState(fixture, INFO_TO_INDEX_NAME, internalInfoToIndex);
         expect(mainListMock.getString(position)).andReturn(name);
         expect(mainListMock.getImage(position)).andReturn(avaliableImage);
-        expect(fixture.getForecastNotAvaliableImage()).andReturn(avaliableImage);
+        expect(fixture.getForecastNotAvailableImage()).andReturn(avaliableImage);
         replayAll();
         fixture.updatedMeteorogramInfo(info);
         internalInfoToIndex = Whitebox.getInternalState(fixture, INFO_TO_INDEX_NAME);

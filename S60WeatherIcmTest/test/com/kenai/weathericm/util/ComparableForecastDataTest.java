@@ -212,4 +212,81 @@ public class ComparableForecastDataTest {
         assertThat(newer, is(false));
         verifyAll();
     }
+
+    @Test
+    public void isSameAsOtherIsSameDate() {
+        long now = System.currentTimeMillis();
+        Date decoratedDate = new Date(now);
+        Date otherDate = new Date(now);
+        expect(decoratedMock.getModelStart()).andReturn(decoratedDate).times(2);
+        replayAll();
+        fixture = new ComparableForecastData(decoratedMock);
+        boolean same = fixture.isSameAs(otherDate);
+        assertThat(same, is(true));
+        verifyAll();
+    }
+
+    @Test
+    public void isSameAsOtherIsNotSameDate() {
+        long now = System.currentTimeMillis();
+        Date decoratedDate = new Date(now);
+        Date otherDate = new Date(now + 1);
+        expect(decoratedMock.getModelStart()).andReturn(decoratedDate).times(2);
+        replayAll();
+        fixture = new ComparableForecastData(decoratedMock);
+        boolean same = fixture.isSameAs(otherDate);
+        assertThat(same, is(false));
+        verifyAll();
+    }
+
+    @Test
+    public void isOlderThanOtherIsNewerDate() {
+        long now = System.currentTimeMillis();
+        Date decoratedDate = new Date(now);
+        Date otherDate = new Date(now + ComparableForecastData.getOffset() + 1);
+        expect(decoratedMock.getModelStart()).andReturn(decoratedDate).times(2);
+        replayAll();
+        fixture = new ComparableForecastData(decoratedMock);
+        boolean older = fixture.isOlderThan(otherDate);
+        assertThat(older, is(true));
+        verifyAll();
+    }
+
+    @Test
+    public void isOlderThanOtherIsNotNewerDate() {
+        long now = System.currentTimeMillis();
+        Date decoratedDate = new Date(now);
+        Date otherDate = new Date(now + ComparableForecastData.getOffset());
+        expect(decoratedMock.getModelStart()).andReturn(decoratedDate).times(2);
+        replayAll();
+        fixture = new ComparableForecastData(decoratedMock);
+        boolean older = fixture.isOlderThan(otherDate);
+        assertThat(older, is(false));
+        verifyAll();
+    }
+
+        @Test
+    public void isNewerThanOtherIsOlderDate() {
+        long now = System.currentTimeMillis();
+        Date decoratedDate = new Date(now + ComparableForecastData.getOffset() + 1);
+        Date otherDate = new Date(now);
+        replayAll();
+        fixture = new ComparableForecastData(decoratedMock);
+        boolean newer = fixture.isNewerThan(otherDate);
+        assertThat(newer, is(true));
+        verifyAll();
+    }
+
+    @Test
+    public void isNewerThanOtherIsNotOlderDate() {
+        long now = System.currentTimeMillis();
+        Date decoratedDate = new Date(now + ComparableForecastData.getOffset());
+        Date otherDate = new Date(now);
+        expect(decoratedMock.getModelStart()).andReturn(decoratedDate).times(2);
+        replayAll();
+        fixture = new ComparableForecastData(decoratedMock);
+        boolean newer = fixture.isNewerThan(otherDate);
+        assertThat(newer, is(false));
+        verifyAll();
+    }
 }

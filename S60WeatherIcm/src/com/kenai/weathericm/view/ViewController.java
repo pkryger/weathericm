@@ -35,6 +35,7 @@ import org.netbeans.microedition.lcdui.WaitScreen;
 import com.kenai.weathericm.app.ForecastDataDownloader;
 import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.app.MeteorogramBrokerListener;
+import com.kenai.weathericm.domain.Availability;
 import com.kenai.weathericm.util.StatusReporter;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
@@ -139,9 +140,10 @@ public class ViewController extends MIDlet implements
     private Alert downloadErrorAlert;
     private Alert exitConfirmationAlert;
     private InfoCanvas displayInfoCanvas;
-    private Image forecastAvaliableImage;
+    private Image forecastAvailableImage;
     private Image downloadImage;
-    private Image forecastNotAvaliableImage;
+    private Image forecastNotAvailableImage;
+    private Image forecastAvailableOldImage;
     //</editor-fold>//GEN-END:|fields|0|
 
     /**
@@ -574,7 +576,7 @@ public class ViewController extends MIDlet implements
      */
     public void isForecastAvaliable() {//GEN-END:|100-if|0|100-preIf
         // enter pre-if user code here
-        if (processedInfo.isDataAvaliable()) {//GEN-LINE:|100-if|1|101-preAction
+        if (!processedInfo.dataAvailability().equals(Availability.NOT_AVAILABLE)) {//GEN-LINE:|100-if|1|101-preAction
             // write pre-action user code here
             getDisplayInfoCanvas().setInfo(processedInfo);
             switchDisplayable(null, getDisplayInfoCanvas());//GEN-LINE:|100-if|2|101-postAction
@@ -583,7 +585,7 @@ public class ViewController extends MIDlet implements
             // write pre-action user code here
             getDownloadWaitScreen().setText("Downloading... (0% done)");
             ForecastDataDownloader task = broker.getDownloadTask(processedInfo);
-            getDownloadWaitScreen().setTask((CancellableTask)task);
+            getDownloadWaitScreen().setTask((CancellableTask) task);
             switchDisplayable(null, getDownloadWaitScreen());//GEN-LINE:|100-if|4|102-postAction
             // write post-action user code here
             task.addListener(this);
@@ -829,17 +831,18 @@ public class ViewController extends MIDlet implements
         return downloadImage;
     }
     //</editor-fold>//GEN-END:|214-getter|3|
+    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: forecastNotAvaliableImage ">//GEN-BEGIN:|215-getter|0|215-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: forecastNotAvailableImage ">//GEN-BEGIN:|215-getter|0|215-preInit
     /**
-     * Returns an initiliazed instance of forecastNotAvaliableImage component.
+     * Returns an initiliazed instance of forecastNotAvailableImage component.
      * @return the initialized component instance
      */
-    public Image getForecastNotAvaliableImage() {
-        if (forecastNotAvaliableImage == null) {//GEN-END:|215-getter|0|215-preInit
+    public Image getForecastNotAvailableImage() {
+        if (forecastNotAvailableImage == null) {//GEN-END:|215-getter|0|215-preInit
             // write pre-init user code here
             try {//GEN-BEGIN:|215-getter|1|215-@java.io.IOException
-                forecastNotAvaliableImage = Image.createImage("/com/kenai/weathericm/images/Gnome-weather-clear-night.png");
+                forecastNotAvailableImage = Image.createImage("/com/kenai/weathericm/images/Gnome-weather-clear-night.png");
             } catch (java.io.IOException e) {//GEN-END:|215-getter|1|215-@java.io.IOException
 //#mdebug
                 log.error("Cannot get the image for forecast unavaliable!", e);
@@ -847,20 +850,21 @@ public class ViewController extends MIDlet implements
             }//GEN-LINE:|215-getter|2|215-postInit
             // write post-init user code here
         }//GEN-BEGIN:|215-getter|3|
-        return forecastNotAvaliableImage;
+        return forecastNotAvailableImage;
     }
     //</editor-fold>//GEN-END:|215-getter|3|
+    //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: forecastAvaliableImage ">//GEN-BEGIN:|216-getter|0|216-preInit
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: forecastAvailableImage ">//GEN-BEGIN:|216-getter|0|216-preInit
     /**
-     * Returns an initiliazed instance of forecastAvaliableImage component.
+     * Returns an initiliazed instance of forecastAvailableImage component.
      * @return the initialized component instance
      */
-    public Image getForecastAvaliableImage() {
-        if (forecastAvaliableImage == null) {//GEN-END:|216-getter|0|216-preInit
+    public Image getForecastAvailableImage() {
+        if (forecastAvailableImage == null) {//GEN-END:|216-getter|0|216-preInit
             // write pre-init user code here
             try {//GEN-BEGIN:|216-getter|1|216-@java.io.IOException
-                forecastAvaliableImage = Image.createImage("/com/kenai/weathericm/images/Gnome-weather-clear.png");
+                forecastAvailableImage = Image.createImage("/com/kenai/weathericm/images/Gnome-weather-clear.png");
             } catch (java.io.IOException e) {//GEN-END:|216-getter|1|216-@java.io.IOException
 //#mdebug
                 log.error("Cannot get the image for forecast avaliable!", e);
@@ -868,7 +872,7 @@ public class ViewController extends MIDlet implements
             }//GEN-LINE:|216-getter|2|216-postInit
             // write post-init user code here
         }//GEN-BEGIN:|216-getter|3|
-        return forecastAvaliableImage;
+        return forecastAvailableImage;
     }
     //</editor-fold>//GEN-END:|216-getter|3|
 
@@ -889,6 +893,26 @@ public class ViewController extends MIDlet implements
         return displayInfoCanvas;
     }
     //</editor-fold>//GEN-END:|222-getter|2|
+
+    //</editor-fold>
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: forecastAvailableOldImage ">//GEN-BEGIN:|227-getter|0|227-preInit
+    /**
+     * Returns an initiliazed instance of forecastAvailableOldImage component.
+     * @return the initialized component instance
+     */
+    public Image getForecastAvailableOldImage() {
+        if (forecastAvailableOldImage == null) {//GEN-END:|227-getter|0|227-preInit
+            // write pre-init user code here
+            try {//GEN-BEGIN:|227-getter|1|227-@java.io.IOException
+                forecastAvailableOldImage = Image.createImage("/com/kenai/weathericm/images/Gnome-weather-clear-night-day.png");
+            } catch (java.io.IOException e) {//GEN-END:|227-getter|1|227-@java.io.IOException
+                e.printStackTrace();
+            }//GEN-LINE:|227-getter|2|227-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|227-getter|3|
+        return forecastAvailableOldImage;
+    }
+    //</editor-fold>//GEN-END:|227-getter|3|
 
     /**
      * Gets the info from {@value #infoToMainListIndex} based on the
@@ -1171,9 +1195,23 @@ public class ViewController extends MIDlet implements
             Enumeration infos = newMeteorogramInfos.elements();
             while (infos.hasMoreElements()) {
                 MeteorogramInfo info = (MeteorogramInfo) infos.nextElement();
-                Image icon = info.isDataAvaliable()
-                        ? getForecastAvaliableImage() : getForecastNotAvaliableImage();
-                int position = mainList.append(info.getName(), icon);
+                Image image = null;
+                switch (info.dataAvailability().getValue()) {
+                    case Availability.NOT_AVAILABLE_VALUE:
+                        image = getForecastNotAvailableImage();
+                        break;
+                    case Availability.AVAILABLE_VALUE:
+                        image = getForecastAvailableImage();
+                        break;
+                    case Availability.AVAILABLE_OLD_VALUE:
+                        image = getForecastAvailableOldImage();
+                        break;
+                    default:
+//#mdebug
+                        log.error("Cannot determine info's data availability: " + info);
+//#enddebug
+                }
+                int position = mainList.append(info.getName(), image);
                 infoToMainListIndex.put(info, new Integer(position));
             }
             // Restore info related commands if there was an info added.
@@ -1203,8 +1241,22 @@ public class ViewController extends MIDlet implements
             // commands (check before adding, so in case of parallel execution
             // at least one of threads perfomrms adding).
             boolean addCommands = infoToMainListIndex.isEmpty();
-            Image image = addedMeteorogramInfo.isDataAvaliable()
-                    ? getForecastAvaliableImage() : getForecastNotAvaliableImage();
+            Image image = null;
+            switch (addedMeteorogramInfo.dataAvailability().getValue()) {
+                case Availability.NOT_AVAILABLE_VALUE:
+                    image = getForecastNotAvailableImage();
+                    break;
+                case Availability.AVAILABLE_VALUE:
+                    image = getForecastAvailableImage();
+                    break;
+                case Availability.AVAILABLE_OLD_VALUE:
+                    image = getForecastAvailableOldImage();
+                    break;
+                default:
+//#mdebug
+                    log.error("Cannot determine info's data availability: " + addCommands);
+//#enddebug
+                }
             int position = mainList.append(addedMeteorogramInfo.getName(), image);
             infoToMainListIndex.put(addedMeteorogramInfo, new Integer(position));
             // If this is the first meteorogram added, let's add info related commands.
@@ -1271,8 +1323,22 @@ public class ViewController extends MIDlet implements
             String currentName = mainList.getString(index);
             Image currentImage = mainList.getImage(index);
             String newName = updatedMeteorogramInfo.getName();
-            Image newImage = updatedMeteorogramInfo.isDataAvaliable()
-                    ? getForecastAvaliableImage() : getForecastNotAvaliableImage();
+            Image newImage = null;
+            switch (updatedMeteorogramInfo.dataAvailability().getValue()) {
+                case Availability.NOT_AVAILABLE_VALUE:
+                    newImage = getForecastNotAvailableImage();
+                    break;
+                case Availability.AVAILABLE_VALUE:
+                    newImage = getForecastAvailableImage();
+                    break;
+                case Availability.AVAILABLE_OLD_VALUE:
+                    newImage = getForecastAvailableOldImage();
+                    break;
+                default:
+//#mdebug
+                    log.error("Cannot determine info's data availability: " + updatedMeteorogramInfo);
+//#enddebug
+                }
             if (!currentName.equals(newName) || currentImage != newImage) {
                 mainList.set(index, newName, newImage);
             }

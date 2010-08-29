@@ -17,6 +17,7 @@
  */
 package com.kenai.weathericm.app;
 
+import com.kenai.weathericm.domain.Availability;
 import java.util.TimeZone;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
@@ -214,7 +215,7 @@ public class AbstractForecastDataDownloaderTest {
         assertThat(listener.status, equalTo(Status.FINISHED));
         assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
         assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
-        assertThat(info.isDataAvaliable(), is(true));
+        assertThat(info.dataAvailability(), is(not(Availability.NOT_AVAILABLE)));
         assertThat(info.getForecastData().getModelStart(), equalTo(startDate));
         assertThat(info.getForecastData().getModelResult(), equalTo(modelResult));
     }

@@ -17,6 +17,7 @@
  */
 package com.kenai.weathericm.app;
 
+import com.kenai.weathericm.domain.Availability;
 import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.StatusReporter;
@@ -239,7 +240,7 @@ public class MeteorogramBroker implements StatusListener {
                 Vector meteorogramInfos = meteorogramInfoDao.readAll();
                 Enumeration e = meteorogramInfos.elements();
                 while (e.hasMoreElements()) {
-                    MeteorogramInfo info = (MeteorogramInfo)e.nextElement();
+                    MeteorogramInfo info = (MeteorogramInfo) e.nextElement();
                     if (forecastDataDao.exits(info.getId())) {
                         ForecastData forecastData = forecastDataDao.read(info.getId());
                         info.setForecastData(forecastData);
@@ -287,7 +288,8 @@ public class MeteorogramBroker implements StatusListener {
                 log.info("Updating info in DAO: " + info);
 //#enddebug
                 meteorogramInfoDao.update(info);
-                if (info.isDataAvaliable() == false && forecastDataDao.exits(info.getId())) {
+                if (info.dataAvailability().equals(Availability.NOT_AVAILABLE)
+                        && forecastDataDao.exits(info.getId())) {
 //#mdebug
                     log.debug("The info has no ForecsastData any longer, let's delete it!");
 //#enddebug
@@ -364,10 +366,10 @@ public class MeteorogramBroker implements StatusListener {
 //#enddebug
         } else if (status == Status.CANCELLED
                 || status == Status.FINISHED) {
-            ForecastDataDownloader task = (ForecastDataDownloader)source;
+            ForecastDataDownloader task = (ForecastDataDownloader) source;
             MeteorogramInfo info = task.getMeteorogramInfo();
             if (status == Status.FINISHED) {
-                if (info.isDataAvaliable()) {
+                if (!info.dataAvailability().equals(Availability.NOT_AVAILABLE)) {
                     forecastDataDao.createOrUpdate(info.getId(), info.getForecastData());
                 } else {
 //#mdebug
