@@ -41,6 +41,9 @@ import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
 import com.kenai.weathericm.util.AppConfigurator;
 import com.kenai.weathericm.view.validation.MeteorogramInfoDataValidator;
+import java.io.DataOutputStream;
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
 import org.netbeans.microedition.util.CancellableTask;
 
 /**
@@ -831,7 +834,6 @@ public class ViewController extends MIDlet implements
         return downloadImage;
     }
     //</editor-fold>//GEN-END:|214-getter|3|
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: forecastNotAvailableImage ">//GEN-BEGIN:|215-getter|0|215-preInit
     /**
@@ -853,7 +855,6 @@ public class ViewController extends MIDlet implements
         return forecastNotAvailableImage;
     }
     //</editor-fold>//GEN-END:|215-getter|3|
-    //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: forecastAvailableImage ">//GEN-BEGIN:|216-getter|0|216-preInit
     /**
@@ -894,7 +895,6 @@ public class ViewController extends MIDlet implements
     }
     //</editor-fold>//GEN-END:|222-getter|2|
 
-    //</editor-fold>
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: forecastAvailableOldImage ">//GEN-BEGIN:|227-getter|0|227-preInit
     /**
      * Returns an initiliazed instance of forecastAvailableOldImage component.
