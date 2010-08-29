@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -48,6 +49,7 @@ public class ForecastDataTest {
     private String sDay;
     private int hour;
     private String sHour;
+    private final static String START_DATE = "modelStart";
 
     @BeforeClass
     public static void setUpClass() {
@@ -79,6 +81,11 @@ public class ForecastDataTest {
         assertThat(actual, equalTo(calendar.getTime()));
     }
 
+    @Test(expected = NullPointerException.class)
+    public void createStringNull() {
+        fixture = new ForecastData((String)null);
+    }
+    
     @Test(expected = NumberFormatException.class)
     public void createStringYyyyNaN() {
         StringBuffer buffer = new StringBuffer();
@@ -160,6 +167,25 @@ public class ForecastDataTest {
         fixture = new ForecastData(year, month, day, 24);
     }
 
+    @Test
+    public void createForecastData() {
+        ForecastData other = new ForecastData(year, month, day, hour);
+        fixture = new ForecastData(other);
+        assertThat(fixture.getModelStart(), equalTo(other.getModelStart()));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createForecastDataNull() {
+        fixture = new ForecastData((ForecastData)null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createForecastDataWithNullDate() {
+        ForecastData other = new ForecastData(year, month, day, hour);
+        Whitebox.setInternalState(other, START_DATE, (Date)null);
+        fixture = new ForecastData(other);
+    }
+    
     @Test
     public void getSetModelResult() {
         byte[] data = new byte[] {1, 2, 3};

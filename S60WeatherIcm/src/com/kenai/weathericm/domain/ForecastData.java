@@ -62,11 +62,18 @@ public class ForecastData {
      * <li> hh - hour of the day in two digits format (24H format, range: 0..23).</li>
      * </ol>
      * @param yyyymmddhh the {@link String} with
+     * @throws NullPointerException if {@code yyyymmddhh} is {@code null}.
      * @throws IllegalArgumentException if any part of the parameter is out of range.
      * @throws NumberFormatException if any part of the parameter cannot be converted
      *                               to a number.
      */
     public ForecastData(String yyyymmddhh) {
+        if (yyyymmddhh == null) {
+//#mdebug
+            log.error("Cannot create ForecastData with null date String!");
+//#enddebug
+            throw new NullPointerException("Cannot create ForecastData with null date String!");
+        }
         int year = Integer.parseInt(yyyymmddhh.substring(0, 4));
         int month = Integer.parseInt(yyyymmddhh.substring(4, 6));
         int day = Integer.parseInt(yyyymmddhh.substring(6, 8));
@@ -85,6 +92,31 @@ public class ForecastData {
      */
     public ForecastData(int year, int month, int day, int hour) {
         setModelStart(year, month, day, hour);
+    }
+
+    /**
+     * Creates a new instance using passed in {@code other} {@link ForecastData}
+     * to set up {@value #modelStart).
+     * @param other the {@link ForecastData} to take the {@value #modelStart} from
+     *        to init this instance.
+     * @throws NullPointerException if the {@code other} is {@code null} or
+     *                              {@value other#modelStart} is {@code null}.
+     */
+    protected ForecastData(ForecastData other) {
+        if (other == null) {
+//#mdebug
+            log.error("Cannot create ForecastData with null other!");
+//#enddebug
+            throw new NullPointerException("Cannot create ForecastData with null other!");
+        }
+        this.modelStart = other.getModelStart();
+        if (this.modelStart == null) {
+//#mdebug
+            log.error("Cannot create ForecastData with null other's startDate: " + other);
+//#enddebug
+            throw new NullPointerException("Cannot create ForecastData with not valid other!");
+        }
+
     }
 
     /**
