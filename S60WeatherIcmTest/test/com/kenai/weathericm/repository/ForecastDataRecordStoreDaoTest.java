@@ -40,6 +40,7 @@ import static org.powermock.api.easymock.PowerMock.mockStatic;
 import static org.powermock.api.easymock.PowerMock.replayAll;
 import static org.powermock.api.easymock.PowerMock.verifyAll;
 import static org.powermock.api.easymock.PowerMock.expectLastCall;
+import static org.powermock.api.easymock.PowerMock.createPartialMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.startsWith;
 import static org.easymock.EasyMock.aryEq;
@@ -52,7 +53,7 @@ import static org.easymock.EasyMock.anyInt;
  */
 @RunWith(PowerMockRunner.class)
 @SuppressStaticInitializationFor("javax.microedition.rms.RecordStore")
-@PrepareForTest({RecordStore.class, RecordEnumeration.class})
+@PrepareForTest({RecordStore.class, RecordEnumeration.class, ForecastDataRecordStoreDao.class})
 public class ForecastDataRecordStoreDaoTest {
 
     @BeforeClass
@@ -474,7 +475,7 @@ public class ForecastDataRecordStoreDaoTest {
     }
 
     private void deleteMultipleRecordStoresOneFailure(Exception failure) throws Exception {
-        Integer id = 60;
+        Integer id = 61;
         String[] recordStores = new String[]{
             fixture.convertIdToBaseName(id - 1) + "1",
             fixture.convertIdToBaseName(id) + "1",
@@ -507,7 +508,7 @@ public class ForecastDataRecordStoreDaoTest {
     }
 
     private void deleteMultipleRecordStoresMultipleFailure(Exception failure) throws Exception {
-        Integer id = 60;
+        Integer id = 62;
         String[] recordStores = new String[]{
             fixture.convertIdToBaseName(id - 1) + "1",
             fixture.convertIdToBaseName(id) + "1",
@@ -531,5 +532,109 @@ public class ForecastDataRecordStoreDaoTest {
     public void deleteMultipleRecordStoresMultipleRecordStoreNotFoundException() throws Exception {
         deleteMultipleRecordStoresMultipleFailure(new RecordStoreNotFoundException());
     }
-    
+
+    @Test(expected = NullPointerException.class)
+    public void updateNullId() {
+        fixture.update(null, data);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void updateNullData() {
+        Integer id = 63;
+        fixture.update(id, null);
+    }
+
+    @Test
+    public void updateDeletionOfExistingRecordFailure() {
+        Integer id = 64;
+        fixture = createPartialMock(ForecastDataRecordStoreDao.class, "delete");
+        expect(fixture.delete(id)).andReturn(Boolean.FALSE);
+        replayAll();
+        boolean actual = fixture.update(id, data);
+        assertThat(actual, is(false));
+        verifyAll();
+    }
+
+    @Test
+    public void updateCreationFailure() {
+        Integer id = 65;
+        fixture = createPartialMock(ForecastDataRecordStoreDao.class, "delete", "create");
+        expect(fixture.delete(id)).andReturn(Boolean.TRUE);
+        expect(fixture.create(id, data)).andReturn(Boolean.FALSE);
+        replayAll();
+        boolean actual = fixture.update(id, data);
+        assertThat(actual, is(false));
+        verifyAll();
+    }
+
+    @Test
+    public void update() {
+        Integer id = 66;
+        fixture = createPartialMock(ForecastDataRecordStoreDao.class, "delete", "create");
+        expect(fixture.delete(id)).andReturn(Boolean.TRUE);
+        expect(fixture.create(id, data)).andReturn(Boolean.TRUE);
+        replayAll();
+        boolean actual = fixture.update(id, data);
+        assertThat(actual, is(true));
+        verifyAll();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createOrUpdateNullId() {
+        fixture.createOrUpdate(null, data);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void createOrUpdateNullData() {
+        Integer id = 67;
+        fixture.createOrUpdate(id, null);
+    }
+
+    @Test
+    public void createOrUpdateExistingUpdateFailure() {
+        Integer id = 68;
+        fixture = createPartialMock(ForecastDataRecordStoreDao.class, "exists", "update");
+        expect(fixture.exists(id)).andReturn(Boolean.TRUE).atLeastOnce();
+        expect(fixture.update(id, data)).andReturn(Boolean.FALSE);
+        replayAll();
+        boolean actual = fixture.createOrUpdate(id, data);
+        assertThat(actual, is(false));
+        verifyAll();
+    }
+
+    @Test
+    public void createOrUpdateExisting() {
+        Integer id = 69;
+        fixture = createPartialMock(ForecastDataRecordStoreDao.class, "exists", "update");
+        expect(fixture.exists(id)).andReturn(Boolean.TRUE).atLeastOnce();
+        expect(fixture.update(id, data)).andReturn(Boolean.TRUE);
+        replayAll();
+        boolean actual = fixture.createOrUpdate(id, data);
+        assertThat(actual, is(true));
+        verifyAll();
+    }
+
+    @Test
+    public void createOrUpdateNotExistingCreationFailure() {
+        Integer id = 70;
+        fixture = createPartialMock(ForecastDataRecordStoreDao.class, "exists", "create");
+        expect(fixture.exists(id)).andReturn(Boolean.FALSE).atLeastOnce();
+        expect(fixture.create(id, data)).andReturn(Boolean.FALSE);
+        replayAll();
+        boolean actual = fixture.createOrUpdate(id, data);
+        assertThat(actual, is(false));
+        verifyAll();
+    }
+
+    @Test
+    public void createOrUpdateNotExisting() {
+        Integer id = 70;
+        fixture = createPartialMock(ForecastDataRecordStoreDao.class, "exists", "create");
+        expect(fixture.exists(id)).andReturn(Boolean.FALSE).atLeastOnce();
+        expect(fixture.create(id, data)).andReturn(Boolean.TRUE);
+        replayAll();
+        boolean actual = fixture.createOrUpdate(id, data);
+        assertThat(actual, is(true));
+        verifyAll();
+    }
 }

@@ -166,7 +166,35 @@ public class ForecastDataRecordStoreDao implements ForecastDataDao {
     }
 
     public boolean update(Integer id, ForecastData forecastData) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (id == null) {
+//#mdebug
+            log.error("Cannot update forecast data with null id!");
+//#enddebug
+            throw new NullPointerException("Cannot update forecast data!");
+        }
+        if (forecastData == null) {
+//#mdebug
+            log.error("Cannot update forecast data id = " + id + " with null data!");
+//#enddebug
+            throw new NullPointerException("Cannot update forecast data!");
+        }
+//#mdebug
+        log.trace("Updating forecast data with id = " + id + " and data = " + forecastData);
+//#enddebug
+        boolean status = delete(id);
+        if (status == true) {
+            status = create(id, forecastData);
+            if (status == false) {
+//#mdebug
+                log.warn("Cannot update forecast data with id = " + id + ": creation failed!");
+//#enddebug
+            }
+        } else {
+//#mdebug
+            log.warn("Cannot update forecast data with id = " + id + ": deletion failed!");
+//#enddebug
+        }
+        return status;
     }
 
     public boolean delete(Integer id) {
@@ -221,7 +249,28 @@ public class ForecastDataRecordStoreDao implements ForecastDataDao {
     }
 
     public boolean createOrUpdate(Integer id, ForecastData forecastData) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (id == null) {
+//#mdebug
+            log.error("Cannot create nor update forecast data with null id!");
+//#enddebug
+            throw new NullPointerException("Cannot create nor update forecast data!");
+        }
+        if (forecastData == null) {
+//#mdebug
+            log.error("Cannot create nor update forecast data id = " + id + " with null data!");
+//#enddebug
+            throw new NullPointerException("Cannot create nor update forecast data!");
+        }
+//#mdebug
+        log.trace("Creating or updating forecast data with id = " + id + " and data = " + forecastData);
+//#enddebug
+        boolean status = false;
+        if (exists(id)) {
+            status = update(id, forecastData);
+        } else {
+            status = create(id, forecastData);
+        }
+        return status;
     }
 
     /**

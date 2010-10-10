@@ -76,7 +76,7 @@ public interface ForecastDataDao {
     /**
      * Creates or updates the {@code forecastData} in the persistent storage. The
      * {@code forecastData} will be created in storage if no other {@link ForecastData}
-     * already exisits in the storage that is identifiec by {@code id} or the {@code
+     * already exisits in the storage that has same {@code id} or the {@code
      * forecastData} will update the {@link ForecastData} if it already exist in the
      * storage.
      * @param id the {@code Integer} to identify {@code forecastData} in storage.
