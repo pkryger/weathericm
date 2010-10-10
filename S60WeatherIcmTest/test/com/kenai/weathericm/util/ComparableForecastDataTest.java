@@ -265,11 +265,12 @@ public class ComparableForecastDataTest {
         verifyAll();
     }
 
-        @Test
+    @Test
     public void isNewerThanOtherIsOlderDate() {
         long now = System.currentTimeMillis();
         Date decoratedDate = new Date(now + ComparableForecastData.getOffset() + 1);
         Date otherDate = new Date(now);
+        expect(decoratedMock.getModelStart()).andReturn(decoratedDate).times(2);
         replayAll();
         fixture = new ComparableForecastData(decoratedMock);
         boolean newer = fixture.isNewerThan(otherDate);

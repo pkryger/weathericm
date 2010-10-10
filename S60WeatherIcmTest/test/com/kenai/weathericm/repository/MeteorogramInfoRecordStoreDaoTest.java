@@ -74,10 +74,12 @@ public class MeteorogramInfoRecordStoreDaoTest {
         fixture = MeteorogramInfoRecordStoreDao.getInstance();
         fixture.setMeteorogramInfoSerializer(new MeteorogramInfoSerializer() {
 
+            @Override
             public byte[] serialize(MeteorogramInfo info) {
                 return new byte[] {(byte)info.getX(), (byte)info.getY()};
             }
 
+            @Override
             public MeteorogramInfo resurect(int id, byte[] infoBytes) {
                 MeteorogramInfo info = new MeteorogramInfo();
                 info.setId(id);
@@ -110,7 +112,7 @@ public class MeteorogramInfoRecordStoreDaoTest {
         replayAll();
         MeteorogramInfoRecordStoreDao otherFixture =
                 MeteorogramInfoRecordStoreDao.getInstance();
-        assertThat(otherFixture, equalTo(fixture));
+        assertThat(otherFixture, is(fixture));
         verifyAll();
     }
 

@@ -111,7 +111,7 @@ public class ViewControllerTest {
         fixture = createPartialMock(ViewController.class,
                 "getNewEditForm", "getNameTextField",
                 "getXTextField", "getYTextField", "getModelChoiceGroup",
-                "getForecastAvaliableImage", "getForecastNotAvaliableImage",
+                "getForecastAvaliableImage", "getForecastNotAvailableImage",
                 "isDownloadWaitScreenVisible",
                 "getShowCommand", "getEditCommand", "getDeleteCommand");
         mainListMock = createMock(List.class);

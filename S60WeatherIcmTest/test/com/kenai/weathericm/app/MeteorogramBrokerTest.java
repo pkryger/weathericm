@@ -22,6 +22,7 @@ import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.app.helpers.MeteorogramInfoInMemoryDao;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.repository.ForecastDataDao;
+import com.kenai.weathericm.repository.ForecastDataSerializer;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoSerializer;
 import com.kenai.weathericm.util.AbstractStatusReporter;
@@ -232,7 +233,7 @@ public class MeteorogramBrokerTest {
         assertThat(actual, equalTo(info));
         Vector inDaoInfos = meteorogramInfoInMemoryDao.readAll();
         assertThat(inDaoInfos.contains(info), is(true));
-        assertThat(forecastDataDao.exits(id), is(false));
+        assertThat(forecastDataDao.exists(id), is(false));
     }
 
     @Test
@@ -256,7 +257,7 @@ public class MeteorogramBrokerTest {
         assertThat(actual, equalTo(info));
         Vector inDaoInfos = meteorogramInfoInMemoryDao.readAll();
         assertThat(inDaoInfos.contains(info), is(true));
-        assertThat(forecastDataDao.exits(id), is(false));
+        assertThat(forecastDataDao.exists(id), is(false));
     }
 
     @Test
@@ -281,7 +282,7 @@ public class MeteorogramBrokerTest {
         assertThat(actual, equalTo(info));
         Vector inDaoInfos = meteorogramInfoInMemoryDao.readAll();
         assertThat(inDaoInfos.contains(info), is(true));
-        assertThat(forecastDataDao.exits(id), is(true));
+        assertThat(forecastDataDao.exists(id), is(true));
     }
 
     @Test
@@ -304,7 +305,7 @@ public class MeteorogramBrokerTest {
         assertThat(actual, equalTo(info));
         Vector inDaoInfos = meteorogramInfoInMemoryDao.readAll();
         assertThat(inDaoInfos.contains(info), is(false));
-        assertThat(forecastDataDao.exits(id), is(false));
+        assertThat(forecastDataDao.exists(id), is(false));
     }
 
     @Test
@@ -355,7 +356,7 @@ public class MeteorogramBrokerTest {
         assertThat(listener.updatedMeteorogramInfo, equalTo(info));
         Vector taskListeners = task.getListeners();
         assertThat(taskListeners.contains(fixture), is(false));
-        assertThat(forecastDataDao.exits(id), is(true));
+        assertThat(forecastDataDao.exists(id), is(true));
     }
 
     @Test
@@ -376,7 +377,7 @@ public class MeteorogramBrokerTest {
         assertThat(infoToTask.size(), equalTo(0));
         Vector taskListeners = task.getListeners();
         assertThat(taskListeners.contains(fixture), is(false));
-        assertThat(forecastDataDao.exits(id), is(false));
+        assertThat(forecastDataDao.exists(id), is(false));
     }
 
     @Test
@@ -394,7 +395,7 @@ public class MeteorogramBrokerTest {
         fixture.statusUpdate(task, new Status());
         infoToTask = (Hashtable) Whitebox.getInternalState(fixture, INFO_TO_TASK);
         assertThat(infoToTask.contains(task), is(true));
-        assertThat(forecastDataDao.exits(id), is(false));
+        assertThat(forecastDataDao.exists(id), is(false));
     }
 
     @Test(expected = NullPointerException.class)
@@ -474,12 +475,17 @@ public class MeteorogramBrokerTest {
             }
 
             @Override
-            public boolean exits(Integer id) {
+            public boolean exists(Integer id) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
             @Override
             public boolean createOrUpdate(Integer id, ForecastData forecastData) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            @Override
+            public void setForecastDataSerializer(ForecastDataSerializer serializer) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         };

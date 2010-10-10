@@ -35,7 +35,7 @@ public interface ForecastDataDao {
      * @param forecastData the {@link ForecastData} to be persisted.
      * @return {@code true} if the {@link ForecastData} has been succesfully
      *         persisted, {@code false} otherwise.
-     * @see #exits(Integer)
+     * @see #exists(Integer)
      */
     boolean create(Integer id, ForecastData forecastData);
 
@@ -71,7 +71,7 @@ public interface ForecastDataDao {
      * @return {@code true} it there is {@link ForecastData} already persisted,
      *         {@code false} otherwise.
      */
-    boolean exits(Integer id);
+    boolean exists(Integer id);
 
     /**
      * Creates or updates the {@code forecastData} in the persistent storage. The
@@ -85,4 +85,11 @@ public interface ForecastDataDao {
      */
     boolean createOrUpdate(Integer id, ForecastData forecastData);
 
+    /**
+     * Sets the serializer for this implementation. It will be used to transform
+     * {@link ForecastData} into {@code byte} arrays and resurect {@link ForecastData}s
+     * from {@code byte} arrays.
+     * @param serializer the serializer to be used.
+     */
+    void setForecastDataSerializer(ForecastDataSerializer serializer);
 }

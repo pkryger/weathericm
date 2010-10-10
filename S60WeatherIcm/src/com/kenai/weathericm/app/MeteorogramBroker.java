@@ -241,7 +241,7 @@ public class MeteorogramBroker implements StatusListener {
                 Enumeration e = meteorogramInfos.elements();
                 while (e.hasMoreElements()) {
                     MeteorogramInfo info = (MeteorogramInfo) e.nextElement();
-                    if (forecastDataDao.exits(info.getId())) {
+                    if (forecastDataDao.exists(info.getId())) {
                         ForecastData forecastData = forecastDataDao.read(info.getId());
                         info.setForecastData(forecastData);
                     }
@@ -264,7 +264,7 @@ public class MeteorogramBroker implements StatusListener {
                 log.info("Creating info in DAO: " + info);
 //#enddebug
                 meteorogramInfoDao.create(info);
-                if (forecastDataDao.exits(info.getId())) {
+                if (forecastDataDao.exists(info.getId())) {
 //#mdebug
                     log.warn("The ForecastData already exists for a brand new info, deleting it!");
 //#enddebug
@@ -289,7 +289,7 @@ public class MeteorogramBroker implements StatusListener {
 //#enddebug
                 meteorogramInfoDao.update(info);
                 if (info.dataAvailability().equals(Availability.NOT_AVAILABLE)
-                        && forecastDataDao.exits(info.getId())) {
+                        && forecastDataDao.exists(info.getId())) {
 //#mdebug
                     log.debug("The info has no ForecsastData any longer, let's delete it!");
 //#enddebug

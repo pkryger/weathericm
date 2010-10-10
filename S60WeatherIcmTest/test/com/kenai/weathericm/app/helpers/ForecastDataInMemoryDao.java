@@ -19,6 +19,7 @@ package com.kenai.weathericm.app.helpers;
 
 import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.repository.ForecastDataDao;
+import com.kenai.weathericm.repository.ForecastDataSerializer;
 import java.util.HashMap;
 import java.util.Map;
 import net.sf.microlog.core.Logger;
@@ -74,7 +75,7 @@ public class ForecastDataInMemoryDao implements ForecastDataDao {
     }
 
     @Override
-    public boolean exits(Integer id) {
+    public boolean exists(Integer id) {
         log.info("In exists...");
         return store.containsKey(id);
     }
@@ -87,5 +88,10 @@ public class ForecastDataInMemoryDao implements ForecastDataDao {
         } else {
             return create(id, forecastData);
         }
+    }
+
+    @Override
+    public void setForecastDataSerializer(ForecastDataSerializer serializer) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
