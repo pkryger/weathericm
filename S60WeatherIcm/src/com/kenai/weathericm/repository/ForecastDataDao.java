@@ -42,7 +42,7 @@ public interface ForecastDataDao {
     /**
      * Reads the {@link ForecastData} from the persistend storage.
      * @param id the {@code Integer} to be used to identify persisted {@link ForecastData}.
-     * @return the {@link ForecastData} read from persistent sotrage,
+     * @return the {@link ForecastData} read from persistent storage,
      *         or {@code null} in case of any error.
      */
     ForecastData read(Integer id);

@@ -18,6 +18,8 @@
 package com.kenai.weathericm.util;
 
 import com.kenai.weathericm.app.MeteorogramBroker;
+import com.kenai.weathericm.repository.ForecastDataDao;
+import com.kenai.weathericm.repository.ForecastDataRecordStoreDao;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoRecordStoreDao;
 import com.kenai.weathericm.repository.MeteorogramInfoRecordStoreSerializer;
@@ -67,6 +69,9 @@ public class AppConfiguratorTest {
         MeteorogramInfoSerializer serializer = meteorogramInfoDao.getMeteorogramInfoSerializer();
         assertThat(serializer, is(not(nullValue())));
         assertThat(serializer, instanceOf(MeteorogramInfoRecordStoreSerializer.class));
+        ForecastDataDao forecastDataDao = broker.getForecastDataDao();
+        assertThat(forecastDataDao, is(notNullValue()));
+        assertThat(forecastDataDao, is((ForecastDataDao)ForecastDataRecordStoreDao.getInstance()));
         verifyAll();
     }
 }

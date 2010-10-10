@@ -18,6 +18,9 @@
 package com.kenai.weathericm.repository;
 
 import com.kenai.weathericm.domain.ForecastData;
+import com.symbian.util.Array;
+import java.util.Vector;
+import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import javax.microedition.rms.RecordStoreNotOpenException;
@@ -162,9 +165,117 @@ public class ForecastDataRecordStoreDao implements ForecastDataDao {
     }
 
     public ForecastData read(Integer id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (id == null) {
+//#mdebug
+            log.error("Cannot read forecast data with null id!");
+//#enddebug
+            throw new NullPointerException("Cannot read forecast data!");
+        }
+//#mdebug
+        log.trace("Reading forecast data with id = " + id);
+//#enddebug
+        ForecastData forecastData = null;
+        String[] recordStores = RecordStore.listRecordStores();
+        if (recordStores != null) {
+            String prefix = convertIdToBaseName(id);
+            Vector stores = new Vector();
+            for (int i = 0; i < recordStores.length; i++) {
+                if (recordStores[i].startsWith(prefix)) {
+                    stores.addElement(recordStores[i]);
+                }
+            }
+            if (!stores.isEmpty()) {
+                Vector dataVector = new Vector();
+                boolean allRead = true;
+                int storeNumber = 1;
+                while (!stores.isEmpty()) {
+                    String storeName = prefix + storeNumber;
+                    if (!stores.removeElement(storeName)) {
+//#mdebug
+                        log.warn("Cannot find record store with name = " + storeName);
+//#enddebug
+                        allRead = false;
+                        break;
+                    }
+                    if (!readRecordStoreToVector(storeName, dataVector)) {
+//#mdebug
+                        log.warn("Cannot read record store with name = " + storeName);
+//#enddebug
+                        allRead = false;
+                        break;
+                    }
+                    storeNumber++;
+                }
+                if (allRead == true) {
+                    int dataSize = 0;
+                    for (int i = 0; i < dataVector.size(); i++) {
+                        dataSize += ((byte[])dataVector.elementAt(i)).length;
+                    }
+                    byte[] rawData = new byte[dataSize];
+                    int i = 0;
+                    while (!dataVector.isEmpty()) {
+                        byte[] bytes = (byte[])dataVector.elementAt(0);
+                        for (int j = 0; j < bytes.length; j++) {
+                            rawData[i] = bytes[j];
+                            i++;
+                        }
+                        dataVector.removeElement(bytes);
+                    }
+                    forecastData = serializer.resurect(rawData);
+                }
+            } else {
+//#mdebug
+                log.info("Cannot find any record store for id = " + id);
+//#enddebug
+            }
+        }
+        return forecastData;
     }
 
+    /**
+     * Conveniance method to read a single record from record store with gieven
+     * {@codestoreName} and put it into a {@codedataVector} as a {@codebyte[]} array.
+     * @param storeName the {@link String} with @{link{RecordStore} name to read data from.
+     * @param dataVector the {@link Vector} to store the read {@code byte[]} array.
+     * @return
+     */
+    private boolean readRecordStoreToVector(String storeName, Vector dataVector) {
+        boolean read = false;
+        RecordStore store = null;
+        try {
+            store = RecordStore.openRecordStore(storeName, false);
+            RecordEnumeration records = store.enumerateRecords(null, null, false);
+            dataVector.addElement(records.nextRecord());
+            read = true;
+        } catch (RecordStoreException ex) {
+//#mdebug
+            log.error("Reading from record store failed!", ex);
+//#enddebug
+        } catch (IllegalArgumentException ex) {
+//#mdebug
+            log.error("Reading from record store failed!", ex);
+//#enddebug
+        } finally {
+            if (store != null) {
+//#mdebug
+                log.info("Closing record store");
+//#enddebug
+                try {
+                    store.closeRecordStore();
+                } catch (RecordStoreNotOpenException ex) {
+//#mdebug
+                    log.error("Attempt to close RecordStore that hasn't been already open!");
+//#enddebug
+                } catch (RecordStoreException ex) {
+//#mdebug
+                    log.fatal("Error while closing store due to RecordStore problem!", ex);
+//#enddebug
+                }
+            }
+        }
+        return read;
+    }
+    
     public boolean update(Integer id, ForecastData forecastData) {
         if (id == null) {
 //#mdebug

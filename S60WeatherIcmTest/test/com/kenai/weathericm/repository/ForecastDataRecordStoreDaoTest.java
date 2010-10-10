@@ -20,7 +20,10 @@ package com.kenai.weathericm.repository;
 import javax.microedition.rms.RecordStoreFullException;
 import javax.microedition.rms.RecordStoreNotFoundException;
 import com.kenai.weathericm.domain.ForecastData;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
+import javax.microedition.rms.InvalidRecordIDException;
 import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
@@ -635,6 +638,184 @@ public class ForecastDataRecordStoreDaoTest {
         replayAll();
         boolean actual = fixture.createOrUpdate(id, data);
         assertThat(actual, is(true));
+        verifyAll();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void readNullId() {
+        fixture.read(null);
+    }
+
+    @Test
+    public void readNotExisting() {
+        Integer id = 71;
+        String[] recordStores = new String[]{
+            fixture.convertIdToBaseName(id - 1) + "1",
+            fixture.convertIdToBaseName(id + 1) + "1",
+        };
+        expect(RecordStore.listRecordStores()).andReturn(recordStores);
+        replayAll();
+        ForecastData actual = fixture.read(id);
+        assertThat(actual, is(nullValue()));
+        verifyAll();
+    }
+
+    private void readOpenStoreFailure(Exception failure) throws Exception {
+        Integer id = 72;
+        String storeName = fixture.convertIdToBaseName(id) + "1";
+        String[] recordStores = new String[]{
+            fixture.convertIdToBaseName(id - 1) + "1",
+            storeName,
+            fixture.convertIdToBaseName(id + 1) + "1",
+        };
+        expect(RecordStore.listRecordStores()).andReturn(recordStores);
+        expect(RecordStore.openRecordStore(storeName, false)).andThrow(failure);
+        replayAll();
+        ForecastData actual = fixture.read(id);
+        assertThat(actual, is(nullValue()));
+        verifyAll();
+    }
+
+    @Test
+    public void readOpenStoreRecordStoreException() throws Exception {
+        readOpenStoreFailure(new RecordStoreException());
+    }
+
+    @Test
+    public void readOpenStoreRecordStoreNotFoundException() throws Exception {
+        readOpenStoreFailure(new RecordStoreNotFoundException());
+    }
+
+    @Test
+    public void readOpenStoreRecordStoreFullException() throws Exception {
+        readOpenStoreFailure(new RecordStoreFullException());
+    }
+
+    @Test
+    public void readOpenStoreIllegalArgumentException() throws Exception {
+        readOpenStoreFailure(new IllegalArgumentException());
+    }
+
+    private void readNextRecordFailure(Exception failure) throws Exception {
+        Integer id = 73;
+        String storeName = fixture.convertIdToBaseName(id) + "1";
+        String[] recordStores = new String[]{
+            fixture.convertIdToBaseName(id - 1) + "1",
+            storeName,
+            fixture.convertIdToBaseName(id + 1) + "1",
+        };
+        expect(RecordStore.listRecordStores()).andReturn(recordStores);
+        expect(RecordStore.openRecordStore(storeName, false)).andReturn(recordStoreMock);
+        expect(recordStoreMock.enumerateRecords(null, null, false)).andReturn(recordEnumerationMock);
+        expect(recordEnumerationMock.nextRecord()).andThrow(failure);
+        recordStoreMock.closeRecordStore();
+        replayAll();
+        ForecastData actual = fixture.read(id);
+        assertThat(actual, is(nullValue()));
+        verifyAll();
+    }
+
+    @Test
+    public void readNextRecordInvalidRecordIDException() throws Exception {
+        readNextRecordFailure(new InvalidRecordIDException());
+    }
+
+    @Test
+    public void readNextRecordRecordStoreException() throws Exception {
+        readNextRecordFailure(new RecordStoreException());
+    }
+
+    @Test
+    public void readCloseRecordStoreFailure() throws Exception {
+        Integer id = 74;
+        byte[] rawData = new byte[] {1, 2, 3};
+        String storeName = fixture.convertIdToBaseName(id) + "1";
+        String[] recordStores = new String[]{
+            fixture.convertIdToBaseName(id - 1) + "1",
+            storeName,
+            fixture.convertIdToBaseName(id + 1) + "1",
+        };
+        expect(RecordStore.listRecordStores()).andReturn(recordStores);
+        expect(RecordStore.openRecordStore(storeName, false)).andReturn(recordStoreMock);
+        expect(recordStoreMock.enumerateRecords(null, null, false)).andReturn(recordEnumerationMock);
+        expect(recordEnumerationMock.nextRecord()).andReturn(rawData);
+        recordStoreMock.closeRecordStore();
+        expectLastCall().andThrow(new RecordStoreException());
+        replayAll();
+        ForecastData actual = fixture.read(id);
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual.getModelResult(), equalTo(rawData));
+        verifyAll();
+    }
+
+    @Test
+    public void readSingleRecordStore() throws Exception {
+        Integer id = 75;
+        byte[] rawData = new byte[] {1, 2, 3};
+        String storeName = fixture.convertIdToBaseName(id) + "1";
+        String[] recordStores = new String[]{
+            fixture.convertIdToBaseName(id - 1) + "1",
+            storeName,
+            fixture.convertIdToBaseName(id + 1) + "1",
+        };
+        expect(RecordStore.listRecordStores()).andReturn(recordStores);
+        expect(RecordStore.openRecordStore(storeName, false)).andReturn(recordStoreMock);
+        expect(recordStoreMock.enumerateRecords(null, null, false)).andReturn(recordEnumerationMock);
+        expect(recordEnumerationMock.nextRecord()).andReturn(rawData);
+        recordStoreMock.closeRecordStore();
+        replayAll();
+        ForecastData actual = fixture.read(id);
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual.getModelResult(), equalTo(rawData));
+        verifyAll();
+    }
+
+    @Test
+    public void readMultipleRecordStores() throws Exception {
+        Integer id = 76;
+        byte[] rawData1 = new byte[] {1, 2, 3};
+        byte[] rawData2 = new byte[] {4, 5, 6};
+        byte[] rawData = new byte[] {1, 2, 3, 4, 5, 6};
+        String storeNamePrefix = fixture.convertIdToBaseName(id);
+        String[] recordStores = new String[]{
+            fixture.convertIdToBaseName(id - 1) + "1",
+            storeNamePrefix + "1",
+            storeNamePrefix + "2",
+            fixture.convertIdToBaseName(id + 1) + "1",
+        };
+        expect(RecordStore.listRecordStores()).andReturn(recordStores);
+        expect(RecordStore.openRecordStore(startsWith(storeNamePrefix), eq(false))).andReturn(recordStoreMock).times(2);
+        expect(recordStoreMock.enumerateRecords(null, null, false)).andReturn(recordEnumerationMock).times(2);
+        expect(recordEnumerationMock.nextRecord()).andReturn(rawData1);
+        expect(recordEnumerationMock.nextRecord()).andReturn(rawData2);
+        recordStoreMock.closeRecordStore();
+        expectLastCall().times(2);
+        replayAll();
+        ForecastData actual = fixture.read(id);
+        assertThat(actual, is(notNullValue()));
+        assertThat(actual.getModelResult(), equalTo(rawData));
+        verifyAll();
+    }
+
+    @Test
+    public void readMultiplerecordStoresMissingOneFailure() throws Exception {
+        Integer id = 77;
+        byte[] rawData = new byte[] {1, 2, 3};
+        String storeNamePrefix = fixture.convertIdToBaseName(id);
+        String[] recordStores = new String[]{
+            fixture.convertIdToBaseName(id - 1) + "1",
+            storeNamePrefix + "1",
+            storeNamePrefix + "3",
+            fixture.convertIdToBaseName(id + 1) + "1",
+        };
+        expect(RecordStore.listRecordStores()).andReturn(recordStores);
+        expect(RecordStore.openRecordStore(startsWith(storeNamePrefix), eq(false))).andReturn(recordStoreMock);
+        expect(recordStoreMock.enumerateRecords(null, null, false)).andReturn(recordEnumerationMock);
+        expect(recordEnumerationMock.nextRecord()).andReturn(rawData);
+        recordStoreMock.closeRecordStore();
+        replayAll();
+        ForecastData actual = fixture.read(id);
+        assertThat(actual, is(nullValue()));
         verifyAll();
     }
 }
