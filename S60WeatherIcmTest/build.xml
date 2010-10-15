@@ -76,5 +76,6 @@
         <echo message="****${java.class.path}" />
         <echo message="****${javac.test.classpath}" />
         <echo message="****${javac.test.processorpath}" />
+        <echo message="****${user.properties.file}" />
     </target>
 </project>
