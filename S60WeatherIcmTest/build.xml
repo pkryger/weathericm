@@ -71,6 +71,15 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-pre-init">
+        <property name="user.properties.file" location="${netbeans.user}/build.properties">
+            <condition property="user.properties.file.define">
+                <not>
+                    <isset property="user.properties.file" />
+                </not>
+            </condition>
+        </property>
+    </target>
     <target name="-pre-compile-test">
         <echo message="****${libs.powermock-easymock-junit-1.3.8.classpath}" />
         <echo message="****${java.class.path}" />
