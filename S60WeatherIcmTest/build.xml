@@ -72,13 +72,13 @@
 
     -->
     <target name="-pre-init">
-        <property name="user.properties.file" location="${netbeans.user}/build.properties">
-            <condition property="user.properties.file.define">
-                <not>
-                    <isset property="user.properties.file" />
-                </not>
-            </condition>
-        </property>
+        <condition property="user.properties.file.define">
+            <not>
+                <isset property="user.properties.file" />
+            </not>
+        </condition>
+        <property name="user.properties.file" location="${netbeans.user}/build.properties" />
+        <available property="user.properties.file.exists" file="${user.properties.file}" />
     </target>
     <target name="-pre-compile-test">
         <echo message="****${libs.powermock-easymock-junit-1.3.8.classpath}" />
