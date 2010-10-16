@@ -24,6 +24,7 @@ import net.sf.microlog.core.config.PropertyConfigurator;
 import com.kenai.weathericm.app.MeteorogramBroker;
 import com.kenai.weathericm.repository.ForecastDataDao;
 import com.kenai.weathericm.repository.ForecastDataRecordStoreDao;
+import com.kenai.weathericm.repository.ForecastDataRecordStoreSerializer;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoRecordStoreDao;
 import com.kenai.weathericm.repository.MeteorogramInfoSerializer;
@@ -49,5 +50,6 @@ public class AppConfigurator {
         mid.setMeteorogramInfoSerializer(serializationHelper);
         ForecastDataDao fdd = ForecastDataRecordStoreDao.getInstance();
         broker.setForecastDataDao(fdd);
+        fdd.setForecastDataSerializer(new ForecastDataRecordStoreSerializer());
     }
 }
