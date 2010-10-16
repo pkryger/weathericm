@@ -115,10 +115,11 @@ public class ForecastDataRecordStoreSerializerTest {
     @Test
     public void resurectBadStartDate() {
         byte[] data = new byte[] {
-            0, 0, 0, 0, 0, 0, 0, -1,
+            0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 4,
             1, 1, 1, 1,
         };
+        setTimeInBytes(-1L, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
     }
@@ -159,7 +160,7 @@ public class ForecastDataRecordStoreSerializerTest {
     public void resurectWrongLength() {
         byte[] data = new byte[] {
             0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 2,
+            0, 0, 0, 5,
             1, 1, 1, 1,
         };
         setTimeInBytes(null, data);
@@ -189,6 +190,6 @@ public class ForecastDataRecordStoreSerializerTest {
         Date actualDate = actual.getModelStart();
         assertThat(actualDate.compareTo(date), equalTo(0));
         byte[] actualModelResult = actual.getModelResult();
-        assertThat(actualModelResult, equalTo(Arrays.copyOfRange(data, 12, 15)));
+        assertThat(actualModelResult, equalTo(Arrays.copyOfRange(data, 12, 16)));
     }
 }

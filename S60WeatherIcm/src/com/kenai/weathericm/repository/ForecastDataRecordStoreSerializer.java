@@ -19,10 +19,14 @@ package com.kenai.weathericm.repository;
 
 import com.kenai.weathericm.domain.ForecastData;
 //#mdebug
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
 //#enddebug
@@ -56,7 +60,9 @@ public class ForecastDataRecordStoreSerializer implements ForecastDataSerializer
 //#enddebug
             throw new NullPointerException("Cannot serialize forecast data with null!");
         }
+//#mdebug
         log.trace("Serializing forecast data: " + forecastData);
+//#enddebug
         byte[] serialized = null;
         byte[] modelResult = forecastData.getModelResult();
         int bufferSize = 8 + 4 + modelResult.length;
@@ -69,13 +75,50 @@ public class ForecastDataRecordStoreSerializer implements ForecastDataSerializer
             dos.flush();
             serialized = baos.toByteArray();
         } catch (IOException ex) {
-            log.warn("Cannot serialize forecast data! " + forecastData);
+//#mdebug
+            log.warn("Cannot serialize forecast data! " + forecastData, ex);
+//#enddebug
         }
         return serialized;
     }
 
     public ForecastData resurect(byte[] data) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (data == null) {
+            log.error("Cannoct resurect forecast data with null data!");
+//#mdebug
+            throw new NullPointerException("Cannot resurect forecast data!");
+//#enddebug
+        }
+//#mdebug
+        log.trace("Resurecting forecast data");
+//#enddebug
+        ForecastData resurected = null;
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        DataInputStream dis = new DataInputStream(bais);
+        try {
+            long modelStartTime = dis.readLong();
+            int modelResultLength = dis.readInt();
+            if (modelStartTime > 0 && modelResultLength > 0) {
+                byte[] modelResult = new byte[modelResultLength];
+                dis.readFully(modelResult);
+                Date date = new Date(modelStartTime);
+                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                calendar.setTime(date);
+                resurected = new ForecastData(calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH),
+                        calendar.get(Calendar.HOUR_OF_DAY));
+                resurected.setModelResult(modelResult);
+            }
+        } catch (IOException ex) {
+//#mdebug
+            log.warn("Cannot deserialize forecast data!", ex);
+//#enddebug
+        } catch (IllegalArgumentException ex) {
+//#mdebug
+            log.warn("Cannod deserialize forecast data!", ex);
+//#enddebug
+        }
+        return resurected;
     }
 
 }
