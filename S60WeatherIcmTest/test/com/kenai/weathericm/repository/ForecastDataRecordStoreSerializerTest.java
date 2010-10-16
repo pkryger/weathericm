@@ -55,7 +55,7 @@ public class ForecastDataRecordStoreSerializerTest {
     @Test(expected = NullPointerException.class)
     public void serializeNullModelStart() {
         ForecastData forecastData = new ForecastData("2010102001");
-        Whitebox.setInternalState(forecastData, "modelStart", null);
+        Whitebox.setInternalState(forecastData, "modelStart", (Date)null);
         forecastData.setModelResult(new byte[]{});
         fixture.serialize(forecastData);
     }
