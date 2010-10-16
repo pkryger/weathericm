@@ -20,8 +20,6 @@ package com.kenai.weathericm.repository;
 import javax.microedition.rms.RecordStoreFullException;
 import javax.microedition.rms.RecordStoreNotFoundException;
 import com.kenai.weathericm.domain.ForecastData;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import javax.microedition.rms.InvalidRecordIDException;
 import javax.microedition.rms.RecordEnumeration;

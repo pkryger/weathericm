@@ -20,6 +20,8 @@ package com.kenai.weathericm.util;
 import com.kenai.weathericm.app.MeteorogramBroker;
 import com.kenai.weathericm.repository.ForecastDataDao;
 import com.kenai.weathericm.repository.ForecastDataRecordStoreDao;
+import com.kenai.weathericm.repository.ForecastDataRecordStoreSerializer;
+import com.kenai.weathericm.repository.ForecastDataSerializer;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 import com.kenai.weathericm.repository.MeteorogramInfoRecordStoreDao;
 import com.kenai.weathericm.repository.MeteorogramInfoRecordStoreSerializer;
@@ -31,6 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 import static org.powermock.api.easymock.PowerMock.suppress;
 import static org.powermock.api.easymock.PowerMock.replay;
 import static org.powermock.api.easymock.PowerMock.replayAll;
@@ -72,6 +75,9 @@ public class AppConfiguratorTest {
         ForecastDataDao forecastDataDao = broker.getForecastDataDao();
         assertThat(forecastDataDao, is(notNullValue()));
         assertThat(forecastDataDao, is((ForecastDataDao)ForecastDataRecordStoreDao.getInstance()));
+        ForecastDataSerializer forecastDataSerializer = Whitebox.getInternalState(forecastDataDao, "serializer");
+        assertThat(forecastDataSerializer, is(notNullValue()));
+        assertThat(forecastDataSerializer, instanceOf(ForecastDataRecordStoreSerializer.class));
         verifyAll();
     }
 }
