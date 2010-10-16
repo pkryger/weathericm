@@ -67,33 +67,46 @@ public class ForecastDataRecordStoreSerializerTest {
         int month = 10;
         int day = 20;
         int hour = 02;
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date date = calendar.getTime();
         ForecastData forecastData = new ForecastData(year, month, day, hour);
         forecastData.setModelResult(modelResult);
         byte[] actualData = fixture.serialize(forecastData);
         assertThat(actualData, is(notNullValue()));
-        int actualYear = bytesToInt(actualData, 0);
-        assertThat(actualYear, equalTo(year));
-        int actualMonth = bytesToInt(actualData, 4);
-        assertThat(actualMonth, equalTo(month - 1));
-        int actualDay = bytesToInt(actualData, 8);
-        assertThat(actualDay, equalTo(day));
-        int actualHour = bytesToInt(actualData, 12);
-        assertThat(actualHour, equalTo(hour));
-        int actualLength = bytesToInt(actualData, 16);
+        long actualTime = bytesToLong(actualData, 0);
+        assertThat(actualTime, equalTo(date.getTime()));
+        int actualLength = bytesToInt(actualData, 8);
         assertThat(actualLength, equalTo(modelResult.length));
-        byte[] actualModelResult = Arrays.copyOfRange(actualData, 20, 22);
+        byte[] actualModelResult = Arrays.copyOfRange(actualData, 12, 15);
         assertThat(actualModelResult, equalTo(modelResult));
+
     }
 
     private int bytesToInt(byte[] bytes, int offset) {
         int retValue = 0;
         for (int i = 0; i < 4; i++) {
             retValue <<= 8;
-            retValue += bytes[offset + i];
+            retValue += (int)(bytes[offset + i] & 0xFF);
         }
         return retValue;
     }
 
+    private long bytesToLong(byte[] bytes, int offset) {
+        long retValue = 0;
+        for (int i = 0; i < 8; i++) {
+            retValue <<= 8;
+            retValue += (long)(bytes[offset + i] & 0xFF);
+        }
+        return retValue;
+    }
+    
     @Test(expected = NullPointerException.class)
     public void resurectNull() {
         fixture.resurect(null);
@@ -102,10 +115,7 @@ public class ForecastDataRecordStoreSerializerTest {
     @Test
     public void resurectBadStartDate() {
         byte[] data = new byte[] {
-            0, 0, 0, -1,
-            0, 0, 0, -1,
-            0, 0, 0, -1,
-            0, 0, 0, -1,
+            0, 0, 0, 0, 0, 0, 0, -1,
             0, 0, 0, 4,
             1, 1, 1, 1,
         };
@@ -113,28 +123,34 @@ public class ForecastDataRecordStoreSerializerTest {
         assertThat(actual, is(nullValue()));
     }
 
+    private void setTimeInBytes(Long time, byte[] dest) {
+        if (time == null) {
+            time = System.currentTimeMillis();
+        }
+        for (int i = 0; i < 8; i++) {
+            dest[8 - i - 1] = (byte)(time & 0xFF);
+            time >>>= 8;
+        }
+    }
+    
     @Test
     public void resurectZeroLength() {
-       byte[] data = new byte[] {
-            0, 0, 7, -91,
-            0, 0, 0, 9,
-            0, 0, 0, 20,
-            0, 0, 0, 03,
+        byte[] data  = new byte[] {
+            0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0,
         };
+        setTimeInBytes(null, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
     }
 
     @Test
     public void resurectNoModelResult() {
-       byte[] data = new byte[] {
-            0, 0, 7, -91,
-            0, 0, 0, 9,
-            0, 0, 0, 20,
-            0, 0, 0, 04,
+        byte[] data = new byte[] {
+            0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 4,
         };
+        setTimeInBytes(null, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
     }
@@ -142,13 +158,11 @@ public class ForecastDataRecordStoreSerializerTest {
     @Test
     public void resurectWrongLength() {
         byte[] data = new byte[] {
-            0, 0, 7, -91,
-            0, 0, 0, 9,
-            0, 0, 0, 20,
-            0, 0, 0, 05,
+            0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 2,
             1, 1, 1, 1,
         };
+        setTimeInBytes(null, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
     }
@@ -156,10 +170,7 @@ public class ForecastDataRecordStoreSerializerTest {
     @Test
     public void resurect() {
         byte[] data = new byte[] {
-            0, 0, 7, -91,
-            0, 0, 0, 9,
-            0, 0, 0, 20,
-            0, 0, 0, 05,
+            0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 4,
             1, 1, 1, 1,
         };
@@ -172,11 +183,12 @@ public class ForecastDataRecordStoreSerializerTest {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         Date date = calendar.getTime();
+        setTimeInBytes(date.getTime(), data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(notNullValue()));
         Date actualDate = actual.getModelStart();
         assertThat(actualDate.compareTo(date), equalTo(0));
         byte[] actualModelResult = actual.getModelResult();
-        assertThat(actualModelResult, equalTo(Arrays.copyOfRange(data, 20, 23)));
+        assertThat(actualModelResult, equalTo(Arrays.copyOfRange(data, 12, 15)));
     }
 }

@@ -18,6 +18,14 @@
 package com.kenai.weathericm.repository;
 
 import com.kenai.weathericm.domain.ForecastData;
+//#mdebug
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import net.sf.microlog.core.Logger;
+import net.sf.microlog.core.LoggerFactory;
+//#enddebug
 
 /**
  * This one serializes/resurects the {@link ForecastData} to/from a form convinint
@@ -26,8 +34,44 @@ import com.kenai.weathericm.domain.ForecastData;
  */
 public class ForecastDataRecordStoreSerializer implements ForecastDataSerializer {
 
+//#mdebug
+    /**
+     * The class logger.
+     */
+    private final static Logger log = LoggerFactory.getLogger(ForecastDataRecordStoreSerializer.class);
+//#enddebug
+    
     public byte[] serialize(ForecastData forecastData) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (forecastData == null) {
+//#mdebug
+            log.error("Cannot serialize null forecast data!");
+//#enddebug
+            throw new NullPointerException("Cannot serialize forecast data!");
+        }
+        if (forecastData.getModelResult() == null || forecastData.getModelStart() == null) {
+//#mdebug
+            log.error("Cannot serialize forecast data with null fields! "
+                    + forecastData.getModelResult() == null ? " model is null " : ""
+                    + forecastData.getModelStart() == null ? " model start is null " : "");
+//#enddebug
+            throw new NullPointerException("Cannot serialize forecast data with null!");
+        }
+        log.trace("Serializing forecast data: " + forecastData);
+        byte[] serialized = null;
+        byte[] modelResult = forecastData.getModelResult();
+        int bufferSize = 8 + 4 + modelResult.length;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(bufferSize);
+        DataOutputStream dos = new DataOutputStream(baos);
+        try {
+            dos.writeLong(forecastData.getModelStart().getTime());
+            dos.writeInt(modelResult.length);
+            dos.write(modelResult, 0, modelResult.length);
+            dos.flush();
+            serialized = baos.toByteArray();
+        } catch (IOException ex) {
+            log.warn("Cannot serialize forecast data! " + forecastData);
+        }
+        return serialized;
     }
 
     public ForecastData resurect(byte[] data) {
