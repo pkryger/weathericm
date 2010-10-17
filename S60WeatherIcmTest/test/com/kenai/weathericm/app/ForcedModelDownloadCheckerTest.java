@@ -15,8 +15,6 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-
 package com.kenai.weathericm.app;
 
 import org.junit.Before;
@@ -42,5 +40,4 @@ public class ForcedModelDownloadCheckerTest {
         boolean actual = fixture.isDownloadNeeded(null, null);
         assertThat(actual, is(true));
     }
-
 }

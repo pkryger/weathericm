@@ -332,13 +332,13 @@ public class MeteorogramBroker implements StatusListener {
      */
     public ForecastDataDownloader getForcedDownloadTask(MeteorogramInfo info) {
 //#mdebug
-        log.info("Getting a downaload task for info: " + info);
+        log.info("Getting a forced downaload task for info: " + info);
 //#enddebug
         ForecastDataDownloader task =
                 (ForecastDataDownloader) infoToDownloadTask.get(info);
         if (task == null) {
 //#mdebug
-            log.debug("Creating a new download task for info: " + info);
+            log.debug("Creating a new forced download task for info: " + info);
 //#enddebug
             task = ForecastDataDownloaderFactory.getForcedDownloader();
             task.setMeteorogramInfo(info);
@@ -359,8 +359,21 @@ public class MeteorogramBroker implements StatusListener {
      * @return the {@link ForecastDataDownloader} that performs a download.
      */
     public ForecastDataDownloader getCheckedDownloadTask(MeteorogramInfo info) {
-        //TODO copy above and change factory.getForced to factory.getChecked.
-        return null;
+//#mdebug
+        log.info("Getting a checked downaload task for info: " + info);
+//#enddebug
+        ForecastDataDownloader task =
+                (ForecastDataDownloader) infoToDownloadTask.get(info);
+        if (task == null) {
+//#mdebug
+            log.debug("Creating a new checked download task for info: " + info);
+//#enddebug
+            task = ForecastDataDownloaderFactory.getCheckedDownloader();
+            task.setMeteorogramInfo(info);
+            infoToDownloadTask.put(info, task);
+        }
+        task.addListener(this);
+        return task;
     }
 
     /**

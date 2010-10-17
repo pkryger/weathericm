@@ -272,9 +272,9 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
                 byte[] modelResult = modelResultDownloader.downloadModelResult(imageUrl);
                 modelResultDownloader.removeListener(this);
                 if (modelResult == null) {
-    //#mdebug
+                    //#mdebug
                     log.error("Cannot download image data from: " + imageUrl);
-    //#enddebug
+                    //#enddebug
                     throw new NullPointerException("Image download failed!");
                 }
                 forecastData.setModelResult(modelResult);
@@ -540,8 +540,15 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
      * @throws NullPointerException if the {@code modelDownloadChecker} is {@code null}.
      */
     public void setModelResultDownloadChecker(ModelDownloadChecker modelDownloadChecker) {
-        
+        if (modelDownloadChecker == null) {
+            log.error("Trying to set null as model download checker!");
+//#mdebug
+            throw new NullPointerException("Cannot set null as model download checker!");
+//#enddebug
+        }
+        this.modelDownloadChecker = modelDownloadChecker;
     }
+
     /**
      * Handles the status updates from either {@value #startDateDownloader} or
      * {@value #modelResultDownloader}. It uses current settings of

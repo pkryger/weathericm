@@ -44,6 +44,16 @@ public class ForecastDataDownloaderFactory {
      * The key for implementation of {@link ModelResultDownloader}.
      */
     public static final String MODEL_RESULT_DOWNLOADER_KEY = "model.result.downloader";
+    /**
+     * The key for implementation of {@link ModelDownloadChecker} that is to be used
+     * for 'checked' {@link ForecastDataDownloader}.
+     */
+    public static final String CHECKED_MODEL_DOWNLOAD_CHECKER_KEY = "model.checker.checked";
+    /**
+     * The key for implementation of {@link ModelDownloadChecker} that is to be used
+     * for 'forced' {@link ForecastDataDownloader}.
+     */
+    public static final String FORCED_MODEL_DOWNLOAD_CHECKER_KEY = "model.checker.forced";
 //#mdebug
     /**
      * The logger for the class.
@@ -54,7 +64,6 @@ public class ForecastDataDownloaderFactory {
      * The holder for properties.
      */
     private static Properties properties = null;
-           
 
     /**
      * Gets the new instance of {@link ForecastDataDownloader} with propery configured
@@ -62,7 +71,7 @@ public class ForecastDataDownloaderFactory {
      * ModelDownloadChecker} to perform forced download operation.
      * @return the new {@link ForecastDataDownloader}.
      */
-    public static ForecastDataDownloader getForcedDownloader() {
+    private static ForecastDataDownloader getDownloader(String modelDownloadCheckerKey) {
         if (properties == null) {
 //#mdebug
             log.info("Instantiating properties");
@@ -72,20 +81,23 @@ public class ForecastDataDownloaderFactory {
         ForecastDataDownloader forecastDataDownloader = null;
         String implementation = properties.getProperty(FORECAST_DATA_DOWNLOADER_KEY);
         try {
-           forecastDataDownloader =
-                   (ForecastDataDownloader) Class.forName(implementation).newInstance();
-           implementation =
-                   properties.getProperty(START_DATE_DOWNLOADER_KEY);
-           StartDateDownloader startDateDownloader =
-                   (StartDateDownloader)Class.forName(implementation).newInstance();
-           implementation =
-                   properties.getProperty(MODEL_RESULT_DOWNLOADER_KEY);
-           //TODO add keys.
-           //TODO get the implementation of modelchecker and set it up
-           ModelResultDownloader modelResultDownloader =
-                   (ModelResultDownloader)Class.forName(implementation).newInstance();
-           forecastDataDownloader.setStartDateDownloader(startDateDownloader);
-           forecastDataDownloader.setModelResultDownloader(modelResultDownloader);
+            forecastDataDownloader =
+                    (ForecastDataDownloader) Class.forName(implementation).newInstance();
+            implementation =
+                    properties.getProperty(START_DATE_DOWNLOADER_KEY);
+            StartDateDownloader startDateDownloader =
+                    (StartDateDownloader) Class.forName(implementation).newInstance();
+            implementation =
+                    properties.getProperty(MODEL_RESULT_DOWNLOADER_KEY);
+            ModelResultDownloader modelResultDownloader =
+                    (ModelResultDownloader) Class.forName(implementation).newInstance();
+            implementation =
+                    properties.getProperty(modelDownloadCheckerKey);
+            ModelDownloadChecker modelDownloadChecker =
+                    (ModelDownloadChecker) Class.forName(implementation).newInstance();
+            forecastDataDownloader.setStartDateDownloader(startDateDownloader);
+            forecastDataDownloader.setModelResultDownloader(modelResultDownloader);
+            forecastDataDownloader.setModelResultDownloadChecker(modelDownloadChecker);
         } catch (ClassNotFoundException ex) {
 //#mdebug
             log.fatal("Cannot find a class for " + implementation, ex);
@@ -111,7 +123,17 @@ public class ForecastDataDownloaderFactory {
      * ModelDownloadChecker} to perform forced download operation.
      * @return the new {@link ForecastDataDownloader}.
      */
+    public static ForecastDataDownloader getForcedDownloader() {
+        return getDownloader(FORCED_MODEL_DOWNLOAD_CHECKER_KEY);
+    }
+
+    /**
+     * Gets the new instance of {@link ForecastDataDownloader} with propery configured
+     * {@link StartDataDownloader}, {@link ModelResultDownloader} and {@link
+     * ModelDownloadChecker} to perform forced download operation.
+     * @return the new {@link ForecastDataDownloader}.
+     */
     public static ForecastDataDownloader getCheckedDownloader() {
-        return null;
+        return getDownloader(CHECKED_MODEL_DOWNLOAD_CHECKER_KEY);
     }
 }

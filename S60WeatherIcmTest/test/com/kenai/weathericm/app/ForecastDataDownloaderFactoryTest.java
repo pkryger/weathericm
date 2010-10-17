@@ -15,8 +15,6 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-
 package com.kenai.weathericm.app;
 
 import net.sf.microlog.core.config.PropertyConfigurator;
@@ -26,12 +24,12 @@ import org.powermock.reflect.Whitebox;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-
 /**
  * Tests for {@link ForecastDataDownloaderFactory}.
  * @author Przemek Kryger
  */
 public class ForecastDataDownloaderFactoryTest {
+
     @BeforeClass
     public static void setUpClass() {
         PropertyConfigurator.configure("/testMicrolog.properties");
@@ -52,6 +50,7 @@ public class ForecastDataDownloaderFactoryTest {
         assertThat(modelDownloadChecker, is(notNullValue()));
         assertThat(modelDownloadChecker, is(instanceOf(ForcedModelDownloadChecker.class)));
     }
+
     @Test
     public void getCheckedDownloader() {
         ForecastDataDownloader downloader = ForecastDataDownloaderFactory.getCheckedDownloader();

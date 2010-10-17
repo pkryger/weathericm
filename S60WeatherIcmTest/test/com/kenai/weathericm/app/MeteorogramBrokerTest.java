@@ -334,7 +334,7 @@ public class MeteorogramBrokerTest {
         Vector listeners = t1.getListeners();
         assertThat(listeners.contains(fixture), is(true));
     }
-    
+
     @Test
     public void getCheckedDownloadTaskNotExisting() {
         ForecastDataDownloader t1 =
@@ -617,6 +617,11 @@ public class MeteorogramBrokerTest {
 
         @Override
         public void run() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void setModelResultDownloadChecker(ModelDownloadChecker modelDownloadChecker) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }

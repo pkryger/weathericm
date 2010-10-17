@@ -60,7 +60,7 @@ public class ComparableForecastDataTest {
         decoratedModelStart = new Date();
         offset = ComparableForecastData.getOffset();
     }
-    
+
     @After
     public void tearDown() {
         ComparableForecastData.setOffset(offset);
@@ -122,7 +122,7 @@ public class ComparableForecastDataTest {
     public void setOffsetInvalid() {
         ComparableForecastData.setOffset(-1L);
     }
-    
+
     @Test
     public void isSameAsOtherIsSame() {
         long now = System.currentTimeMillis();

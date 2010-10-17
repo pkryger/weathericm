@@ -19,12 +19,23 @@ package com.kenai.weathericm.app;
 
 import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.domain.MeteorogramInfo;
+//#mdebug
+import net.sf.microlog.core.Logger;
+import net.sf.microlog.core.LoggerFactory;
+//#enddebug
 
 /**
  *
  * @author Przemek Kryger
  */
 public class SmartModelDownloadChecker implements ModelDownloadChecker {
+
+//#mdebug
+    /**
+     * The class logger.
+     */
+    private final static Logger log = LoggerFactory.getLogger(SmartModelDownloadChecker.class);
+//#enddebug
 
     /**
      * Will perform a checking using {@link ComparableForecastData}. In case the
@@ -36,7 +47,23 @@ public class SmartModelDownloadChecker implements ModelDownloadChecker {
      * @throws NullPointerException in case either {@code info} or {@code newData} is null.
      */
     public boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (info == null) {
+//#mdebug
+            log.error("Cannot perform checking for null info!");
+//#enddebug
+            throw new NullPointerException("Not checking for null info!");
+        }
+        if (newData == null) {
+//#mdebug
+            log.error("Cannot perform checking for null info!");
+//#enddebug
+            throw new NullPointerException("Not checking for null info!");
+        }
+        ForecastData infoData = info.getForecastData();
+        if (infoData == null) {
+            return true;
+        }
+        ComparableForecastData checker = new ComparableForecastData(newData);
+        return checker.isNewerThan(infoData);
     }
-
 }

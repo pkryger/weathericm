@@ -15,8 +15,6 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-
 package com.kenai.weathericm.app;
 
 import com.kenai.weathericm.domain.ForecastData;
@@ -67,5 +65,4 @@ public class SmartModelDownloadCheckerTest {
         boolean actual = fixture.isDownloadNeeded(info, oldData);
         assertThat(actual, is(false));
     }
-
 }

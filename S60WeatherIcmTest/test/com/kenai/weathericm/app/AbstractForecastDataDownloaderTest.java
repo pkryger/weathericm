@@ -253,6 +253,7 @@ public class AbstractForecastDataDownloaderTest {
         modelResultDownloader.modelResult = modelResult;
         fixture.addListener(listener);
         fixture.setModelResultDownloadChecker(new ModelDownloadChecker() {
+
             @Override
             public boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData) {
                 return false;
@@ -522,7 +523,8 @@ public class AbstractForecastDataDownloaderTest {
 
     @Test
     public void setModelResultDownloadChecker() {
-        fixture = new AbstractForecastDataDownloader() {};
+        fixture = new AbstractForecastDataDownloader() {
+        };
         ModelDownloadChecker checker = new ModelDownloadChecker() {
 
             @Override

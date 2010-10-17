@@ -60,4 +60,12 @@ public interface ForecastDataDownloader extends Runnable, StatusReporter {
      * @param modelResultDownloader the {@link ModelResultDownloader} to be used.
      */
     void setModelResultDownloader(ModelResultDownloader modelResultDownloader);
+
+    /**
+     * Sets the instance of {@link ModelDownloadChecker} to be used to determine if
+     * downloading model reult is really needed.
+     * @param modelDownloadChecker the {@link ModelDownloadChecker} instance to be used
+     *        to check if downloading is needed.
+     */
+    void setModelResultDownloadChecker(ModelDownloadChecker modelDownloadChecker);
 }

@@ -34,7 +34,6 @@ public class ForcedModelDownloadChecker implements ModelDownloadChecker {
      * @see ModelDownloadChecker#isDownloadNeeded(com.kenai.weathericm.domain.MeteorogramInfo, com.kenai.weathericm.domain.ForecastData) 
      */
     public boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return true;
     }
-
 }

@@ -55,14 +55,14 @@ public class ForecastDataRecordStoreSerializerTest {
     @Test(expected = NullPointerException.class)
     public void serializeNullModelStart() {
         ForecastData forecastData = new ForecastData("2010102001");
-        Whitebox.setInternalState(forecastData, "modelStart", (Date)null);
+        Whitebox.setInternalState(forecastData, "modelStart", (Date) null);
         forecastData.setModelResult(new byte[]{});
         fixture.serialize(forecastData);
     }
 
     @Test
     public void serialize() {
-        byte[] modelResult = new byte[] {1, 2, 3};
+        byte[] modelResult = new byte[]{1, 2, 3};
         int year = 2010;
         int month = 10;
         int day = 20;
@@ -93,7 +93,7 @@ public class ForecastDataRecordStoreSerializerTest {
         int retValue = 0;
         for (int i = 0; i < 4; i++) {
             retValue <<= 8;
-            retValue += (int)(bytes[offset + i] & 0xFF);
+            retValue += (int) (bytes[offset + i] & 0xFF);
         }
         return retValue;
     }
@@ -102,11 +102,11 @@ public class ForecastDataRecordStoreSerializerTest {
         long retValue = 0;
         for (int i = 0; i < 8; i++) {
             retValue <<= 8;
-            retValue += (long)(bytes[offset + i] & 0xFF);
+            retValue += (long) (bytes[offset + i] & 0xFF);
         }
         return retValue;
     }
-    
+
     @Test(expected = NullPointerException.class)
     public void resurectNull() {
         fixture.resurect(null);
@@ -114,11 +114,10 @@ public class ForecastDataRecordStoreSerializerTest {
 
     @Test
     public void resurectBadStartDate() {
-        byte[] data = new byte[] {
+        byte[] data = new byte[]{
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 4,
-            1, 1, 1, 1,
-        };
+            1, 1, 1, 1,};
         setTimeInBytes(-1L, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
@@ -129,17 +128,16 @@ public class ForecastDataRecordStoreSerializerTest {
             time = System.currentTimeMillis();
         }
         for (int i = 0; i < 8; i++) {
-            dest[8 - i - 1] = (byte)(time & 0xFF);
+            dest[8 - i - 1] = (byte) (time & 0xFF);
             time >>>= 8;
         }
     }
-    
+
     @Test
     public void resurectZeroLength() {
-        byte[] data  = new byte[] {
+        byte[] data = new byte[]{
             0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0,
-        };
+            0, 0, 0, 0,};
         setTimeInBytes(null, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
@@ -147,10 +145,9 @@ public class ForecastDataRecordStoreSerializerTest {
 
     @Test
     public void resurectNoModelResult() {
-        byte[] data = new byte[] {
+        byte[] data = new byte[]{
             0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 4,
-        };
+            0, 0, 0, 4,};
         setTimeInBytes(null, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
@@ -158,11 +155,10 @@ public class ForecastDataRecordStoreSerializerTest {
 
     @Test
     public void resurectWrongLengthTooBig() {
-        byte[] data = new byte[] {
+        byte[] data = new byte[]{
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 5,
-            1, 1, 1, 1,
-        };
+            1, 1, 1, 1,};
         setTimeInBytes(null, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
@@ -170,23 +166,21 @@ public class ForecastDataRecordStoreSerializerTest {
 
     @Test
     public void resurectWrongLengthTooSmall() {
-        byte[] data = new byte[] {
+        byte[] data = new byte[]{
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 2,
-            1, 1, 1, 1,
-        };
+            1, 1, 1, 1,};
         setTimeInBytes(null, data);
         ForecastData actual = fixture.resurect(data);
         assertThat(actual, is(nullValue()));
     }
-    
+
     @Test
     public void resurect() {
-        byte[] data = new byte[] {
+        byte[] data = new byte[]{
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 4,
-            1, 1, 1, 1,
-        };
+            1, 1, 1, 1,};
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.set(Calendar.YEAR, 2010);
         calendar.set(Calendar.MONTH, 10);

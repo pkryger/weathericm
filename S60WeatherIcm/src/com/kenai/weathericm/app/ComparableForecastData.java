@@ -195,7 +195,8 @@ public class ComparableForecastData extends ForecastData {
         }
         return isNewerThan(other.getModelStart());
     }
-        /**
+
+    /**
      * Checks if this instance is the newer than {@code other} date.
      * @param other the {@link ForecastData} to comapre this instance with.
      * @return {@code true} if the {@value #getModelStart()} is greater (later in time)
