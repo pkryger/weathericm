@@ -41,9 +41,6 @@ import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
 import com.kenai.weathericm.util.AppConfigurator;
 import com.kenai.weathericm.view.validation.MeteorogramInfoDataValidator;
-import java.io.DataOutputStream;
-import javax.microedition.io.Connector;
-import javax.microedition.io.file.FileConnection;
 import org.netbeans.microedition.util.CancellableTask;
 
 /**
@@ -130,6 +127,8 @@ public class ViewController extends MIDlet implements
     private Command backCommand;
     private Command deleteCommand;
     private Command logCommand;
+    private Command itemCommand;
+    private Command reloadCommand;
     private List mainList;
     private Form newEditForm;
     private ChoiceGroup modelChoiceGroup;
@@ -143,6 +142,7 @@ public class ViewController extends MIDlet implements
     private Alert downloadErrorAlert;
     private Alert exitConfirmationAlert;
     private InfoCanvas displayInfoCanvas;
+    private Alert reloadAlert;
     private Image forecastAvailableImage;
     private Image downloadImage;
     private Image forecastNotAvailableImage;
@@ -293,100 +293,123 @@ public class ViewController extends MIDlet implements
                 // write pre-action user code here
                 switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|6|224-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|7|185-preAction
+            } else if (command == reloadCommand) {//GEN-LINE:|7-commandAction|7|245-preAction
+                // write pre-action user code here
+                getDownloadWaitScreen().setText("Downloading... (0% done)");
+                ForecastDataDownloader task = broker.getForcedDownloadTask(processedInfo);
+                getDownloadWaitScreen().setTask((CancellableTask) task);
+                switchDisplayable(null, getDownloadWaitScreen());//GEN-LINE:|7-commandAction|8|245-postAction
+                // write post-action user code here
+                task.addListener(this);
+            }//GEN-BEGIN:|7-commandAction|9|185-preAction
         } else if (displayable == downloadErrorAlert) {
-            if (command == okCommand) {//GEN-END:|7-commandAction|7|185-preAction
+            if (command == okCommand) {//GEN-END:|7-commandAction|9|185-preAction
                 // write pre-action user code here
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|8|185-postAction
+                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|10|185-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|9|97-preAction
+            }//GEN-BEGIN:|7-commandAction|11|97-preAction
         } else if (displayable == downloadWaitScreen) {
-            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|9|97-preAction
+            if (command == WaitScreen.FAILURE_COMMAND) {//GEN-END:|7-commandAction|11|97-preAction
                 // write pre-action user code here
                 unregisterAtDownloadTask(false);
-                isContinueFailure();//GEN-LINE:|7-commandAction|10|97-postAction
+                isContinueFailure();//GEN-LINE:|7-commandAction|12|97-postAction
                 // write post-action user code here
-            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|11|96-preAction
+            } else if (command == WaitScreen.SUCCESS_COMMAND) {//GEN-LINE:|7-commandAction|13|96-preAction
                 // write pre-action user code here
                 unregisterAtDownloadTask(false);
-                isContinueSuccess();//GEN-LINE:|7-commandAction|12|96-postAction
+                isContinueSuccess();//GEN-LINE:|7-commandAction|14|96-postAction
                 // write post-action user code here
-            } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|13|169-preAction
+            } else if (command == cancelCommand) {//GEN-LINE:|7-commandAction|15|169-preAction
                 // write pre-action user code here
                 unregisterAtDownloadTask(true);
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|14|169-postAction
+                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|16|169-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|15|209-preAction
+            }//GEN-BEGIN:|7-commandAction|17|209-preAction
         } else if (displayable == exitConfirmationAlert) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|15|209-preAction
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|17|209-preAction
                 // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|16|209-postAction
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|18|209-postAction
                 // write post-action user code here
-            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|17|208-preAction
+            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|19|208-preAction
                 // write pre-action user code here
-                exitMIDlet();//GEN-LINE:|7-commandAction|18|208-postAction
+                exitMIDlet();//GEN-LINE:|7-commandAction|20|208-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|19|113-preAction
+            }//GEN-BEGIN:|7-commandAction|21|113-preAction
         } else if (displayable == logForm) {
-            if (command == backCommand) {//GEN-END:|7-commandAction|19|113-preAction
+            if (command == backCommand) {//GEN-END:|7-commandAction|21|113-preAction
                 // write pre-action user code here
-                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|20|113-postAction
+                switchToPreviousDisplayable();//GEN-LINE:|7-commandAction|22|113-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|21|24-preAction
+            }//GEN-BEGIN:|7-commandAction|23|24-preAction
         } else if (displayable == mainList) {
-            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|21|24-preAction
+            if (command == List.SELECT_COMMAND) {//GEN-END:|7-commandAction|23|24-preAction
                 // write pre-action user code here
-                mainListAction();//GEN-LINE:|7-commandAction|22|24-postAction
+                mainListAction();//GEN-LINE:|7-commandAction|24|24-postAction
                 // write post-action user code here
-            } else if (command == deleteCommand) {//GEN-LINE:|7-commandAction|23|119-preAction
+            } else if (command == deleteCommand) {//GEN-LINE:|7-commandAction|25|119-preAction
                 // write pre-action user code here
                 prepareProcessedInfo();
-                switchDisplayable(null, getDeleteConfirmationAlert());//GEN-LINE:|7-commandAction|24|119-postAction
+                switchDisplayable(null, getDeleteConfirmationAlert());//GEN-LINE:|7-commandAction|26|119-postAction
                 // write post-action user code here
-            } else if (command == editCommand) {//GEN-LINE:|7-commandAction|25|70-preAction
+            } else if (command == editCommand) {//GEN-LINE:|7-commandAction|27|70-preAction
                 // write pre-action user code here
                 prepareEditMode();
-                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|26|70-postAction
+                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|28|70-postAction
                 // write post-action user code here
-            } else if (command == exitCommand) {//GEN-LINE:|7-commandAction|27|28-preAction
+            } else if (command == exitCommand) {//GEN-LINE:|7-commandAction|29|28-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getExitConfirmationAlert());//GEN-LINE:|7-commandAction|28|28-postAction
+                switchDisplayable(null, getExitConfirmationAlert());//GEN-LINE:|7-commandAction|30|28-postAction
                 // write post-action user code here
-            } else if (command == logCommand) {//GEN-LINE:|7-commandAction|29|115-preAction
+            } else if (command == logCommand) {//GEN-LINE:|7-commandAction|31|115-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getLogForm());//GEN-LINE:|7-commandAction|30|115-postAction
+                switchDisplayable(null, getLogForm());//GEN-LINE:|7-commandAction|32|115-postAction
                 // write post-action user code here
-            } else if (command == newCommand) {//GEN-LINE:|7-commandAction|31|46-preAction
+            } else if (command == newCommand) {//GEN-LINE:|7-commandAction|33|46-preAction
                 // write pre-action user code here
                 prepareNewMode();
-                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|32|46-postAction
+                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|34|46-postAction
                 // write post-action user code here
-            } else if (command == showCommand) {//GEN-LINE:|7-commandAction|33|68-preAction
+            } else if (command == showCommand) {//GEN-LINE:|7-commandAction|35|68-preAction
                 // write pre-action user code here
                 prepareProcessedInfo();
-                isForecastAvaliable();//GEN-LINE:|7-commandAction|34|68-postAction
+                isForecastAvaliable();//GEN-LINE:|7-commandAction|36|68-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|35|109-preAction
+            }//GEN-BEGIN:|7-commandAction|37|109-preAction
         } else if (displayable == newEditForm) {
-            if (command == cancelCommand) {//GEN-END:|7-commandAction|35|109-preAction
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|37|109-preAction
                 // write pre-action user code here
-                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|36|109-postAction
+                switchDisplayable(null, mainList);//GEN-LINE:|7-commandAction|38|109-postAction
                 // write post-action user code here
-            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|37|108-preAction
+            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|39|108-preAction
                 // write pre-action user code here
-                isUserDataValid();//GEN-LINE:|7-commandAction|38|108-postAction
+                isUserDataValid();//GEN-LINE:|7-commandAction|40|108-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|39|166-preAction
+            }//GEN-BEGIN:|7-commandAction|41|239-preAction
+        } else if (displayable == reloadAlert) {
+            if (command == cancelCommand) {//GEN-END:|7-commandAction|41|239-preAction
+                // write pre-action user code here
+                getDisplayInfoCanvas().setInfo(processedInfo);
+                switchDisplayable(null, getDisplayInfoCanvas());//GEN-LINE:|7-commandAction|42|239-postAction
+                // write post-action user code here
+            } else if (command == okCommand) {//GEN-LINE:|7-commandAction|43|238-preAction
+                // write pre-action user code here
+                getDownloadWaitScreen().setText("Downloading... (0% done)");
+                ForecastDataDownloader task = broker.getCheckedDownloadTask(processedInfo);
+                getDownloadWaitScreen().setTask((CancellableTask) task);
+                switchDisplayable(null, getDownloadWaitScreen());//GEN-LINE:|7-commandAction|44|238-postAction
+                // write post-action user code here
+                task.addListener(this);
+            }//GEN-BEGIN:|7-commandAction|45|166-preAction
         } else if (displayable == validationErrorAlert) {
-            if (command == okCommand) {//GEN-END:|7-commandAction|39|166-preAction
+            if (command == okCommand) {//GEN-END:|7-commandAction|45|166-preAction
                 // write pre-action user code here
-                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|40|166-postAction
+                switchDisplayable(null, getNewEditForm());//GEN-LINE:|7-commandAction|46|166-postAction
                 // write post-action user code here
-            }//GEN-BEGIN:|7-commandAction|41|7-postCommandAction
-        }//GEN-END:|7-commandAction|41|7-postCommandAction
+            }//GEN-BEGIN:|7-commandAction|47|7-postCommandAction
+        }//GEN-END:|7-commandAction|47|7-postCommandAction
         // write post-action user code here
-    }//GEN-BEGIN:|7-commandAction|42|
-    //</editor-fold>//GEN-END:|7-commandAction|42|
+    }//GEN-BEGIN:|7-commandAction|48|
+    //</editor-fold>//GEN-END:|7-commandAction|48|
 
     //<editor-fold defaultstate="collapsed" desc=" Generated Getter: exitCommand ">//GEN-BEGIN:|18-getter|0|18-preInit
     /**
@@ -579,19 +602,15 @@ public class ViewController extends MIDlet implements
      */
     public void isForecastAvaliable() {//GEN-END:|100-if|0|100-preIf
         // enter pre-if user code here
-        if (!processedInfo.dataAvailability().equals(Availability.NOT_AVAILABLE)) {//GEN-LINE:|100-if|1|101-preAction
+        if (processedInfo.dataAvailability().equals(Availability.AVAILABLE)) {//GEN-LINE:|100-if|1|101-preAction
             // write pre-action user code here
             getDisplayInfoCanvas().setInfo(processedInfo);
             switchDisplayable(null, getDisplayInfoCanvas());//GEN-LINE:|100-if|2|101-postAction
             // write post-action user code here
         } else {//GEN-LINE:|100-if|3|102-preAction
             // write pre-action user code here
-            getDownloadWaitScreen().setText("Downloading... (0% done)");
-            ForecastDataDownloader task = broker.getDownloadTask(processedInfo);
-            getDownloadWaitScreen().setTask((CancellableTask) task);
-            switchDisplayable(null, getDownloadWaitScreen());//GEN-LINE:|100-if|4|102-postAction
+            isForecastAvailableOld();//GEN-LINE:|100-if|4|102-postAction
             // write post-action user code here
-            task.addListener(this);
         }//GEN-LINE:|100-if|5|100-postIf
         // enter post-if user code here
     }//GEN-BEGIN:|100-if|6|
@@ -887,6 +906,7 @@ public class ViewController extends MIDlet implements
             // write pre-init user code here
             displayInfoCanvas = new InfoCanvas();//GEN-BEGIN:|222-getter|1|222-postInit
             displayInfoCanvas.addCommand(getBackCommand());
+            displayInfoCanvas.addCommand(getReloadCommand());
             displayInfoCanvas.setCommandListener(this);//GEN-END:|222-getter|1|222-postInit
             // write post-init user code here
             displayInfoCanvas.setScrollSpeed(25);
@@ -913,6 +933,78 @@ public class ViewController extends MIDlet implements
         return forecastAvailableOldImage;
     }
     //</editor-fold>//GEN-END:|227-getter|3|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Method: isForecastAvailableOld ">//GEN-BEGIN:|229-if|0|229-preIf
+    /**
+     * Performs an action assigned to the isForecastAvailableOld if-point.
+     */
+    public void isForecastAvailableOld() {//GEN-END:|229-if|0|229-preIf
+        // enter pre-if user code here
+        if (processedInfo.dataAvailability().equals(Availability.AVAILABLE_OLD)) {//GEN-LINE:|229-if|1|230-preAction
+            // write pre-action user code here
+            switchDisplayable(null, getReloadAlert());//GEN-LINE:|229-if|2|230-postAction
+            // write post-action user code here
+        } else {//GEN-LINE:|229-if|3|231-preAction
+            // write pre-action user code here
+            getDownloadWaitScreen().setText("Downloading... (0% done)");
+            ForecastDataDownloader task = broker.getForcedDownloadTask(processedInfo);
+            getDownloadWaitScreen().setTask((CancellableTask) task);
+            switchDisplayable(null, getDownloadWaitScreen());//GEN-LINE:|229-if|4|231-postAction
+            // write post-action user code here
+            task.addListener(this);
+        }//GEN-LINE:|229-if|5|229-postIf
+        // enter post-if user code here
+    }//GEN-BEGIN:|229-if|6|
+    //</editor-fold>//GEN-END:|229-if|6|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: reloadAlert ">//GEN-BEGIN:|234-getter|0|234-preInit
+    /**
+     * Returns an initiliazed instance of reloadAlert component.
+     * @return the initialized component instance
+     */
+    public Alert getReloadAlert() {
+        if (reloadAlert == null) {//GEN-END:|234-getter|0|234-preInit
+            // write pre-init user code here
+            reloadAlert = new Alert(null, "Do you want to check if new version of forecast exist on server?", null, AlertType.CONFIRMATION);//GEN-BEGIN:|234-getter|1|234-postInit
+            reloadAlert.addCommand(okCommand);
+            reloadAlert.addCommand(getCancelCommand());
+            reloadAlert.setCommandListener(this);
+            reloadAlert.setTimeout(Alert.FOREVER);//GEN-END:|234-getter|1|234-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|234-getter|2|
+        return reloadAlert;
+    }
+    //</editor-fold>//GEN-END:|234-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: itemCommand ">//GEN-BEGIN:|242-getter|0|242-preInit
+    /**
+     * Returns an initiliazed instance of itemCommand component.
+     * @return the initialized component instance
+     */
+    public Command getItemCommand() {
+        if (itemCommand == null) {//GEN-END:|242-getter|0|242-preInit
+            // write pre-init user code here
+            itemCommand = new Command("Item", Command.SCREEN, 0);//GEN-LINE:|242-getter|1|242-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|242-getter|2|
+        return itemCommand;
+    }
+    //</editor-fold>//GEN-END:|242-getter|2|
+
+    //<editor-fold defaultstate="collapsed" desc=" Generated Getter: reloadCommand ">//GEN-BEGIN:|244-getter|0|244-preInit
+    /**
+     * Returns an initiliazed instance of reloadCommand component.
+     * @return the initialized component instance
+     */
+    public Command getReloadCommand() {
+        if (reloadCommand == null) {//GEN-END:|244-getter|0|244-preInit
+            // write pre-init user code here
+            reloadCommand = new Command("Refresh", Command.SCREEN, 0);//GEN-LINE:|244-getter|1|244-postInit
+            // write post-init user code here
+        }//GEN-BEGIN:|244-getter|2|
+        return reloadCommand;
+    }
+    //</editor-fold>//GEN-END:|244-getter|2|
 
     /**
      * Gets the info from {@value #infoToMainListIndex} based on the

@@ -18,7 +18,6 @@
 package com.kenai.weathericm.repository;
 
 import com.kenai.weathericm.domain.ForecastData;
-//#mdebug
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+//#mdebug
 import net.sf.microlog.core.Logger;
 import net.sf.microlog.core.LoggerFactory;
 //#enddebug
@@ -44,7 +44,20 @@ public class ForecastDataRecordStoreSerializer implements ForecastDataSerializer
      */
     private final static Logger log = LoggerFactory.getLogger(ForecastDataRecordStoreSerializer.class);
 //#enddebug
+
+    /**
+     * The serialized header size. It's the time of model start (long) + the size of a model result (int)
+     */
+    private final static int HEADER_LENGTH = 8 + 4;
     
+    /**
+     * Transforms given {@code forecastData} into array of {@code byte}s. The
+     * implementation shall be symetric to the {@value #resurect(byte)}.
+     * @param forecastData the {@link ForecastData} to be serialized.
+     * @return the array of {@code byte}s that represents the data.
+     * @see #resurect(data)
+     * @throws NullPointerException in case the {@code forecastData} is {@code null}.
+     */
     public byte[] serialize(ForecastData forecastData) {
         if (forecastData == null) {
 //#mdebug
@@ -65,7 +78,7 @@ public class ForecastDataRecordStoreSerializer implements ForecastDataSerializer
 //#enddebug
         byte[] serialized = null;
         byte[] modelResult = forecastData.getModelResult();
-        int bufferSize = 8 + 4 + modelResult.length;
+        int bufferSize = HEADER_LENGTH + modelResult.length;
         ByteArrayOutputStream baos = new ByteArrayOutputStream(bufferSize);
         DataOutputStream dos = new DataOutputStream(baos);
         try {
@@ -82,6 +95,14 @@ public class ForecastDataRecordStoreSerializer implements ForecastDataSerializer
         return serialized;
     }
 
+    /**
+     * Creates the {@link ForecastData} from given array of {@code bytes}. The
+     * implementation shall be symetric to the {@value
+     * #serialize(com.kenai.weathericm.domain.ForecastData)}.
+     * @param data the {@code byte} array to create {@link ForecastData} from.
+     * @return the {@link ForecastData} created form {@code data}s
+     * @throws NullPointerException in case the {@code data} is {@code null}.
+     */
     public ForecastData resurect(byte[] data) {
         if (data == null) {
             log.error("Cannoct resurect forecast data with null data!");
@@ -98,7 +119,8 @@ public class ForecastDataRecordStoreSerializer implements ForecastDataSerializer
         try {
             long modelStartTime = dis.readLong();
             int modelResultLength = dis.readInt();
-            if (modelStartTime > 0 && modelResultLength > 0) {
+            if (modelStartTime > 0 && modelResultLength > 0
+                    && (HEADER_LENGTH + modelResultLength) == data.length) {
                 byte[] modelResult = new byte[modelResultLength];
                 dis.readFully(modelResult);
                 Date date = new Date(modelStartTime);

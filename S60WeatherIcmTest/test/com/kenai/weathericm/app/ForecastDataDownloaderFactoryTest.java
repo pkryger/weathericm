@@ -38,8 +38,8 @@ public class ForecastDataDownloaderFactoryTest {
     }
 
     @Test
-    public void getDownloader() {
-        ForecastDataDownloader downloader = ForecastDataDownloaderFactory.getDownloader();
+    public void getForcedDownloader() {
+        ForecastDataDownloader downloader = ForecastDataDownloaderFactory.getForcedDownloader();
         assertThat(downloader, is(notNullValue()));
         StartDateDownloader startDateDownloader =
                 Whitebox.getInternalState(downloader, "startDateDownloader");
@@ -47,5 +47,24 @@ public class ForecastDataDownloaderFactoryTest {
         ModelResultDownloader modelResultDownloader =
                 Whitebox.getInternalState(downloader, "modelResultDownloader");
         assertThat(modelResultDownloader, is(notNullValue()));
+        ModelDownloadChecker modelDownloadChecker =
+                Whitebox.getInternalState(downloader, "modelDownloadChecker");
+        assertThat(modelDownloadChecker, is(notNullValue()));
+        assertThat(modelDownloadChecker, is(instanceOf(ForcedModelDownloadChecker.class)));
+    }
+    @Test
+    public void getCheckedDownloader() {
+        ForecastDataDownloader downloader = ForecastDataDownloaderFactory.getCheckedDownloader();
+        assertThat(downloader, is(notNullValue()));
+        StartDateDownloader startDateDownloader =
+                Whitebox.getInternalState(downloader, "startDateDownloader");
+        assertThat(startDateDownloader, is(notNullValue()));
+        ModelResultDownloader modelResultDownloader =
+                Whitebox.getInternalState(downloader, "modelResultDownloader");
+        assertThat(modelResultDownloader, is(notNullValue()));
+        ModelDownloadChecker modelDownloadChecker =
+                Whitebox.getInternalState(downloader, "modelDownloadChecker");
+        assertThat(modelDownloadChecker, is(notNullValue()));
+        assertThat(modelDownloadChecker, is(instanceOf(SmartModelDownloadChecker.class)));
     }
 }

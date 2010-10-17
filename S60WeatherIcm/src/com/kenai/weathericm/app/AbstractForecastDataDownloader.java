@@ -109,6 +109,10 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
      */
     private ModelResultDownloader modelResultDownloader;
     /**
+     * This will be used to determine if model downloading is needed.
+     */
+    private ModelDownloadChecker modelDownloadChecker;
+    /**
      * The total amount of chunk size that {@value #startDateDownloader}
      * or {@value #modelResultDownloader} will advance the progress.
      */
@@ -253,29 +257,30 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             log.info(this + ": Parsing received start data...");
 //#enddebug
             String modelStartDate = parseStartDate(dateBuffer, typeProperties);
-            dateBuffer = null;
-            String imageUrl = createForecastDataUrl(modelStartDate, typeProperties);
-            setProgress(9);
-            if (cancelled) {
-                throw new InterruptedException();
-            }
-            Thread.yield();
-            chunkStart = progress;
-            chunkSize = 99 - chunkStart;
-            modelResultDownloader.addListener(this);
-            byte[] modelResult = modelResultDownloader.downloadModelResult(imageUrl);
-            modelResultDownloader.removeListener(this);
-            if (modelResult == null) {
-//#mdebug
-                log.error("Cannot download image data from: " + imageUrl);
-//#enddebug
-                throw new NullPointerException("Image download failed!");
-            }
             ForecastData forecastData = new ForecastData(modelStartDate);
-            forecastData.setModelResult(modelResult);
-            info.setForecastData(forecastData);
+            if (modelDownloadChecker.isDownloadNeeded(info, forecastData)) {
+                dateBuffer = null;
+                String imageUrl = createForecastDataUrl(modelStartDate, typeProperties);
+                setProgress(9);
+                if (cancelled) {
+                    throw new InterruptedException();
+                }
+                Thread.yield();
+                chunkStart = progress;
+                chunkSize = 99 - chunkStart;
+                modelResultDownloader.addListener(this);
+                byte[] modelResult = modelResultDownloader.downloadModelResult(imageUrl);
+                modelResultDownloader.removeListener(this);
+                if (modelResult == null) {
+    //#mdebug
+                    log.error("Cannot download image data from: " + imageUrl);
+    //#enddebug
+                    throw new NullPointerException("Image download failed!");
+                }
+                forecastData.setModelResult(modelResult);
+                info.setForecastData(forecastData);
+            }
             setProgress(progress = 100);
-            modelResultDownloader.removeListener(this);
             Thread.yield();
             if (cancelled) {
                 throw new InterruptedException();
@@ -527,6 +532,16 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
         this.modelResultDownloader = modelResultDownloader;
     }
 
+    /**
+     * Sets the instance of {@link ModelDownloadChecker} to be used to ddetermine if
+     * downloading model reult is really needed.
+     * @param modelDownloadChecker the {@link ModelDownloadChecker} instance to be used
+     *        to check if downloading is needed.
+     * @throws NullPointerException if the {@code modelDownloadChecker} is {@code null}.
+     */
+    public void setModelResultDownloadChecker(ModelDownloadChecker modelDownloadChecker) {
+        
+    }
     /**
      * Handles the status updates from either {@value #startDateDownloader} or
      * {@value #modelResultDownloader}. It uses current settings of

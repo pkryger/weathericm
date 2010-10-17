@@ -157,7 +157,7 @@ public class ForecastDataRecordStoreSerializerTest {
     }
 
     @Test
-    public void resurectWrongLength() {
+    public void resurectWrongLengthTooBig() {
         byte[] data = new byte[] {
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 5,
@@ -168,6 +168,18 @@ public class ForecastDataRecordStoreSerializerTest {
         assertThat(actual, is(nullValue()));
     }
 
+    @Test
+    public void resurectWrongLengthTooSmall() {
+        byte[] data = new byte[] {
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 2,
+            1, 1, 1, 1,
+        };
+        setTimeInBytes(null, data);
+        ForecastData actual = fixture.resurect(data);
+        assertThat(actual, is(nullValue()));
+    }
+    
     @Test
     public void resurect() {
         byte[] data = new byte[] {

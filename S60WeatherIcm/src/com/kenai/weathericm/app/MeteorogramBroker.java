@@ -324,10 +324,13 @@ public class MeteorogramBroker implements StatusListener {
      * Gets the the task that downloads forecast for a given info. In case there
      * already is a task that downloads forecast for a given info, it is returned.
      * Otherwise a new task is created.
+     * The returned task will force downloading the forecastData for the info. However,
+     * in case there is already a task for the given info, it's returned. It's the caller
+     * responsibility with dealing with this.
      * @param info the {@link MeteorogramInfo} that needs a task to perform a download.
      * @return the {@link ForecastDataDownloader} that performs a download.
      */
-    public ForecastDataDownloader getDownloadTask(MeteorogramInfo info) {
+    public ForecastDataDownloader getForcedDownloadTask(MeteorogramInfo info) {
 //#mdebug
         log.info("Getting a downaload task for info: " + info);
 //#enddebug
@@ -337,12 +340,27 @@ public class MeteorogramBroker implements StatusListener {
 //#mdebug
             log.debug("Creating a new download task for info: " + info);
 //#enddebug
-            task = ForecastDataDownloaderFactory.getDownloader();
+            task = ForecastDataDownloaderFactory.getForcedDownloader();
             task.setMeteorogramInfo(info);
             infoToDownloadTask.put(info, task);
         }
         task.addListener(this);
         return task;
+    }
+
+    /**
+     * Gets the the task that downloads forecast for a given info. In case there
+     * already is a task that downloads forecast for a given info, it is returned.
+     * Otherwise a new task is created.
+     * The returned task will check if downloading the forecastData for the info
+     * is really needed. However, in case there is already a task for the given info,
+     * it's returned. It's the caller responsibility with dealing with this.
+     * @param info the {@link MeteorogramInfo} that needs a task to perform a download.
+     * @return the {@link ForecastDataDownloader} that performs a download.
+     */
+    public ForecastDataDownloader getCheckedDownloadTask(MeteorogramInfo info) {
+        //TODO copy above and change factory.getForced to factory.getChecked.
+        return null;
     }
 
     /**

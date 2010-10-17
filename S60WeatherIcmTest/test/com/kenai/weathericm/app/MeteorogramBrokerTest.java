@@ -309,11 +309,11 @@ public class MeteorogramBrokerTest {
     }
 
     @Test
-    public void getDownloadTaskNotExisting() {
+    public void getForcedDownloadTaskNotExisting() {
         ForecastDataDownloader t1 =
-                fixture.getDownloadTask(new MeteorogramInfo());
+                fixture.getForcedDownloadTask(new MeteorogramInfo());
         ForecastDataDownloader t2 =
-                fixture.getDownloadTask(new MeteorogramInfo());
+                fixture.getForcedDownloadTask(new MeteorogramInfo());
         assertThat(t1, is(not(nullValue())));
         assertThat(t2, is(not(nullValue())));
         assertThat(t1, not(equalTo(t2)));
@@ -324,10 +324,61 @@ public class MeteorogramBrokerTest {
     }
 
     @Test
-    public void getDownloadTaskExisting() {
+    public void getForcedDownloadTaskExisting() {
         MeteorogramInfo info = new MeteorogramInfo();
-        ForecastDataDownloader t1 = fixture.getDownloadTask(info);
-        ForecastDataDownloader t2 = fixture.getDownloadTask(info);
+        ForecastDataDownloader t1 = fixture.getForcedDownloadTask(info);
+        ForecastDataDownloader t2 = fixture.getForcedDownloadTask(info);
+        assertThat(t1, is(not(nullValue())));
+        assertThat(t2, is(not(nullValue())));
+        assertThat(t1, equalTo(t2));
+        Vector listeners = t1.getListeners();
+        assertThat(listeners.contains(fixture), is(true));
+    }
+    
+    @Test
+    public void getCheckedDownloadTaskNotExisting() {
+        ForecastDataDownloader t1 =
+                fixture.getCheckedDownloadTask(new MeteorogramInfo());
+        ForecastDataDownloader t2 =
+                fixture.getCheckedDownloadTask(new MeteorogramInfo());
+        assertThat(t1, is(not(nullValue())));
+        assertThat(t2, is(not(nullValue())));
+        assertThat(t1, not(equalTo(t2)));
+        Vector listeners = t1.getListeners();
+        assertThat(listeners.contains(fixture), is(true));
+        listeners = t2.getListeners();
+        assertThat(listeners.contains(fixture), is(true));
+    }
+
+    @Test
+    public void getCheckedDownloadTaskExisting() {
+        MeteorogramInfo info = new MeteorogramInfo();
+        ForecastDataDownloader t1 = fixture.getCheckedDownloadTask(info);
+        ForecastDataDownloader t2 = fixture.getCheckedDownloadTask(info);
+        assertThat(t1, is(not(nullValue())));
+        assertThat(t2, is(not(nullValue())));
+        assertThat(t1, equalTo(t2));
+        Vector listeners = t1.getListeners();
+        assertThat(listeners.contains(fixture), is(true));
+    }
+
+    @Test
+    public void getCheckedForcedDownloadTaskExisting() {
+        MeteorogramInfo info = new MeteorogramInfo();
+        ForecastDataDownloader t1 = fixture.getCheckedDownloadTask(info);
+        ForecastDataDownloader t2 = fixture.getForcedDownloadTask(info);
+        assertThat(t1, is(not(nullValue())));
+        assertThat(t2, is(not(nullValue())));
+        assertThat(t1, equalTo(t2));
+        Vector listeners = t1.getListeners();
+        assertThat(listeners.contains(fixture), is(true));
+    }
+
+    @Test
+    public void getForcedCheckedDownloadTaskExisting() {
+        MeteorogramInfo info = new MeteorogramInfo();
+        ForecastDataDownloader t1 = fixture.getForcedDownloadTask(info);
+        ForecastDataDownloader t2 = fixture.getCheckedDownloadTask(info);
         assertThat(t1, is(not(nullValue())));
         assertThat(t2, is(not(nullValue())));
         assertThat(t1, equalTo(t2));

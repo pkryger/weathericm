@@ -58,10 +58,11 @@ public class ForecastDataDownloaderFactory {
 
     /**
      * Gets the new instance of {@link ForecastDataDownloader} with propery configured
-     * {@link StartDataDownloader} and {@link ModelResultDownloader}.
+     * {@link StartDataDownloader}, {@link ModelResultDownloader} and {@link
+     * ModelDownloadChecker} to perform forced download operation.
      * @return the new {@link ForecastDataDownloader}.
      */
-    public static ForecastDataDownloader getDownloader() {
+    public static ForecastDataDownloader getForcedDownloader() {
         if (properties == null) {
 //#mdebug
             log.info("Instantiating properties");
@@ -79,6 +80,8 @@ public class ForecastDataDownloaderFactory {
                    (StartDateDownloader)Class.forName(implementation).newInstance();
            implementation =
                    properties.getProperty(MODEL_RESULT_DOWNLOADER_KEY);
+           //TODO add keys.
+           //TODO get the implementation of modelchecker and set it up
            ModelResultDownloader modelResultDownloader =
                    (ModelResultDownloader)Class.forName(implementation).newInstance();
            forecastDataDownloader.setStartDateDownloader(startDateDownloader);
@@ -100,5 +103,15 @@ public class ForecastDataDownloaderFactory {
             forecastDataDownloader = null;
         }
         return forecastDataDownloader;
+    }
+
+    /**
+     * Gets the new instance of {@link ForecastDataDownloader} with propery configured
+     * {@link StartDataDownloader}, {@link ModelResultDownloader} and {@link
+     * ModelDownloadChecker} to perform forced download operation.
+     * @return the new {@link ForecastDataDownloader}.
+     */
+    public static ForecastDataDownloader getCheckedDownloader() {
+        return null;
     }
 }

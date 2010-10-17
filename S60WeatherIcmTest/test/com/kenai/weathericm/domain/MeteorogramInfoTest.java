@@ -17,7 +17,7 @@
  */
 package com.kenai.weathericm.domain;
 
-import com.kenai.weathericm.util.ComparableForecastData;
+import com.kenai.weathericm.app.ComparableForecastData;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;

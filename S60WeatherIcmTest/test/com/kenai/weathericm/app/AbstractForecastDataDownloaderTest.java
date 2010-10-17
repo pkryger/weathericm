@@ -18,6 +18,7 @@
 package com.kenai.weathericm.app;
 
 import com.kenai.weathericm.domain.Availability;
+import com.kenai.weathericm.domain.ForecastData;
 import java.util.TimeZone;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
@@ -188,7 +189,47 @@ public class AbstractForecastDataDownloaderTest {
     }
 
     @Test
-    public void run() {
+    public void runModelDownloadNeeded() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        String year = Integer.toString(calendar.get(Calendar.YEAR));
+        int nMonth = calendar.get(Calendar.MONTH) + 1;
+        String month = nMonth > 9 ? Integer.toString(nMonth) : "0" + Integer.toString(nMonth);
+        int nDay = calendar.get(Calendar.DAY_OF_MONTH);
+        String day = nDay > 9 ? Integer.toString(nDay) : "0" + Integer.toString(nDay);
+        int nHour = calendar.get(Calendar.HOUR_OF_DAY);
+        String hour = nHour > 9 ? Integer.toString(nHour) : "0" + Integer.toString(nHour);
+        Date startDate = calendar.getTime();
+        Properties umProperties = PropertiesRepository.getProperties("/UM.properties");
+        String startDateData =
+                umProperties.getProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY) + year
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY) + month
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_DAY_KEY) + day
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY) + hour;
+        startDateDownloader.startDate = startDateData;
+        byte[] modelResult = new byte[]{1, 2, 3,};
+        modelResultDownloader.modelResult = modelResult;
+        fixture.setModelResultDownloadChecker(new ModelDownloadChecker() {
+
+            @Override
+            public boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData) {
+                return true;
+            }
+        });
+        fixture.addListener(listener);
+        fixture.run();
+        assertThat(listener.status, equalTo(Status.FINISHED));
+        assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
+        assertThat(info.dataAvailability(), is(not(Availability.NOT_AVAILABLE)));
+        assertThat(info.getForecastData().getModelStart(), equalTo(startDate));
+        assertThat(info.getForecastData().getModelResult(), equalTo(modelResult));
+    }
+
+    @Test
+    public void runModelDownloadNotNeed() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -211,13 +252,18 @@ public class AbstractForecastDataDownloaderTest {
         byte[] modelResult = new byte[]{1, 2, 3,};
         modelResultDownloader.modelResult = modelResult;
         fixture.addListener(listener);
+        fixture.setModelResultDownloadChecker(new ModelDownloadChecker() {
+            @Override
+            public boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData) {
+                return false;
+            }
+        });
         fixture.run();
         assertThat(listener.status, equalTo(Status.FINISHED));
         assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
         assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
-        assertThat(info.dataAvailability(), is(not(Availability.NOT_AVAILABLE)));
-        assertThat(info.getForecastData().getModelStart(), equalTo(startDate));
-        assertThat(info.getForecastData().getModelResult(), equalTo(modelResult));
+        assertThat(info.getForecastData(), is(nullValue()));
+        assertThat(info.getForecastData(), is(nullValue()));
     }
 
     @Test
@@ -467,6 +513,26 @@ public class AbstractForecastDataDownloaderTest {
     @Test(expected = NullPointerException.class)
     public void setModelResultDownloaderNull() {
         fixture.setModelResultDownloader(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void setModelResultDownloadCheckerNull() {
+        fixture.setModelResultDownloadChecker(null);
+    }
+
+    @Test
+    public void setModelResultDownloadChecker() {
+        fixture = new AbstractForecastDataDownloader() {};
+        ModelDownloadChecker checker = new ModelDownloadChecker() {
+
+            @Override
+            public boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        };
+        fixture.setModelResultDownloadChecker(checker);
+        ModelDownloadChecker actual = Whitebox.getInternalState(fixture, "modelDownloadChecker");
+        assertThat(actual, equalTo(checker));
     }
 
     @Test
