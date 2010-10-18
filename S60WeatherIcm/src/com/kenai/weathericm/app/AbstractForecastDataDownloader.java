@@ -101,6 +101,10 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
      */
     private boolean cancelled = false;
     /**
+     * The status of the downloaders.
+     */
+    private Status downloaderStatus = null;
+    /**
      * This one will be used to get the start data for the {@link ForecastData}.
      */
     private StartDateDownloader startDateDownloader;
@@ -272,9 +276,9 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
                 byte[] modelResult = modelResultDownloader.downloadModelResult(imageUrl);
                 modelResultDownloader.removeListener(this);
                 if (modelResult == null) {
-                    //#mdebug
+//#mdebug
                     log.error("Cannot download image data from: " + imageUrl);
-                    //#enddebug
+//#enddebug
                     throw new NullPointerException("Image download failed!");
                 }
                 forecastData.setModelResult(modelResult);
@@ -348,7 +352,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             log.error(this + ": Cannot extract start date from null!");
             log.debug("dataBuffer = " + dataBuffer + ", properties = " + properties);
 //#enddebug
-            throw new NullPointerException("Canot parse nulls!");
+            throw new NullPointerException("Cannot parse nulls!");
         }
         StringBuffer buffer = new StringBuffer(10);
 //#mdebug

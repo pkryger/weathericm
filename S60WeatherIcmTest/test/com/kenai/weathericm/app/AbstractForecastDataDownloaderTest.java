@@ -73,6 +73,7 @@ public class AbstractForecastDataDownloaderTest {
     private final static String MODEL_RESULT_DOWNLOADER = "modelResultDownloader";
     private final static String CHUNK_START = "chunkStart";
     private final static String CHUNK_SIZE = "chunkSize";
+    private final static String DOWNLOADER_STATUS = "downloaderStatus";
 
     @Before
     public void setUp() {
@@ -219,6 +220,7 @@ public class AbstractForecastDataDownloaderTest {
             }
         });
         fixture.addListener(listener);
+        Whitebox.setInternalState(fixture, DOWNLOADER_STATUS, Status.FINISHED);
         fixture.run();
         assertThat(listener.status, equalTo(Status.FINISHED));
         assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
@@ -259,8 +261,81 @@ public class AbstractForecastDataDownloaderTest {
                 return false;
             }
         });
+        Whitebox.setInternalState(fixture, DOWNLOADER_STATUS, Status.FINISHED);
         fixture.run();
         assertThat(listener.status, equalTo(Status.FINISHED));
+        assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
+        assertThat(info.getForecastData(), is(nullValue()));
+        assertThat(info.getForecastData(), is(nullValue()));
+    }
+
+    @Test
+    public void runStartDateDownloadCancelled() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        String year = Integer.toString(calendar.get(Calendar.YEAR));
+        int nMonth = calendar.get(Calendar.MONTH) + 1;
+        String month = nMonth > 9 ? Integer.toString(nMonth) : "0" + Integer.toString(nMonth);
+        int nDay = calendar.get(Calendar.DAY_OF_MONTH);
+        String day = nDay > 9 ? Integer.toString(nDay) : "0" + Integer.toString(nDay);
+        int nHour = calendar.get(Calendar.HOUR_OF_DAY);
+        String hour = nHour > 9 ? Integer.toString(nHour) : "0" + Integer.toString(nHour);
+        Properties umProperties = PropertiesRepository.getProperties("/UM.properties");
+        String startDateData =
+                umProperties.getProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY) + year
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY) + month
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_DAY_KEY) + day
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY) + hour;
+        startDateDownloader.startDate = startDateData;
+        byte[] modelResult = new byte[]{1, 2, 3,};
+        modelResultDownloader.modelResult = modelResult;
+        fixture.addListener(listener);
+        Whitebox.setInternalState(fixture, DOWNLOADER_STATUS, Status.CANCELLED);
+        fixture.run();
+        assertThat(listener.status, equalTo(Status.CANCELLED));
+        assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
+        assertThat(info.getForecastData(), is(nullValue()));
+        assertThat(info.getForecastData(), is(nullValue()));
+    }
+
+    @Test
+    public void runModelResultDownloadCancelled() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        String year = Integer.toString(calendar.get(Calendar.YEAR));
+        int nMonth = calendar.get(Calendar.MONTH) + 1;
+        String month = nMonth > 9 ? Integer.toString(nMonth) : "0" + Integer.toString(nMonth);
+        int nDay = calendar.get(Calendar.DAY_OF_MONTH);
+        String day = nDay > 9 ? Integer.toString(nDay) : "0" + Integer.toString(nDay);
+        int nHour = calendar.get(Calendar.HOUR_OF_DAY);
+        String hour = nHour > 9 ? Integer.toString(nHour) : "0" + Integer.toString(nHour);
+        Date startDate = calendar.getTime();
+        Properties umProperties = PropertiesRepository.getProperties("/UM.properties");
+        String startDateData =
+                umProperties.getProperty(AbstractForecastDataDownloader.PARSE_YEAR_KEY) + year
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_MONTH_KEY) + month
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_DAY_KEY) + day
+                + umProperties.getProperty(AbstractForecastDataDownloader.PARSE_HOUR_KEY) + hour;
+        startDateDownloader.startDate = startDateData;
+        byte[] modelResult = new byte[]{1, 2, 3,};
+        modelResultDownloader.modelResult = modelResult;
+        fixture.addListener(listener);
+        fixture.setModelResultDownloadChecker(new ModelDownloadChecker() {
+
+            @Override
+            public boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData) {
+                return true;
+            }
+        });
+        Whitebox.setInternalState(fixture, DOWNLOADER_STATUS, Status.CANCELLED);
+        fixture.run();
+        assertThat(listener.status, equalTo(Status.CANCELLED));
         assertThat(modelResultDownloader.getListeners().contains(fixture), is(false));
         assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
         assertThat(info.getForecastData(), is(nullValue()));
@@ -577,6 +652,24 @@ public class AbstractForecastDataDownloaderTest {
         startDateDownloader.addListener(fixture);
         fixture.addListener(listener);
         fixture.statusUpdate(startDateDownloader, Status.FINISHED);
+        Status downloaderStatus = Whitebox.getInternalState(fixture, DOWNLOADER_STATUS);
+        assertThat(downloaderStatus, equalTo(Status.FINISHED));
+        assertThat(listener.status.getProgress(), equalTo(total));
+        assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
+    }
+
+    @Test
+    public void updateStatusCancelled() {
+        int start = 1;
+        int size = 8;
+        int total = start + size;
+        Whitebox.setInternalState(fixture, CHUNK_START, start);
+        Whitebox.setInternalState(fixture, CHUNK_SIZE, size);
+        startDateDownloader.addListener(fixture);
+        fixture.addListener(listener);
+        fixture.statusUpdate(startDateDownloader, Status.CANCELLED);
+        Status downloaderStatus = Whitebox.getInternalState(fixture, DOWNLOADER_STATUS);
+        assertThat(downloaderStatus, equalTo(Status.CANCELLED));
         assertThat(listener.status.getProgress(), equalTo(total));
         assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
     }
@@ -590,6 +683,8 @@ public class AbstractForecastDataDownloaderTest {
         startDateDownloader.addListener(fixture);
         fixture.addListener(listener);
         fixture.statusUpdate(startDateDownloader, Status.STARTED);
+        Status downloaderStatus = Whitebox.getInternalState(fixture, DOWNLOADER_STATUS);
+        assertThat(downloaderStatus, equalTo(Status.STARTED));
         assertThat(listener.status.getProgress(), equalTo(start));
         assertThat(startDateDownloader.getListeners().contains(fixture), is(true));
     }

@@ -108,6 +108,16 @@ public class ConnectorStartDateDownloader extends AbstractStatusReporter impleme
             log.warn(this + " has an exception!", ex);
 //#enddebug
             fireStatusUpdate(Status.CANCELLED);
+        } catch (IllegalArgumentException ex) {
+//#mdebug
+            log.warn(this + " has an exception!", ex);
+//#enddebug
+            fireStatusUpdate(Status.CANCELLED);
+        } catch (SecurityException ex) {
+//#mdebug
+            log.warn(this + " has an exception!", ex);
+//#enddebug
+            fireStatusUpdate(Status.CANCELLED);
         } finally {
             if (dis != null) {
                 try {
