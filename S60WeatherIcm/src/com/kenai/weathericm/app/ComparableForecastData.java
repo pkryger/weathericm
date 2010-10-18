@@ -43,9 +43,10 @@ public class ComparableForecastData extends ForecastData {
     private ForecastData decorated;
     /**
      * The offset used to calculate {@value #isNewerThan()} and {@value #isOlderThan()}.
-     * The default is 7h.
+     * The default is 6h (default interval when model is run) + 3h (additional offset for
+     * meteo.pl).
      */
-    private static long offset = 7 * 3600 * 1000;
+    private static long offset = 9 * 3600 * 1000;
 
     /**
      * Creates a new instance that decorates {@code other}.

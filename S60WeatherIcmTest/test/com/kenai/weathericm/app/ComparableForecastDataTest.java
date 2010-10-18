@@ -109,7 +109,7 @@ public class ComparableForecastDataTest {
 
     @Test
     public void getSetOffset() {
-        long defaultOffset = 7 * 3600 * 1000;
+        long defaultOffset = 9 * 3600 * 1000;
         long actual = ComparableForecastData.getOffset();
         assertThat(actual, equalTo(defaultOffset));
         long expected = 3;
