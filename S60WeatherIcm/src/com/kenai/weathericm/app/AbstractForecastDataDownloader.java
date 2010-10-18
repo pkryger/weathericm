@@ -257,6 +257,10 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             startDateDownloader.addListener(this);
             String dateBuffer = startDateDownloader.downloadStartDate(startUrl);
             startDateDownloader.removeListener(this);
+            if (Status.CANCELLED.equals(downloaderStatus)) {
+                throw new InterruptedException();
+            }
+            downloaderStatus = null;
 //#mdebug
             log.info(this + ": Parsing received start data...");
 //#enddebug
@@ -275,6 +279,10 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
                 modelResultDownloader.addListener(this);
                 byte[] modelResult = modelResultDownloader.downloadModelResult(imageUrl);
                 modelResultDownloader.removeListener(this);
+                if (Status.CANCELLED.equals(downloaderStatus)) {
+                    throw new InterruptedException();
+                }
+                downloaderStatus = null;
                 if (modelResult == null) {
 //#mdebug
                     log.error("Cannot download image data from: " + imageUrl);
@@ -586,5 +594,6 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
         if (status.equals(Status.CANCELLED) || status.equals(Status.FINISHED)) {
             source.removeListener(this);
         }
+        downloaderStatus = status;
     }
 }
