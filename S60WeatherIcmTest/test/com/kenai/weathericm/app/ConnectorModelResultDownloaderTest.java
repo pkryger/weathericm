@@ -28,6 +28,7 @@ import javax.microedition.io.HttpConnection;
 import com.kenai.weathericm.util.Status;
 import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.StatusReporter;
+import javax.microedition.io.ConnectionNotFoundException;
 import net.sf.microlog.core.config.PropertyConfigurator;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -46,7 +47,7 @@ import static org.powermock.api.easymock.PowerMock.verifyAll;
  * @author Przemek Kryger
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ConnectorStartDateDownloader.class, Connector.class})
+@PrepareForTest({Connector.class})
 @SuppressStaticInitializationFor("javax.microedition.io.Connector")
 public class ConnectorModelResultDownloaderTest {
 
@@ -67,17 +68,36 @@ public class ConnectorModelResultDownloaderTest {
         mockStatic(Connector.class);
     }
 
-    @Test
-    public void downloadStartDateOpenConnectionExeption() throws Exception {
+    private void downloadModelResultOpenFailure(Exception failure) throws Exception {
         String url = "myUrl";
-        expect(Connector.open(url)).andThrow(new IOException());
+        expect(Connector.open(url)).andThrow(failure);
         replayAll();
         fixture.downloadModelResult(url);
         verifyAll();
     }
 
     @Test
-    public void downloadStartDateConnectionExeption() throws Exception {
+    public void downloadModelResultOpenConnectionNotFoundException() throws Exception {
+        downloadModelResultOpenFailure(new ConnectionNotFoundException());
+    }
+
+    @Test
+    public void downloadModelResultOpenIllegalArgumentException() throws Exception {
+        downloadModelResultOpenFailure(new IllegalArgumentException());
+    }
+
+    @Test
+    public void downloadModelResultOpenIOException() throws Exception {
+        downloadModelResultOpenFailure(new IOException());
+    }
+
+    @Test
+    public void downloadModelResultOpenSecurityException() throws Exception {
+        downloadModelResultOpenFailure(new SecurityException());
+    }
+
+    @Test
+    public void downloadModelResultConnectionExeption() throws Exception {
         String url = "myUrl";
         expect(Connector.open(url)).andReturn(connectionMock);
         expect(connectionMock.openDataInputStream()).andThrow(new IOException());
@@ -88,7 +108,7 @@ public class ConnectorModelResultDownloaderTest {
     }
 
     @Test
-    public void downloadStartDateStreamException() throws Exception {
+    public void downloadModelResultStreamException() throws Exception {
         DataInputStream disMock = createMock(DataInputStream.class);
         String url = "myUrl";
         expect(Connector.open(url)).andReturn(connectionMock);
@@ -103,7 +123,7 @@ public class ConnectorModelResultDownloaderTest {
     }
 
     @Test
-    public void downloadStartDate() throws Exception {
+    public void downloadModelResult() throws Exception {
         byte[] data = {1, 2, 3};
         DataInputStream disMock = createMock(DataInputStream.class);
         String url = "myUrl";

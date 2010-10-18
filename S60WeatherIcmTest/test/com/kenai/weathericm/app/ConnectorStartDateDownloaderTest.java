@@ -22,6 +22,7 @@ import com.kenai.weathericm.util.StatusListener;
 import com.kenai.weathericm.util.StatusReporter;
 import java.io.DataInputStream;
 import java.io.IOException;
+import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import net.sf.microlog.core.config.PropertyConfigurator;
@@ -47,7 +48,7 @@ import static org.powermock.api.easymock.PowerMock.verifyAll;
  * @author Przemek Kryger
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ConnectorStartDateDownloader.class, Connector.class})
+@PrepareForTest({Connector.class})
 @SuppressStaticInitializationFor("javax.microedition.io.Connector")
 public class ConnectorStartDateDownloaderTest {
 
@@ -68,13 +69,32 @@ public class ConnectorStartDateDownloaderTest {
         mockStatic(Connector.class);
     }
 
-    @Test
-    public void downloadStartDateOpenConnectionExeption() throws Exception {
+    private void downloadStartDateOpenFailure(Exception failure) throws Exception {
         String url = "myUrl";
-        expect(Connector.open(url)).andThrow(new IOException());
+        expect(Connector.open(url)).andThrow(failure);
         replayAll();
         fixture.downloadStartDate(url);
         verifyAll();
+    }
+
+    @Test
+    public void downloadStartDateOpenConnectionNotFoundException() throws Exception {
+        downloadStartDateOpenFailure(new ConnectionNotFoundException());
+    }
+
+    @Test
+    public void downloadStartDateOpenIllegalArgumentException() throws Exception {
+        downloadStartDateOpenFailure(new IllegalArgumentException());
+    }
+
+    @Test
+    public void downloadStartDateOpenIOException() throws Exception {
+        downloadStartDateOpenFailure(new IOException());
+    }
+
+    @Test
+    public void downloadStartDateOpenSecurityException() throws Exception {
+        downloadStartDateOpenFailure(new SecurityException());
     }
 
     @Test
