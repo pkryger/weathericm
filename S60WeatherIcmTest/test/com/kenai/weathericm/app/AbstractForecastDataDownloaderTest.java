@@ -168,7 +168,7 @@ public class AbstractForecastDataDownloaderTest {
         verifyAll();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void runStartDateDownloadFailed() {
         fixture.addListener(listener);
         fixture.run();
@@ -176,7 +176,7 @@ public class AbstractForecastDataDownloaderTest {
         assertThat(startDateDownloader.getListeners().contains(fixture), is(false));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void runModelResultDownloadFailed() {
         String day = "12";
         String month = "13";
@@ -212,6 +212,7 @@ public class AbstractForecastDataDownloaderTest {
         startDateDownloader.startDate = startDateData;
         byte[] modelResult = new byte[]{1, 2, 3,};
         modelResultDownloader.modelResult = modelResult;
+        modelResultDownloader.status = Status.FINISHED;
         fixture.setModelResultDownloadChecker(new ModelDownloadChecker() {
 
             @Override
@@ -717,10 +718,14 @@ public class AbstractForecastDataDownloaderTest {
         public boolean cancelSuccess = true;
         public boolean cancelled = false;
         public String url = null;
+        public Status status = null;
 
         @Override
         public byte[] downloadModelResult(String url) {
             this.url = url;
+            if (status != null) {
+                fireStatusUpdate(status);
+            }
             return modelResult;
         }
 
