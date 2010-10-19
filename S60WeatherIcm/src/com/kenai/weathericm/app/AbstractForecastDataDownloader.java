@@ -257,7 +257,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
             startDateDownloader.addListener(this);
             String dateBuffer = startDateDownloader.downloadStartDate(startUrl);
             startDateDownloader.removeListener(this);
-            if (Status.CANCELLED.equals(downloaderStatus)) {
+            if (!Status.FINISHED.equals(downloaderStatus)) {
                 throw new InterruptedException();
             }
             downloaderStatus = null;
@@ -279,7 +279,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
                 modelResultDownloader.addListener(this);
                 byte[] modelResult = modelResultDownloader.downloadModelResult(imageUrl);
                 modelResultDownloader.removeListener(this);
-                if (Status.CANCELLED.equals(downloaderStatus)) {
+                if (!Status.FINISHED.equals(downloaderStatus)) {
                     throw new InterruptedException();
                 }
                 downloaderStatus = null;
