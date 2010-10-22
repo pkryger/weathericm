@@ -25,7 +25,7 @@ import net.sf.microlog.core.LoggerFactory;
 //#enddebug
 
 /**
- * This is a type definition for meteorogram. It works similar to enum.
+ * This is a type definition for meteorogram. It works similar to enumeration.
  * @author Przemek Kryger
  */
 public class MeteorogramType {
@@ -40,7 +40,7 @@ public class MeteorogramType {
     public final static MeteorogramType COAMPS = new MeteorogramType(1, "COAMPS");
 //#mdebug
     /**
-     * Thle logger for the class
+     * The logger for the class
      */
     private final static Logger log = LoggerFactory.getLogger(MeteorogramType.class);
 //#enddebug

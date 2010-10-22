@@ -31,7 +31,7 @@ import com.kenai.weathericm.domain.MeteorogramInfo;
 import com.kenai.weathericm.domain.MeteorogramType;
 
 /**
- * This is an implementation of {@link MeteorogramInfoSerializer} that is compatibile to
+ * This is an implementation of {@link MeteorogramInfoSerializer} that is compatible to
  * {@link RecordStore}
  * @author Przemek Kryger
  */
@@ -39,7 +39,7 @@ public class MeteorogramInfoRecordStoreSerializer implements MeteorogramInfoSeri
 
 //#mdebug
     /**
-     * The calss logger.
+     * The class logger.
      */
     private final static Logger log = LoggerFactory.getLogger(MeteorogramInfoRecordStoreSerializer.class);
 //#enddebug
@@ -70,8 +70,8 @@ public class MeteorogramInfoRecordStoreSerializer implements MeteorogramInfoSeri
     }
 
     /**
-     * Deserializes given {@code infoBytes} and {@code id} to {@link MeteorogramInfo}.
-     * It uses {@link DataInputStream} to deccode {@link MeteorogramInfo}
+     * Resurects given {@code infoBytes} and {@code id} to {@link MeteorogramInfo}.
+     * It uses {@link DataInputStream} to decode {@link MeteorogramInfo}
      * from {@code byte[]}s array.
      * @param id the {@code int} to set as {@link MeteorogramInfo} id.
      * @param infoBytes the {@code byte[]} to be deserialized

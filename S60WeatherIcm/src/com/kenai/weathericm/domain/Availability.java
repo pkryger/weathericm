@@ -18,7 +18,7 @@
 package com.kenai.weathericm.domain;
 
 /**
- * This is a simple enumertion for {@link MeteorogramInfo} to easy report it's
+ * This is a simple enumeration for {@link MeteorogramInfo} to easy report it's
  * {@link ForecastData} availability.
  * @author Przemek Kryger
  */
@@ -41,7 +41,7 @@ public class Availability {
         this.value = value;
     }
     /**
-     * This availability diplay string used to present it by {@value #toString()}
+     * This availability display string used to present it by {@value #toString()}
      */
     private String displayString;
 

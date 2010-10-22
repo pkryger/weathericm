@@ -22,7 +22,7 @@ import com.kenai.weathericm.domain.MeteorogramInfo;
 
 /**
  * This is a contract for CRUD operations for {@link MeteorogramInfo} objects 
- * in store. In addition implemenations needs to implement two convenience
+ * in store. In addition implementations needs to implement two convenience
  * methods for reading all elements in store and for 'persists' given
  * {@link MeteorogramInfo} regardless it exists or not in store. Implementations
  * will relay on the {@link MeteorogramInfoSerializer} for transforming
@@ -33,7 +33,7 @@ import com.kenai.weathericm.domain.MeteorogramInfo;
 public interface MeteorogramInfoDao {
 
     /**
-     * Creates given {@code info} in store. If something wen't wrong the {@code info}
+     * Creates given {@code info} in store. If something went wrong the {@code info}
      * is tainted.
      * @param info the {@link MeteorogramInfo} to be created in store.
      */
@@ -54,7 +54,7 @@ public interface MeteorogramInfoDao {
 
     /**
      * Convenience method to persists {@code info} in store. It creates an entry
-     * if one dosn't exist in store or update it if it already exists in store.
+     * if one doesn't exist in store or update it if it already exists in store.
      * @param info the {@link MeteorogramInfo} to be persisted.
      */
     void createOrUpdate(MeteorogramInfo info);

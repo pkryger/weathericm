@@ -41,12 +41,12 @@ public class Status {
     public final static Status STARTED = new Status();
     /**
      * Predefined status to be sent when {@link ForecastDownloadCancellableTask}
-     * has been cancelled.
+     * has been canceled.
      */
     public final static Status CANCELLED = new Status();
     /**
      * Predefined status to be sent when {@link ForecastDownloadCancellableTask}
-     * heas finished.
+     * has finished.
      */
     public final static Status FINISHED = new Status();
 

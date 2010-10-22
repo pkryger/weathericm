@@ -25,7 +25,7 @@ import net.sf.microlog.core.LoggerFactory;
 //#enddebug
 
 /**
- * This is a decorator for {@link ForecastData} that adds posibility to comare
+ * This is a decorator for {@link ForecastData} that adds possibility to compare
  * {@link ForecastData} instances.
  * @author Przemek Kryger
  */
@@ -44,7 +44,7 @@ public class ComparableForecastData extends ForecastData {
     /**
      * The offset used to calculate {@value #isNewerThan()} and {@value #isOlderThan()}.
      * The default is 6h (default interval when model is run) + 3h (additional offset for
-     * meteo.pl).
+     * http://meteo.pl to catch up).
      */
     private static long offset = 9 * 3600 * 1000;
 
@@ -60,7 +60,7 @@ public class ComparableForecastData extends ForecastData {
     }
 
     /**
-     * @return the {@link Date} when the model has been staretd.
+     * @return the {@link Date} when the model has been started.
      */
     public Date getModelStart() {
         return decorated.getModelStart();
@@ -110,7 +110,7 @@ public class ComparableForecastData extends ForecastData {
 
     /**
      * Checks if this instance is the same as the {@code other} one.
-     * @param other the {@link ForecastData} to comapre this instance with.
+     * @param other the {@link ForecastData} to compare this instance with.
      * @return {@code true} if the {@code other} and this instance has equal
      *         {@value #getModelStart()} responses, {@code false} otherwise.
      * @throws NullPointerException if the {@code other} is {@code null}.
@@ -127,7 +127,7 @@ public class ComparableForecastData extends ForecastData {
 
     /**
      * Checks if this instance's {@value #getModelResult()} is the same as the {@code other} date.
-     * @param other the {@link Date} to comapre this instance with.
+     * @param other the {@link Date} to compare this instance with.
      * @return {@code true} if the {@code other} is equal to this instance
      *         {@value #getModelStart()} response, {@code false} otherwise.
      * @throws NullPointerException if the {@code other} is {@code null}.
@@ -144,7 +144,7 @@ public class ComparableForecastData extends ForecastData {
 
     /**
      * Checks if this instance is the older than {@code other} one.
-     * @param other the {@link ForecastData} to comapre this instance with.
+     * @param other the {@link ForecastData} to compare this instance with.
      * @return {@code true} if the {@value #getModelStart()} + {@value #offset} is
      *         lower (earlier in time) that the {@value other#getModelStart()},
      *         {@code false} otherwise.
@@ -162,7 +162,7 @@ public class ComparableForecastData extends ForecastData {
 
     /**
      * Checks if this instance is the older than {@code other} date.
-     * @param other the {@link ForecastData} to comapre this instance with.
+     * @param other the {@link ForecastData} to compare this instance with.
      * @return {@code true} if the {@value #getModelStart()} + {@value #offset} is
      *         lower (earlier in time) that the {@code other},
      *         {@code false} otherwise.
@@ -181,7 +181,7 @@ public class ComparableForecastData extends ForecastData {
 
     /**
      * Checks if this instance is the newer than {@code other} one.
-     * @param other the {@link ForecastData} to comapre this instance with.
+     * @param other the {@link ForecastData} to compare this instance with.
      * @return {@code true} if the {@value #getModelStart()} is greater (later in time)
      *         than the {@value other#getModelStart()} + {@value #offset},
      *         {@code false} otherwise.
@@ -199,7 +199,7 @@ public class ComparableForecastData extends ForecastData {
 
     /**
      * Checks if this instance is the newer than {@code other} date.
-     * @param other the {@link ForecastData} to comapre this instance with.
+     * @param other the {@link ForecastData} to compare this instance with.
      * @return {@code true} if the {@value #getModelStart()} is greater (later in time)
      *         than the {@code other} + {@value #offset},
      *         {@code false} otherwise.

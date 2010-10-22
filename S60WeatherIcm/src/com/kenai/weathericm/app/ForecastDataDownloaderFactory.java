@@ -66,7 +66,7 @@ public class ForecastDataDownloaderFactory {
     private static Properties properties = null;
 
     /**
-     * Gets the new instance of {@link ForecastDataDownloader} with propery configured
+     * Gets the new instance of {@link ForecastDataDownloader} with property configured
      * {@link StartDataDownloader}, {@link ModelResultDownloader} and {@link
      * ModelDownloadChecker} to perform forced download operation.
      * @return the new {@link ForecastDataDownloader}.
@@ -118,7 +118,7 @@ public class ForecastDataDownloaderFactory {
     }
 
     /**
-     * Gets the new instance of {@link ForecastDataDownloader} with propery configured
+     * Gets the new instance of {@link ForecastDataDownloader} with property configured
      * {@link StartDataDownloader}, {@link ModelResultDownloader} and {@link
      * ModelDownloadChecker} to perform forced download operation.
      * @return the new {@link ForecastDataDownloader}.
@@ -128,7 +128,7 @@ public class ForecastDataDownloaderFactory {
     }
 
     /**
-     * Gets the new instance of {@link ForecastDataDownloader} with propery configured
+     * Gets the new instance of {@link ForecastDataDownloader} with property configured
      * {@link StartDataDownloader}, {@link ModelResultDownloader} and {@link
      * ModelDownloadChecker} to perform forced download operation.
      * @return the new {@link ForecastDataDownloader}.

@@ -20,7 +20,7 @@ package com.kenai.weathericm.util;
 import java.util.Vector;
 
 /**
- * This is an iterface for the tasks that wish to report their status via
+ * This is an interface for the tasks that wish to report their status via
  * {@link Status} objects.
  * @author Przemek Kryger
  */

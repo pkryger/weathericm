@@ -25,7 +25,8 @@ import net.sf.microlog.core.LoggerFactory;
 //#enddebug
 
 /**
- *
+ * This download checker uses {@link ComparableForecastData} to determine if the
+ * download shall be continued.
  * @author Przemek Kryger
  */
 public class SmartModelDownloadChecker implements ModelDownloadChecker {
@@ -43,7 +44,7 @@ public class SmartModelDownloadChecker implements ModelDownloadChecker {
      * doesn't have the forecast data, then it will return {@code true}.
      * @param info the {@link MeteorogramInfo} to be checked.
      * @param newData the {@link ForecastData} to be checked.
-     * @return {@code true} if download's needed, {@code false} otherwise.
+     * @return {@code true} if download is needed, {@code false} otherwise.
      * @throws NullPointerException in case either {@code info} or {@code newData} is null.
      */
     public boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData) {

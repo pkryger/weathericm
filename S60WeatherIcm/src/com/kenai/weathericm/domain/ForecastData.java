@@ -53,7 +53,7 @@ public class ForecastData {
 
     /**
      * Creates a new instance using a passed in {@link String} to set up
-     * {@value #modelStart}. The {@code yyyymmddhh} shall adhere to the folowing
+     * {@value #modelStart}. The {@code yyyymmddhh} shall adhere to the following
      * rules:
      * <ol>
      * <li> yyyy - a year in four digits format.</li>
@@ -98,7 +98,7 @@ public class ForecastData {
      * Creates a new instance using passed in {@code other} {@link ForecastData}
      * to set up {@value #modelStart).
      * @param other the {@link ForecastData} to take the {@value #modelStart} from
-     *        to init this instance.
+     *        to initialize this instance.
      * @throws NullPointerException if the {@code other} is {@code null} or
      *                              {@value other#modelStart} is {@code null}.
      */
@@ -165,7 +165,7 @@ public class ForecastData {
     }
 
     /**
-     * @return the {@link Date} when the model has been staretd.
+     * @return the {@link Date} when the model has been started.
      */
     public Date getModelStart() {
         return modelStart;

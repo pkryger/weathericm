@@ -21,15 +21,15 @@ import java.util.Vector;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 
 /**
- * Contract for listenening for {@link MeteorogramBroker} events.
+ * Contract for listening for {@link MeteorogramBroker} events.
  * @author Przemek Kryger
  */
 public interface MeteorogramBrokerListener {
 
     /**
-     * Event fired whenever all the infos has been read from DAO.
+     * Event fired whenever all the info has been read from DAO.
      * @param newMeteorogramInfos the {@link Vector} that contains all the read
-     *                            {@link MeteorogramInfo}s
+     *                            {@link MeteorogramInfo}
      */
     void readMeteorogramInfo(Vector newMeteorogramInfos);
 

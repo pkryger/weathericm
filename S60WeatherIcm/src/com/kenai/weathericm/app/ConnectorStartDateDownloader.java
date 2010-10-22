@@ -42,13 +42,13 @@ public class ConnectorStartDateDownloader extends AbstractStatusReporter impleme
     private final static Logger log = LoggerFactory.getLogger(ConnectorStartDateDownloader.class);
 //#enddebug
     /**
-     * Indicates if the downlad shall be cancelled.
+     * Indicates if the download shall be canceled.
      */
     private boolean cancelled = false;
 
     /**
-     * Downloads the data from the gived {@code url}.
-     * @param url the {@link String} with url to download data from.
+     * Downloads the data from the given {@code url}.
+     * @param url the {@link String} with URL to download data from.
      * @return the downloaded data
      */
     public String downloadStartDate(String url) {
@@ -142,8 +142,8 @@ public class ConnectorStartDateDownloader extends AbstractStatusReporter impleme
     }
 
     /**
-     * Aborts the download opertaion.
-     * @return {@code true} if cancelled succed, {@code false} otherwise.
+     * Aborts the download operation.
+     * @return {@code true} if canceled succeed, {@code false} otherwise.
      */
     public synchronized boolean cancel() {
         cancelled = true;

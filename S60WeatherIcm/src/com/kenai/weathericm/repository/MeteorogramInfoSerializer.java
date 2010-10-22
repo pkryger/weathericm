@@ -36,7 +36,7 @@ public interface MeteorogramInfoSerializer {
     byte[] serialize(MeteorogramInfo info);
 
     /**
-     * Deserializes given {@code infoBytes} and {@code id} to {@link MeteorogramInfo}.
+     * resurects given {@code infoBytes} and {@code id} to {@link MeteorogramInfo}.
      * This shall be reverse operation to
      * {@value #serialize(weathericm.domain.MeteorogramInfo)}
      * @param id the {@code int} to set as {@link MeteorogramInfo} id.

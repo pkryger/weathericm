@@ -24,7 +24,7 @@ import java.util.Stack;
 
 /**
  * This code has been copied from Microlog package and adjusted to satisfy
- * this projct needs. This causes this file has a different license than the
+ * this project needs. This causes this file has a different license than the
  * rest of the project, and little bit different formatting.
  *
  * The <code>Properties</code> class is used for storing application properties.
@@ -55,7 +55,7 @@ public class Properties extends Hashtable {
     }
 
     /**
-     * Expand a string that can contain referencies to other properties.
+     * Expand a string that can contain references to other properties.
      * Expansions can be nested, but property names can not be built up
      * of expansions.
      *

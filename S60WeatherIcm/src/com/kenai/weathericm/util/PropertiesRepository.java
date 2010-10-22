@@ -56,8 +56,8 @@ public class PropertiesRepository {
     }
 
     /**
-     * Obtains {@link Properties} instance for a given {@code fileName}. Note, thet
-     * the instance will be cached, hence succesive invocations will return the same
+     * Obtains {@link Properties} instance for a given {@code fileName}. Note, that
+     * the instance will be cached, hence successive invocations will return the same
      * object.
      * @param fileName the {@link String} to the resource that represents properties.
      * @return the {@link Properties} read from {@code fileName}.

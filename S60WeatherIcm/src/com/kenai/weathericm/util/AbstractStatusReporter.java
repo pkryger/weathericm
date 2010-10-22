@@ -37,7 +37,7 @@ public abstract class AbstractStatusReporter implements StatusReporter {
     private final static Logger log = LoggerFactory.getLogger(AbstractStatusReporter.class);
 //#enddebug
     /**
-     * All the registerd {@link StatusListener}s instances.
+     * All the registered {@link StatusListener}s instances.
      */
     private final Vector listeners = new Vector();
 

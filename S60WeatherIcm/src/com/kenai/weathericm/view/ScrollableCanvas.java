@@ -27,9 +27,8 @@ import net.sf.microlog.core.LoggerFactory;
 
 /**
  * This class is responsible for displaying the given image and allows for
- * srolling ig both horizontaly and verticaly.
- * The code bases on the one by Alessandro La Rosa as can be found on
- * {@
+ * scrolling in both horizontally and vertically.
+ * The code bases on the one by Alessandro La Rosa.
  * @author Przemek Kryger
  */
 public class ScrollableCanvas extends Canvas {
@@ -61,11 +60,11 @@ public class ScrollableCanvas extends Canvas {
      */
     private int translationY = 0;
     /**
-     * The x coordinate where the touch bagun.
+     * The x coordinate where the touch begun.
      */
     private int lastPointerX = -1;
     /**
-     * The y coordinate where the touch bagun.
+     * The y coordinate where the touch begun.
      */
     private int lastPointerY = -1;
     /**
@@ -73,7 +72,7 @@ public class ScrollableCanvas extends Canvas {
      */
     private int scrollSpeed = 1;
     /**
-     * Shall the horizontal scrollabr be shown?
+     * Shall the horizontal scrollbar be shown?
      */
     private boolean isHorizontalScrollbar = false;
     /**
@@ -101,13 +100,13 @@ public class ScrollableCanvas extends Canvas {
      */
     private int backgroundColor = 0x828282;
     /**
-     * The scrollbats' bar color.
+     * The scrollbars' bar color.
      */
     private int barColor = 0xf5f5f5;
 
     /**
      * Paints the attached image. Uses the {@value #translationX}
-     * and {@value #translationY} to correctly drow the attached image.
+     * and {@value #translationY} to correctly draw the attached image.
      * When the {@value #image} is {@code null} blank screen is drawn.
      */
     public void paint(Graphics g) {
@@ -319,8 +318,8 @@ public class ScrollableCanvas extends Canvas {
 
     /**
      * Scrolls the image by the given {@code deltaX} and {@code deltaY}
-     * @param deltaX how many pixels scroll image horizontaly.
-     * @param deltaY how many pixels scroll image vertiacaly.
+     * @param deltaX how many pixels scroll image horizontally.
+     * @param deltaY how many pixels scroll image vertiacally.
      */
     protected void scrollImage(int deltaX, int deltaY) {
         if (image != null) {
@@ -357,7 +356,7 @@ public class ScrollableCanvas extends Canvas {
     }
 
     /**
-     * Gets the amount of pixels the image shall be scrolled on a sinlge click.
+     * Gets the amount of pixels the image shall be scrolled on a singlge click.
      * @return the scrollSpeed
      */
     public int getScrollSpeed() {
@@ -365,7 +364,7 @@ public class ScrollableCanvas extends Canvas {
     }
 
     /**
-     * Gets the amount of pixels the image shall be scrolled on a sinlge click.
+     * Gets the amount of pixels the image shall be scrolled on a singlge click.
      * @param scrollSpeed the scrollSpeed to set
      */
     public void setScrollSpeed(int scrollSpeed) {

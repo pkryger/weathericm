@@ -18,7 +18,6 @@
 package com.kenai.weathericm.repository;
 
 import com.kenai.weathericm.domain.ForecastData;
-import com.symbian.util.Array;
 import java.util.Vector;
 import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
@@ -43,11 +42,11 @@ public class ForecastDataRecordStoreDao implements ForecastDataDao {
     private final static Logger log = LoggerFactory.getLogger(ForecastDataRecordStoreDao.class);
 //#enddebug
     /**
-     * The prefix to be used for all the {@link RecordStore}s managed by this dao.
+     * The prefix to be used for all the {@link RecordStore}s managed by this DAO.
      */
     public static final String STORE_PREFIX = "ForecastData";
     /**
-     * The infix to be used for all the {@link RecordStore}s managed by this dao.
+     * The infix to be used for all the {@link RecordStore}s managed by this DAO.
      */
     public static final String STORE_INFIX = "_";
     /**
@@ -233,7 +232,7 @@ public class ForecastDataRecordStoreDao implements ForecastDataDao {
     }
 
     /**
-     * Conveniance method to read a single record from record store with gieven
+     * Convenience method to read a single record from record store with given
      * {@codestoreName} and put it into a {@codedataVector} as a {@codebyte[]} array.
      * @param storeName the {@link String} with @{link{RecordStore} name to read data from.
      * @param dataVector the {@link Vector} to store the read {@code byte[]} array.
@@ -385,9 +384,9 @@ public class ForecastDataRecordStoreDao implements ForecastDataDao {
     }
 
     /**
-     * Converts given {@code id} to basename of a record store to be used.
-     * @param id the {@link Integer} to be used to create basename.
-     * @return the {@link String} to be used as a store basename.
+     * Converts given {@code id} to base name of a record store to be used.
+     * @param id the {@link Integer} to be used to create base name.
+     * @return the {@link String} to be used as a store base name.
      * @throws NullPointerException if {@code id} is {@code null}.
      */
     protected String convertIdToBaseName(Integer id) {

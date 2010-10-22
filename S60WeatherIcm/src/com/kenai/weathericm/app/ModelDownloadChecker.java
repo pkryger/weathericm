@@ -21,7 +21,7 @@ import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 
 /**
- * This checks the if donwloading a {@link ForecastData} for a given {@link MeteorogramInfo}.
+ * This checks the if downloading a {@link ForecastData} for a given {@link MeteorogramInfo}.
  * @author Przemek Kryger
  */
 public interface ModelDownloadChecker {
@@ -30,7 +30,7 @@ public interface ModelDownloadChecker {
      * ForecastData} for it, based on the {@code newData}.
      * @param info the {@link MeteorogramInfo} to perform the check for.
      * @param newData the {@link ForecastData}
-     * @return {@code true} if downloadin model result is needed, {@code false} otherwise.
+     * @return {@code true} if downloading model result is needed, {@code false} otherwise.
      */
     boolean isDownloadNeeded(MeteorogramInfo info, ForecastData newData);
 }

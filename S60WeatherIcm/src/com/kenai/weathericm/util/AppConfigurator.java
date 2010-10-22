@@ -30,14 +30,14 @@ import com.kenai.weathericm.repository.MeteorogramInfoRecordStoreDao;
 import com.kenai.weathericm.repository.MeteorogramInfoSerializer;
 
 /**
- * This class is resposible for configuring all the application components to
+ * This class is responsible for configuring all the application components to
  * to work together.
  * @author Przemek Kryger
  */
 public class AppConfigurator {
 
     /**
-     * Confiugres all the application components
+     * Configures all the application components
      */
     public static void configure() {
 //#mdebug

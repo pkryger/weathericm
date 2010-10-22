@@ -6,5 +6,13 @@
             <name>S60WeatherIcm</name>
             <minimum-ant-version>1.6</minimum-ant-version>
         </data>
+        <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>dd</word>
+            <word>hh</word>
+            <word>meteorogram</word>
+            <word>weathericm</word>
+            <word>yyyy</word>
+            <word>yyyymmddhh</word>
+        </spellchecker-wordlist>
     </configuration>
 </project>

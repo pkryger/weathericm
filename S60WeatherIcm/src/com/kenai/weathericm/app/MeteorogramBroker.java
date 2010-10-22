@@ -34,8 +34,8 @@ import com.kenai.weathericm.repository.ForecastDataDao;
 import com.kenai.weathericm.repository.MeteorogramInfoDao;
 
 /**
- * This is responsible for the conntrolling the application flow for {@link MeteorogramInfo}
- * persistance, and gathering the meteorogram info data.
+ * This is responsible for the controlling the application flow for {@link MeteorogramInfo}
+ * persistence, and gathering the meteorogram info data.
  * @author Przemek Kryger
  */
 public class MeteorogramBroker implements StatusListener {
@@ -59,7 +59,7 @@ public class MeteorogramBroker implements StatusListener {
      */
     private ForecastDataDao forecastDataDao = null;
     /**
-     * All the registerd {@link MeteorogramBrokerListener}s instances.
+     * All the registered {@link MeteorogramBrokerListener}s instances.
      */
     private final Vector listeners = new Vector();
     /**

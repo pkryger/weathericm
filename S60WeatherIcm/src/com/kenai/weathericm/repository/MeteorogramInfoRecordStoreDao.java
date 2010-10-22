@@ -32,7 +32,7 @@ import net.sf.microlog.core.LoggerFactory;
 //#enddebug
 
 /**
- * This is an implementation of {@link MeteorogramInfoDao} that is compatibile to
+ * This is an implementation of {@link MeteorogramInfoDao} that is compatible to
  * {@link RecordStore}. Since the record store access safety it implements
  * singleton pattern and new instances can be obtained by calling {@value #getInstance()).
  * @author Przemek Kryger
@@ -80,7 +80,7 @@ public class MeteorogramInfoRecordStoreDao implements MeteorogramInfoDao {
     }
 
     /**
-     * Creates given {@code info} in {@link RecordStore}. If something wen't wrong the {@code info}
+     * Creates given {@code info} in {@link RecordStore}. If something went wrong the {@code info}
      * is tainted.
      * @param info the {@link MeteorogramInfo} to be created in store.
      */
@@ -167,7 +167,7 @@ public class MeteorogramInfoRecordStoreDao implements MeteorogramInfoDao {
     }
 
     /**
-     * Updates given {@code info} in {@link RecordStore}. If something wen't wrong the {@code info}
+     * Updates given {@code info} in {@link RecordStore}. If something went wrong the {@code info}
      * is tainted.
      * @param info the {@link MeteorogramInfo} to be updated in store.
      */
@@ -269,7 +269,7 @@ public class MeteorogramInfoRecordStoreDao implements MeteorogramInfoDao {
 
     /**
      * Convenience method to persists {@code info} in {@link RecordStore}. It creates an entry
-     * if one dosn't exist in store or update it if it already exists in store.
+     * if one doesn't exist in store or update it if it already exists in store.
      * @param info the {@link MeteorogramInfo} to be persisted.
      */
     public synchronized void createOrUpdate(MeteorogramInfo info) {

@@ -21,7 +21,7 @@ import com.kenai.weathericm.domain.ForecastData;
 import com.kenai.weathericm.domain.MeteorogramInfo;
 
 /**
- *
+ * This download checker always returns true (i.e. forces download).
  * @author Przemek Kryger
  */
 public class ForcedModelDownloadChecker implements ModelDownloadChecker {

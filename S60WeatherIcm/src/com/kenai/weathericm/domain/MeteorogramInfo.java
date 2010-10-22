@@ -32,11 +32,11 @@ import net.sf.microlog.core.LoggerFactory;
 public class MeteorogramInfo {
 
     /**
-     * The maximum value that can be set ot instance {@value x}.
+     * The maximum value that can be set to instance {@value x}.
      */
     public final static int MAX_X = 430;
     /**
-     * The maximum value that can be set ot instance {@value y}.
+     * The maximum value that can be set to instance {@value y}.
      */
     public final static int MAX_Y = 598;
 //#mdebug
@@ -115,7 +115,7 @@ public class MeteorogramInfo {
      * It checks if {@code name} is not {@code null}.
      * <p>
      * If the {@code name} is different than current {@value #name},
-     * the obejct becomes tainted.
+     * the object becomes tainted.
      * @param name the name to set
      */
     public void setName(String name) {
@@ -142,7 +142,7 @@ public class MeteorogramInfo {
      * {@value #MAX_X}.
      * <p>
      * If the {@code x} is different than current {@value #x},
-     * the obejct becomes tainted.
+     * the object becomes tainted.
      * @param x the x to set
      */
     public void setX(int x) {
@@ -176,7 +176,7 @@ public class MeteorogramInfo {
      * {@value #MAX_Y}.
      * <p>
      * If the {@code y} is different than current {@value #y},
-     * the obejct becomes tainted.
+     * the obeject becomes tainted.
      * @param y the y to set
      */
     public void setY(int y) {
@@ -226,7 +226,7 @@ public class MeteorogramInfo {
 
     /**
      * If the {@code type} is different than current {@value #type},
-     * the obejct becomes tainted.
+     * the object becomes tainted.
      * @param type the type to set
      */
     public void setType(MeteorogramType type) {

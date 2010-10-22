@@ -84,7 +84,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
     private MeteorogramInfo info = null;
     /**
      * Indicates if the progress of this task. When it is set to -1,
-     * this indicate that this thask has been already started and
+     * this indicate that this task has been already started and
      * shall not be started again.
      */
     private int progress = -1;
@@ -97,7 +97,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
      */
     protected Status lastStatus = null;
     /**
-     * Indicates if this task has been cancelled.
+     * Indicates if this task has been canceled.
      */
     private boolean cancelled = false;
     /**
@@ -123,13 +123,13 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
     private int chunkSize;
     /**
      * The progress the {@value #startDateDownloader} or {@value #modelResultDownloader}
-     * has been actuatlly started.
+     * has been actually started.
      */
     private int chunkStart;
 
     /**
-     * Adds a listener and afterwards, if taks is in progress notifies it about
-     * the acutall progress.
+     * Adds a listener and afterwards, if tasks is in progress notifies it about
+     * the actual progress.
      * @param listener
      */
     public void addListener(StatusListener listener) {
@@ -153,7 +153,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
     /**
      * Advises to interrupt the run method and cancel it's task.
      *
-     * @return true if the task was successfully cancelled, false otherwise
+     * @return true if the task was successfully canceled, false otherwise
      */
     public synchronized boolean cancel() {
         if (myThread != null) {
@@ -348,7 +348,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
 
     /**
      * Parses {@code dataBuffer} into format acceptable for {@link ForecastData}
-     * constructor (yyyymmddhh). It uses properties from {@code PARSE}* mambers.
+     * constructor (yyyymmddhh). It uses properties from {@code PARSE}* members.
      * @param dataBuffer the {@link String} to be parsed.
      * @param properties the {@link Properties} to look the parsing constants.
      * @return the {@link String} date to be used for {@link ForecastData}.
@@ -513,7 +513,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
     }
 
     /**
-     * Sets the implemantation of {@link StartDateDownloader} to be used to get
+     * Sets the implementation of {@link StartDateDownloader} to be used to get
      * {@link ForecastData} start date.
      * @param startDateDownloader the instance to be used to get start date.
      * @throws NullPointerException if the {@code startDateDownloader} is {@code null}.
@@ -529,7 +529,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
     }
 
     /**
-     * Sets the implemantation of {@link ModelResultDownloader} to be used to get
+     * Sets the implementation of {@link ModelResultDownloader} to be used to get
      * {@link ForecastData} model result.
      * @param modelResultDownloader  the instance to be used to get start date.
      * @throws NullPointerException if the {@code modelResultDownloader} is {@code null}.
@@ -545,8 +545,8 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
     }
 
     /**
-     * Sets the instance of {@link ModelDownloadChecker} to be used to ddetermine if
-     * downloading model reult is really needed.
+     * Sets the instance of {@link ModelDownloadChecker} to be used to determine if
+     * downloading model result is really needed.
      * @param modelDownloadChecker the {@link ModelDownloadChecker} instance to be used
      *        to check if downloading is needed.
      * @throws NullPointerException if the {@code modelDownloadChecker} is {@code null}.
@@ -568,7 +568,7 @@ public abstract class AbstractForecastDataDownloader extends AbstractStatusRepor
      * @param status
      * @throws NullPointerException if either {@code source} or {@code status}
      *         is null
-     * @throws IllegalArgumentException if source is niether {@value #startDateDownloader}
+     * @throws IllegalArgumentException if source is neither {@value #startDateDownloader}
      *         nor {@value #modelResultDownloader}.
      */
     public void statusUpdate(StatusReporter source, Status status) {

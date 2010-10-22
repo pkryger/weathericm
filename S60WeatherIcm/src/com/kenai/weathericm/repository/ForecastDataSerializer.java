@@ -20,7 +20,7 @@ package com.kenai.weathericm.repository;
 import com.kenai.weathericm.domain.ForecastData;
 
 /**
- * This is a helper interface for {@link ForecastDataDao} thata is resonsible for
+ * This is a helper interface for {@link ForecastDataDao} that is responsible for
  * serializing and resurecting {@link ForecastData} objects.
  * @author Przemek Kryger
  */
@@ -28,7 +28,7 @@ public interface ForecastDataSerializer {
 
     /**
      * Transforms given {@code forecastData} into array of {@code byte}s. The
-     * implementation shall be symetric to the {@value #resurect(byte)}.
+     * implementation shall be reverse to the {@value #resurect(byte)}.
      * @param forecastData the {@link ForecastData} to be serialized. 
      * @return the array of {@code byte}s that represents the data.
      * @see #resurect(data)
@@ -37,7 +37,7 @@ public interface ForecastDataSerializer {
 
     /**
      * Creates the {@link ForecastData} from given array of {@code bytes}. The
-     * implementation shall be symetric to the {@value
+     * implementation shall be reverse to the {@value
      * #serialize(com.kenai.weathericm.domain.ForecastData)}.
      * @param data the {@code byte} array to create {@link ForecastData} from.
      * @return the {@link ForecastData} created form {@code data}s

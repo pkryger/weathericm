@@ -34,7 +34,7 @@ import com.kenai.weathericm.domain.MeteorogramType;
 public class MeteorogramInfoDataValidator {
 
     /**
-     * The maximum lenth for name.
+     * The maximum length for name.
      */
     public final static int MAX_NAME_LENGTH = 30;
     /**

@@ -1321,7 +1321,7 @@ public class ViewController extends MIDlet implements
 
     /**
      * Appends {@code addedMeteorogramInfo} to the end of the {@value #mainList}.
-     * @param addedMeteorogramInfo the {@link MeteorogramInfo} to be addeed.
+     * @param addedMeteorogramInfo the {@link MeteorogramInfo} to be added.
      */
     public void addedMeteorogramInfo(MeteorogramInfo addedMeteorogramInfo) {
         if (addedMeteorogramInfo != null
@@ -1477,7 +1477,7 @@ public class ViewController extends MIDlet implements
 
     /**
      * Removes this instance from the download task and optionally cancels the task.
-     * @param cancelTask wheather the task shall be canceled.
+     * @param cancelTask weather the task shall be canceled.
      */
     private void unregisterAtDownloadTask(boolean cancelTask) {
         ForecastDataDownloader task =

@@ -24,14 +24,14 @@ import com.kenai.weathericm.util.StatusReporter;
 /**
  * This is the interface for task used to download {@link ForecastData} based on
  * a given {@link MeteorogramInfo}.
- * Note: it shall be instantiaded by a {@link ForecastDataDownloaderFactory}.
+ * Note: it shall be instantiated by a {@link ForecastDataDownloaderFactory}.
  * @author Przemek Kryger
  */
 public interface ForecastDataDownloader extends Runnable, StatusReporter {
 
     /**
      * Aborts the download operation.
-     * @return {@code true} if cancelation was successful, {@code false} otherwise.
+     * @return {@code true} if cancel was successful, {@code false} otherwise.
      */
     boolean cancel();
 
@@ -63,7 +63,7 @@ public interface ForecastDataDownloader extends Runnable, StatusReporter {
 
     /**
      * Sets the instance of {@link ModelDownloadChecker} to be used to determine if
-     * downloading model reult is really needed.
+     * downloading model result is really needed.
      * @param modelDownloadChecker the {@link ModelDownloadChecker} instance to be used
      *        to check if downloading is needed.
      */
